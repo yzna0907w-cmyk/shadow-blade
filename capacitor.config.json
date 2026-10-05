@@ -1,0 +1,11 @@
+{
+  "appId": "com.yz.shadowblade",
+  "appName": "Shadow Blade",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": true
+  }
+}

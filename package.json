@@ -1,0 +1,16 @@
+{
+  "name": "shadow-blade",
+  "version": "1.0.0",
+  "description": "Shadow Blade - A Pixel Art Action Platformer",
+  "main": "index.js",
+  "scripts": {
+    "build": "echo build done"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.2.0",
+    "@capacitor/cli": "^6.2.0",
+    "@capacitor/core": "^6.2.0"
+  },
+  "author": "YZ",
+  "license": "MIT"
+}
