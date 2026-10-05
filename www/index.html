@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Shadow Blade</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="game-container">
+  <canvas id="game" width="320" height="180"></canvas>
+
+  <!-- أزرار التحكم -->
+  <div id="controls">
+    <div class="dpad">
+      <button class="ctrl-btn" id="btnLeft"  aria-label="Left">
+        <svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="ctrl-btn" id="btnRight" aria-label="Right">
+        <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+    <div class="actions">
+      <button class="ctrl-btn ctrl-btn--jump" id="btnJump" aria-label="Jump">
+        <svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- HUD -->
+  <div id="hud">
+    <div class="hud-item">
+      <span class="hud-label">HP</span>
+      <div class="hp-bar"><div class="hp-fill" id="hpFill"></div></div>
+    </div>
+  </div>
+</div>
+<div id="loading">Loading...</div>
+<script src="js/sprites.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>
