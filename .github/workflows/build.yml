@@ -48,22 +48,15 @@ jobs:
     - name: Set minSdkVersion
       run: sed -i 's/minSdkVersion = [0-9]*/minSdkVersion = 24/' android/variables.gradle
 
-    - name: Force Landscape Orientation
+    - name: Show Original Manifest
+      run: cat android/app/src/main/AndroidManifest.xml
+
+    - name: Add Landscape Orientation
       run: |
-        python3 -c "
-        import re
-        with open('android/app/src/main/AndroidManifest.xml','r') as f:
-            content = f.read()
-        content = re.sub(
-            r'<activity([^>]*)>',
-            lambda m: '<activity' + m.group(1) + ' android:screenOrientation=\"sensorLandscape\" android:configChanges=\"orientation|screenSize|keyboardHidden\">' if 'screenOrientation' not in m.group(1) else m.group(0),
-            content
-        )
-        with open('android/app/src/main/AndroidManifest.xml','w') as f:
-            f.write(content)
-        print('Orientation set to landscape')
-        "
-        grep -A2 "<activity" android/app/src/main/AndroidManifest.xml
+        # إضافة screenOrientation داخل activity الرئيسي فقط
+        sed -i '0,/<activity/{s/<activity/<activity android:screenOrientation="sensorLandscape" android:configChanges="orientation|screenSize|keyboardHidden"/}' android/app/src/main/AndroidManifest.xml
+        echo "--- After modification ---"
+        cat android/app/src/main/AndroidManifest.xml
 
     - name: Copy Custom Icons
       run: |
