@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="screen-orientation" content="landscape">
+<meta name="x5-orientation" content="landscape">
+<meta name="full-screen" content="yes">
 <title>Shadow Blade</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -10,6 +13,12 @@
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+
+<div id="rotate-warning">
+<div class="rotate-icon">📱</div>
+<div class="rotate-text">أدر جوالك أفقياً</div>
+<div class="rotate-sub">Rotate to landscape</div>
+</div>
 
 <div id="storyScreen" class="story-screen">
 <div class="story-vignette"></div>
@@ -24,6 +33,7 @@
 </div>
 
 <div id="title-screen">
+<div class="title-bg"></div>
 <img src="assets/title_screen.png" alt="" class="title-bg-img" onerror="this.style.display='none'">
 <div class="title-vignette"></div>
 <div class="title-particles" id="titleParticles"></div>
@@ -33,10 +43,22 @@
 <p class="title-sub">THE UMBRAL PATH</p>
 </div>
 <div class="title-menu">
-<button class="menu-btn menu-btn--primary" id="btnNewGame" type="button"><span>⚔ NEW GAME</span></button>
-<button class="menu-btn" id="btnContinue" type="button"><span>▶ CONTINUE</span></button>
-<button class="menu-btn" id="btnSettings" type="button"><span>⚙ SETTINGS</span></button>
-<button class="menu-btn menu-btn--link" id="btnWebsite" type="button"><span>🌐 WEBSITE</span></button>
+<button class="menu-btn menu-btn--primary" id="btnNewGame" type="button">
+<svg viewBox="0 0 24 24" class="menu-icon"><path d="M6 3l12 9L6 21z" fill="currentColor"/></svg>
+<span>NEW GAME</span>
+</button>
+<button class="menu-btn" id="btnContinue" type="button">
+<svg viewBox="0 0 24 24" class="menu-icon"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
+<span>CONTINUE</span>
+</button>
+<button class="menu-btn" id="btnSettings" type="button">
+<svg viewBox="0 0 24 24" class="menu-icon"><path d="M12 8a4 4 0 100 8 4 4 0 000-8zm8.94 4c0 .5-.05 1-.13 1.47l2.02 1.6-2 3.46-2.42-.96c-.75.62-1.6 1.13-2.53 1.47L15.5 22h-4l-.38-2.96c-.93-.34-1.78-.85-2.53-1.47l-2.42.96-2-3.46 2.02-1.6A7.87 7.87 0 004 12c0-.5.05-1 .13-1.47L2.11 8.93l2-3.46 2.42.96c.75-.62 1.6-1.13 2.53-1.47L9.5 2h4l.38 2.96c.93.34 1.78.85 2.53 1.47l2.42-.96 2 3.46-2.02 1.6c.08.47.13.97.13 1.47z" fill="currentColor"/></svg>
+<span>SETTINGS</span>
+</button>
+<button class="menu-btn menu-btn--link" id="btnWebsite" type="button">
+<svg viewBox="0 0 24 24" class="menu-icon"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm7.93 9h-3.42a15.6 15.6 0 00-1.15-5.1A8.02 8.02 0 0119.93 11zM12 4c.83 0 1.94 2.14 2.4 5H9.6C10.06 6.14 11.17 4 12 4zM4.07 11a8.02 8.02 0 014.57-5.1A15.6 15.6 0 007.49 11H4.07zm0 2h3.42c.13 1.85.53 3.6 1.15 5.1A8.02 8.02 0 014.07 13zm5.53 0h4.8c-.46 2.86-1.57 5-2.4 5s-1.94-2.14-2.4-5zm3.42 5.1A15.6 15.6 0 0014.17 13h3.42a8.02 8.02 0 01-4.57 5.1z" fill="currentColor"/></svg>
+<span>WEBSITE</span>
+</button>
 </div>
 </div>
 <div class="title-gold" id="titleGold">💰 0</div>
@@ -59,7 +81,7 @@
 <div style="text-align:center;color:#c4b5fd;line-height:1.8">
 <p style="font-size:1.3rem;color:#e879f9">&lt;/&gt; SHADOW BLADE</p>
 <p>2D Action Platformer</p>
-<p style="color:#fbbf24;font-weight:700">v4.0.0</p>
+<p style="color:#fbbf24;font-weight:700">v5.0.0</p>
 <p style="font-size:0.75rem;color:#7c7c8a">© 2026 YZ</p>
 </div>
 <button class="modal-btn modal-btn--close" id="closeAbout" type="button">CLOSE</button>
@@ -87,9 +109,9 @@
 
 <div id="bossPromptScreen" class="modal-screen">
 <div class="modal-box">
+<div style="text-align:center;font-size:3.5rem;margin:10px 0">👑</div>
 <h2 class="modal-title" id="bossPromptName">⚔ BOSS</h2>
-<div style="text-align:center;color:#c4b5fd;padding:15px 0;font-size:1rem">هل أنت مستعد لمواجهة البوس؟</div>
-<div style="text-align:center;font-size:2.5rem;margin:15px 0">👑</div>
+<div style="text-align:center;color:#c4b5fd;padding:15px 0;font-size:1.1rem">هل أنت مستعد للمواجهة؟</div>
 <button class="modal-btn menu-btn--primary" id="bossAcceptBtn" type="button">⚔ نعم، هيا نواجه!</button>
 <button class="modal-btn modal-btn--close" id="bossDeclineBtn" type="button">⏸ ليس الآن</button>
 </div>
@@ -101,7 +123,7 @@
 <button class="map-close" id="closeMap" type="button">✕</button>
 </div>
 <div class="map-container">
-<img src="assets/world_map.png" alt="World Map" id="worldMapImg" class="world-map-img">
+<img src="assets/world_map.png" alt="" id="worldMapImg" class="world-map-img">
 <div class="map-hotspot" data-target="0" style="left:12%;top:55%;"><div class="hotspot-icon">🪦</div><div class="hotspot-label">CRYPT</div></div>
 <div class="map-hotspot" data-target="1" style="left:38%;top:55%;"><div class="hotspot-icon">🔥</div><div class="hotspot-label">FIRE</div></div>
 <div class="map-hotspot" data-target="2" style="left:62%;top:55%;"><div class="hotspot-icon">❄️</div><div class="hotspot-label">FROZEN</div></div>
@@ -129,16 +151,31 @@
 <div class="hud-item"><span class="hud-label">☠</span><span class="hud-value" id="killCount">0</span></div>
 </div>
 </div>
-<div class="map-btn" id="mapBtn">🗺️</div>
-<div class="pause-btn" id="pauseBtn">II</div>
+<div class="top-btn map-btn" id="mapBtn">
+<svg viewBox="0 0 24 24"><path d="M9 3L3 6v15l6-3 6 3 6-3V3l-6 3-6-3zm0 2.2l4 2v13.6l-4-2V5.2z" fill="currentColor"/></svg>
+</div>
+<div class="top-btn pause-btn" id="pauseBtn">
+<svg viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor"/></svg>
+</div>
+<button class="interact-btn" id="interactBtn" type="button">
+<svg viewBox="0 0 24 24"><path d="M20 2H4a2 2 0 00-2 2v18l4-4h14a2 2 0 002-2V4a2 2 0 00-2-2z" fill="currentColor"/></svg>
+</button>
 <div id="controls">
 <div class="dpad">
-<button class="ctrl-btn" id="btnLeft" type="button">◀</button>
-<button class="ctrl-btn" id="btnRight" type="button">▶</button>
+<button class="ctrl-btn" id="btnLeft" type="button" aria-label="Left">
+<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</button>
+<button class="ctrl-btn" id="btnRight" type="button" aria-label="Right">
+<svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</button>
 </div>
 <div class="actions">
-<button class="ctrl-btn ctrl-btn--attack" id="btnAttack" type="button">⚔</button>
-<button class="ctrl-btn ctrl-btn--jump" id="btnJump" type="button">⬆</button>
+<button class="ctrl-btn ctrl-btn--attack" id="btnAttack" type="button" aria-label="Attack">
+<svg viewBox="0 0 24 24"><path d="M14.5 17.5L3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</button>
+<button class="ctrl-btn ctrl-btn--jump" id="btnJump" type="button" aria-label="Jump">
+<svg viewBox="0 0 24 24"><path d="M12 20V6M6 12l6-6 6 6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</button>
 </div>
 </div>
 </div>
@@ -152,7 +189,6 @@
 </div>
 </div>
 
-<div id="interactHint" class="interact-hint">TAP TO INTERACT</div>
 <div id="loading">LOADING...</div>
 
 <script>

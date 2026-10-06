@@ -59,13 +59,11 @@ jobs:
         if os.path.exists(path):
             with open(path, 'r') as f:
                 content = f.read()
-            content = re.sub(r'versionCode\s+\d+', 'versionCode 400', content)
-            content = re.sub(r'versionName\s+\"[^\"]*\"', 'versionName \"4.0.0\"', content)
+            content = re.sub(r'versionCode\s+\d+', 'versionCode 500', content)
+            content = re.sub(r'versionName\s+\"[^\"]*\"', 'versionName \"5.0.0\"', content)
             with open(path, 'w') as f:
                 f.write(content)
-            print('Version set to 4.0.0 (code 400)')
-        else:
-            print('build.gradle not found')
+            print('Version set to 5.0.0')
         "
 
     - name: Add Landscape Orientation
@@ -99,13 +97,13 @@ jobs:
     - name: Rename APK
       run: |
         mkdir -p output
-        cp android/app/build/outputs/apk/debug/app-debug.apk output/Shadow-Blade-v4.0.0.apk
+        cp android/app/build/outputs/apk/debug/app-debug.apk output/Shadow-Blade-v5.0.0.apk
 
     - name: Create Release
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: v4.0.0-build${{ github.run_number }}
-        name: Shadow Blade v4.0.0 (Build ${{ github.run_number }})
-        files: output/Shadow-Blade-v4.0.0.apk
+        tag_name: v5.0.0-build${{ github.run_number }}
+        name: Shadow Blade v5.0.0 (Build ${{ github.run_number }})
+        files: output/Shadow-Blade-v5.0.0.apk
         draft: false
         prerelease: false
