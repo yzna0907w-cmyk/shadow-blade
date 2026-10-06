@@ -24,7 +24,7 @@
 </div>
 
 <div id="title-screen">
-<img src="assets/title_screen.png" alt="Shadow Blade" class="title-bg-img">
+<img src="assets/title_screen.png" alt="" class="title-bg-img" onerror="this.style.display='none'">
 <div class="title-vignette"></div>
 <div class="title-particles" id="titleParticles"></div>
 <div class="title-content">
@@ -33,10 +33,10 @@
 <p class="title-sub">THE UMBRAL PATH</p>
 </div>
 <div class="title-menu">
-<button class="menu-btn menu-btn--primary" id="btnNewGame"><span>⚔ NEW GAME</span></button>
-<button class="menu-btn" id="btnContinue"><span>▶ CONTINUE</span></button>
-<button class="menu-btn" id="btnSettings"><span>⚙ SETTINGS</span></button>
-<button class="menu-btn menu-btn--link" id="btnWebsite"><span>🌐 WEBSITE</span></button>
+<button class="menu-btn menu-btn--primary" id="btnNewGame" type="button"><span>⚔ NEW GAME</span></button>
+<button class="menu-btn" id="btnContinue" type="button"><span>▶ CONTINUE</span></button>
+<button class="menu-btn" id="btnSettings" type="button"><span>⚙ SETTINGS</span></button>
+<button class="menu-btn menu-btn--link" id="btnWebsite" type="button"><span>🌐 WEBSITE</span></button>
 </div>
 </div>
 <div class="title-gold" id="titleGold">💰 0</div>
@@ -49,7 +49,7 @@
 <div class="setting-row"><span class="setting-label">🎵 Sound Effects</span><input type="range" min="0" max="100" value="70" id="setSFX" class="setting-slider"><span class="setting-value" id="setSFXVal">70%</span></div>
 <div class="setting-row"><span class="setting-label">📳 Vibration</span><label class="toggle"><input type="checkbox" id="setVibration" checked><span></span></label></div>
 <div class="setting-row"><span class="setting-label">✨ Particles</span><label class="toggle"><input type="checkbox" id="setParticles" checked><span></span></label></div>
-<button class="modal-btn modal-btn--close" id="closeSettings">CLOSE</button>
+<button class="modal-btn modal-btn--close" id="closeSettings" type="button">CLOSE</button>
 </div>
 </div>
 
@@ -62,7 +62,7 @@
 <p style="color:#fbbf24;font-weight:700">v4.0.0</p>
 <p style="font-size:0.75rem;color:#7c7c8a">© 2026 YZ</p>
 </div>
-<button class="modal-btn modal-btn--close" id="closeAbout">CLOSE</button>
+<button class="modal-btn modal-btn--close" id="closeAbout" type="button">CLOSE</button>
 </div>
 </div>
 
@@ -71,7 +71,7 @@
 <h2 class="modal-title">🏪 SHOP</h2>
 <div class="shop-gold" id="shopGold">💰 0</div>
 <div class="shop-items" id="shopItems"></div>
-<button class="modal-btn modal-btn--close" id="closeShop">CLOSE</button>
+<button class="modal-btn modal-btn--close" id="closeShop" type="button">CLOSE</button>
 </div>
 </div>
 
@@ -80,20 +80,18 @@
 <h2 class="modal-title">⚒ FORGE</h2>
 <div class="shop-gold" id="forgeGold">💰 0</div>
 <div class="forge-info" id="forgeInfo"></div>
-<button class="modal-btn modal-btn--forge" id="doForge">⚒ UPGRADE</button>
-<button class="modal-btn modal-btn--close" id="closeForge">CLOSE</button>
+<button class="modal-btn modal-btn--forge" id="doForge" type="button">⚒ UPGRADE</button>
+<button class="modal-btn modal-btn--close" id="closeForge" type="button">CLOSE</button>
 </div>
 </div>
 
 <div id="bossPromptScreen" class="modal-screen">
 <div class="modal-box">
 <h2 class="modal-title" id="bossPromptName">⚔ BOSS</h2>
-<div style="text-align:center;color:#c4b5fd;padding:15px 0;font-size:1rem">
-هل أنت مستعد لمواجهة البوس؟
-</div>
+<div style="text-align:center;color:#c4b5fd;padding:15px 0;font-size:1rem">هل أنت مستعد لمواجهة البوس؟</div>
 <div style="text-align:center;font-size:2.5rem;margin:15px 0">👑</div>
-<button class="modal-btn menu-btn--primary" id="bossAcceptBtn">⚔ نعم، هيا نواجه!</button>
-<button class="modal-btn modal-btn--close" id="bossDeclineBtn">⏸ ليس الآن</button>
+<button class="modal-btn menu-btn--primary" id="bossAcceptBtn" type="button">⚔ نعم، هيا نواجه!</button>
+<button class="modal-btn modal-btn--close" id="bossDeclineBtn" type="button">⏸ ليس الآن</button>
 </div>
 </div>
 
@@ -149,8 +147,8 @@
 <div id="pauseScreen" class="modal-screen">
 <div class="modal-box">
 <h2 class="modal-title">II PAUSED</h2>
-<button class="modal-btn menu-btn--primary" id="resumeBtn">▶ RESUME</button>
-<button class="modal-btn" id="quitBtn">✕ QUIT TO MENU</button>
+<button class="modal-btn menu-btn--primary" id="resumeBtn" type="button">▶ RESUME</button>
+<button class="modal-btn" id="quitBtn" type="button">✕ QUIT TO MENU</button>
 </div>
 </div>
 
