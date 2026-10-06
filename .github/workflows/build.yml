@@ -53,22 +53,21 @@ jobs:
 
     - name: Set App Version
       run: |
-        python3 -c "
-        import re, os
-        path = 'android/app/build.gradle'
-        if os.path.exists(path):
-            with open(path, 'r') as f:
-                content = f.read()
-            content = re.sub(r'versionCode\s+\d+', 'versionCode 500', content)
-            content = re.sub(r'versionName\s+\"[^\"]*\"', 'versionName \"5.0.0\"', content)
-            with open(path, 'w') as f:
-                f.write(content)
-            print('Version set to 5.0.0')
-        "
+        echo "=== BEFORE ==="
+        grep -n "versionCode\|versionName" android/app/build.gradle || echo "Not found"
+        
+        sed -i 's/versionCode [0-9]\+/versionCode 500/g' android/app/build.gradle
+        sed -i 's/versionName "[^"]*"/versionName "5.0.0"/g' android/app/build.gradle
+        sed -i "s/versionName '[^']*'/versionName '5.0.0'/g" android/app/build.gradle
+        
+        echo "=== AFTER ==="
+        grep -n "versionCode\|versionName" android/app/build.gradle
 
     - name: Add Landscape Orientation
       run: |
         perl -i -pe 's/(<activity\s+[^>]*android:name="\.MainActivity"[^>]*)(>)/$1 android:screenOrientation="sensorLandscape" android:configChanges="orientation|screenSize|keyboardHidden"$2/ unless /screenOrientation/' android/app/src/main/AndroidManifest.xml
+        echo "=== Manifest after orientation patch ==="
+        grep -A2 "<activity" android/app/src/main/AndroidManifest.xml
 
     - name: Copy Custom Icons
       run: |
