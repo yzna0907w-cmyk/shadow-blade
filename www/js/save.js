@@ -1,9 +1,9 @@
 /* ============================================
-   Shadow Blade - Save System v2
+   Shadow Blade - Save System
    ============================================ */
 var Save=(function(){
-var KEY='shadow_blade_save_v2';
-var SETTINGS_KEY='shadow_blade_settings_v2';
+var KEY='shadow_blade_save_v3';
+var SETTINGS_KEY='shadow_blade_settings_v3';
 
 var defaultData={
 gold:0,
@@ -12,7 +12,7 @@ armorLevel:1,
 zonesCleared:[false,false,false,false],
 bossesDefeated:[false,false,false,false],
 totalKills:0,
-playerX:30,
+playerX:60,
 playerY:100,
 currentZone:0,
 playerHP:100,
@@ -53,11 +53,7 @@ try{localStorage.removeItem(KEY);}catch(e){}
 }
 
 function hasSave(){
-try{return cat >> ~/shadow-blade/www/css/style.css << 'EOF'
-
-.menu-btn--link{background:linear-gradient(135deg,rgba(6,182,212,0.2),rgba(14,165,233,0.15));border-color:rgba(34,211,238,0.5);color:#a5f3fc}
-.menu-btn--link:active{background:rgba(6,182,212,0.4);box-shadow:0 0 25px rgba(34,211,238,0.7)}
-EOFlocalStorage.getItem(KEY);}catch(e){return false;}
+try{return git pushlocalStorage.getItem(KEY);}catch(e){return false;}
 }
 
 function loadSettings(){
