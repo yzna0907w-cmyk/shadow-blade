@@ -4,29 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="screen-orientation" content="landscape">
-<meta name="x5-orientation" content="landscape">
-<meta name="full-screen" content="yes">
-<title>Shadow Blade</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Handjet:wght@400;700;900&family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+<title>EMBER</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Amiri:wght@700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-
-<div id="rotate-warning">
-<div class="rotate-icon">📱</div>
-<div class="rotate-text">أدر جوالك أفقياً</div>
-<div class="rotate-sub">Rotate to landscape</div>
-</div>
+<div id="rotate-warning"><div class="rotate-icon">📱</div><div class="rotate-text">أدر جوالك أفقياً</div></div>
 
 <div id="storyScreen" class="story-screen">
 <div class="story-vignette"></div>
 <div class="story-scanlines"></div>
-<div class="story-chapter" id="storyChapter">SHADOW BLADE</div>
+<div class="story-chapter" id="storyChapter">EMBER</div>
 <div class="story-content"><div class="story-text" id="storyText"></div></div>
 <div class="story-controls">
-<button class="story-btn story-btn--skip" id="storySkip" type="button">تخطي ⟪</button>
+<button class="story-btn story-btn--skip" id="storySkip" type="button">تخطي</button>
 <button class="story-btn story-btn--next" id="storyNext" type="button">التالي ⟫</button>
 </div>
 <div class="story-hint">المس الشاشة للمتابعة</div>
@@ -34,171 +25,64 @@
 
 <div id="title-screen">
 <div class="title-bg"></div>
-<img src="assets/title_screen.png" alt="" class="title-bg-img" onerror="this.style.display='none'">
+<div class="title-ember" id="titleEmber"></div>
 <div class="title-vignette"></div>
 <div class="title-particles" id="titleParticles"></div>
 <div class="title-content">
 <div class="title-logo-area">
-<h1 class="title-name">SHADOW<span>BLADE</span></h1>
-<p class="title-sub">THE UMBRAL PATH</p>
+<h1 class="title-name">EMBER</h1>
+<p class="title-sub">رحلة عبر عوالم تحتضر</p>
 </div>
 <div class="title-menu">
-<button class="menu-btn menu-btn--primary" id="btnNewGame" type="button">
-<svg viewBox="0 0 24 24" class="menu-icon"><path d="M6 3l12 9L6 21z" fill="currentColor"/></svg>
-<span>NEW GAME</span>
-</button>
-<button class="menu-btn" id="btnContinue" type="button">
-<svg viewBox="0 0 24 24" class="menu-icon"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
-<span>CONTINUE</span>
-</button>
-<button class="menu-btn" id="btnSettings" type="button">
-<svg viewBox="0 0 24 24" class="menu-icon"><path d="M12 8a4 4 0 100 8 4 4 0 000-8zm8.94 4c0 .5-.05 1-.13 1.47l2.02 1.6-2 3.46-2.42-.96c-.75.62-1.6 1.13-2.53 1.47L15.5 22h-4l-.38-2.96c-.93-.34-1.78-.85-2.53-1.47l-2.42.96-2-3.46 2.02-1.6A7.87 7.87 0 004 12c0-.5.05-1 .13-1.47L2.11 8.93l2-3.46 2.42.96c.75-.62 1.6-1.13 2.53-1.47L9.5 2h4l.38 2.96c.93.34 1.78.85 2.53 1.47l2.42-.96 2 3.46-2.02 1.6c.08.47.13.97.13 1.47z" fill="currentColor"/></svg>
-<span>SETTINGS</span>
-</button>
-<button class="menu-btn menu-btn--link" id="btnWebsite" type="button">
-<svg viewBox="0 0 24 24" class="menu-icon"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm7.93 9h-3.42a15.6 15.6 0 00-1.15-5.1A8.02 8.02 0 0119.93 11zM12 4c.83 0 1.94 2.14 2.4 5H9.6C10.06 6.14 11.17 4 12 4zM4.07 11a8.02 8.02 0 014.57-5.1A15.6 15.6 0 007.49 11H4.07zm0 2h3.42c.13 1.85.53 3.6 1.15 5.1A8.02 8.02 0 014.07 13zm5.53 0h4.8c-.46 2.86-1.57 5-2.4 5s-1.94-2.14-2.4-5zm3.42 5.1A15.6 15.6 0 0014.17 13h3.42a8.02 8.02 0 01-4.57 5.1z" fill="currentColor"/></svg>
-<span>WEBSITE</span>
-</button>
+<button class="menu-btn menu-btn--primary" id="btnNewGame" type="button">🔥 ابدأ الرحلة</button>
+<button class="menu-btn" id="btnContinue" type="button">▶ متابعة</button>
+<button class="menu-btn menu-btn--link" id="btnWebsite" type="button">🌐 الدعم</button>
 </div>
-</div>
-<div class="title-gold" id="titleGold">💰 0</div>
-</div>
-
-<div id="settingsScreen" class="modal-screen">
-<div class="modal-box">
-<h2 class="modal-title">⚙ SETTINGS</h2>
-<div class="setting-row"><span class="setting-label">🔊 Master Volume</span><input type="range" min="0" max="100" value="50" id="setMaster" class="setting-slider"><span class="setting-value" id="setMasterVal">50%</span></div>
-<div class="setting-row"><span class="setting-label">🎵 Sound Effects</span><input type="range" min="0" max="100" value="70" id="setSFX" class="setting-slider"><span class="setting-value" id="setSFXVal">70%</span></div>
-<div class="setting-row"><span class="setting-label">📳 Vibration</span><label class="toggle"><input type="checkbox" id="setVibration" checked><span></span></label></div>
-<div class="setting-row"><span class="setting-label">✨ Particles</span><label class="toggle"><input type="checkbox" id="setParticles" checked><span></span></label></div>
-<button class="modal-btn modal-btn--close" id="closeSettings" type="button">CLOSE</button>
-</div>
-</div>
-
-<div id="aboutScreen" class="modal-screen">
-<div class="modal-box">
-<h2 class="modal-title">ℹ ABOUT</h2>
-<div style="text-align:center;color:#c4b5fd;line-height:1.8">
-<p style="font-size:1.3rem;color:#e879f9">&lt;/&gt; SHADOW BLADE</p>
-<p>2D Action Platformer</p>
-<p style="color:#fbbf24;font-weight:700">v5.0.0</p>
-<p style="font-size:0.75rem;color:#7c7c8a">© 2026 YZ</p>
-</div>
-<button class="modal-btn modal-btn--close" id="closeAbout" type="button">CLOSE</button>
-</div>
-</div>
-
-<div id="shopScreen" class="modal-screen">
-<div class="modal-box">
-<h2 class="modal-title">🏪 SHOP</h2>
-<div class="shop-gold" id="shopGold">💰 0</div>
-<div class="shop-items" id="shopItems"></div>
-<button class="modal-btn modal-btn--close" id="closeShop" type="button">CLOSE</button>
-</div>
-</div>
-
-<div id="forgeScreen" class="modal-screen">
-<div class="modal-box">
-<h2 class="modal-title">⚒ FORGE</h2>
-<div class="shop-gold" id="forgeGold">💰 0</div>
-<div class="forge-info" id="forgeInfo"></div>
-<button class="modal-btn modal-btn--forge" id="doForge" type="button">⚒ UPGRADE</button>
-<button class="modal-btn modal-btn--close" id="closeForge" type="button">CLOSE</button>
 </div>
 </div>
 
 <div id="bossPromptScreen" class="modal-screen">
-<div class="modal-box">
-<div style="text-align:center;font-size:3.5rem;margin:10px 0">👑</div>
-<h2 class="modal-title" id="bossPromptName">⚔ BOSS</h2>
-<div style="text-align:center;color:#c4b5fd;padding:15px 0;font-size:1.1rem">هل أنت مستعد للمواجهة؟</div>
+<div class="modal-box" style="text-align:center">
+<div style="font-size:3rem;margin:10px 0">👑</div>
+<h2 class="modal-title" id="bossPromptName">BOSS</h2>
+<div style="color:#ffb87a;padding:15px 0;font-size:1.1rem">هل أنت مستعد للمواجهة؟</div>
 <button class="modal-btn menu-btn--primary" id="bossAcceptBtn" type="button">⚔ نعم، هيا نواجه!</button>
 <button class="modal-btn modal-btn--close" id="bossDeclineBtn" type="button">⏸ ليس الآن</button>
 </div>
 </div>
 
-<div id="mapScreen" class="map-screen">
-<div class="map-header">
-<h2 class="map-title">🗺️ AETHEL</h2>
-<button class="map-close" id="closeMap" type="button">✕</button>
-</div>
-<div class="map-container">
-<img src="assets/world_map.png" alt="" id="worldMapImg" class="world-map-img">
-<div class="map-hotspot" data-target="0" style="left:12%;top:55%;"><div class="hotspot-icon">🪦</div><div class="hotspot-label">CRYPT</div></div>
-<div class="map-hotspot" data-target="1" style="left:38%;top:55%;"><div class="hotspot-icon">🔥</div><div class="hotspot-label">FIRE</div></div>
-<div class="map-hotspot" data-target="2" style="left:62%;top:55%;"><div class="hotspot-icon">❄️</div><div class="hotspot-label">FROZEN</div></div>
-<div class="map-hotspot" data-target="3" style="left:88%;top:55%;"><div class="hotspot-icon">🌑</div><div class="hotspot-label">SHADOW</div></div>
-<div class="map-hotspot map-hotspot--shop" data-target="shop" style="left:22%;top:75%;"><div class="hotspot-icon">🏪</div><div class="hotspot-label">SHOP</div></div>
-<div class="map-hotspot map-hotspot--forge" data-target="forge" style="left:32%;top:75%;"><div class="hotspot-icon">⚒</div><div class="hotspot-label">FORGE</div></div>
-</div>
-<div class="map-footer" id="mapFooter">اختر منطقة للانتقال إليها</div>
-</div>
-
-<div id="game-container">
-<div id="game-wrap">
-<canvas id="game" width="480" height="270"></canvas>
-<div id="hud">
-<div class="hud-left">
-<div class="hud-item"><span class="hud-label">HP</span><div class="hp-bar"><div class="hp-fill" id="hpFill"></div></div></div>
-<div class="hud-item"><span class="hud-label">ZONE</span><span class="hud-value hud-value--level" id="levelName">CRYPT</span></div>
-</div>
-<div class="hud-center">
-<div class="hud-item"><span class="hud-label">💰</span><span class="hud-value" id="goldCount">0</span></div>
-<div class="hud-item"><span class="hud-label">🔑</span><span class="hud-value" id="keyCount">0/4</span></div>
-</div>
-<div class="hud-right">
-<div class="hud-item"><span class="hud-label">⚔</span><span class="hud-value" id="weaponLevel">Lv.1</span></div>
-<div class="hud-item"><span class="hud-label">☠</span><span class="hud-value" id="killCount">0</span></div>
-</div>
-</div>
-<div class="top-btn map-btn" id="mapBtn">
-<svg viewBox="0 0 24 24"><path d="M9 3L3 6v15l6-3 6 3 6-3V3l-6 3-6-3zm0 2.2l4 2v13.6l-4-2V5.2z" fill="currentColor"/></svg>
-</div>
-<div class="top-btn pause-btn" id="pauseBtn">
-<svg viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor"/></svg>
-</div>
-<button class="interact-btn" id="interactBtn" type="button">
-<svg viewBox="0 0 24 24"><path d="M20 2H4a2 2 0 00-2 2v18l4-4h14a2 2 0 002-2V4a2 2 0 00-2-2z" fill="currentColor"/></svg>
-</button>
-<div id="controls">
-<div class="dpad">
-<button class="ctrl-btn" id="btnLeft" type="button" aria-label="Left">
-<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-</button>
-<button class="ctrl-btn" id="btnRight" type="button" aria-label="Right">
-<svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-</button>
-</div>
-<div class="actions">
-<button class="ctrl-btn ctrl-btn--attack" id="btnAttack" type="button" aria-label="Attack">
-<svg viewBox="0 0 24 24"><path d="M14.5 17.5L3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-</button>
-<button class="ctrl-btn ctrl-btn--jump" id="btnJump" type="button" aria-label="Jump">
-<svg viewBox="0 0 24 24"><path d="M12 20V6M6 12l6-6 6 6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-</button>
-</div>
-</div>
+<div id="hud" style="display:none">
+<div class="hud-top">
+<div class="hud-item"><span class="hud-icon">🔥</span><div class="flame-bar"><div class="flame-fill" id="flameFill"></div></div></div>
+<div class="hud-zone" id="zoneName">الرماد</div>
+<div class="hud-gold"><span>💰</span><span id="goldCount">0</span></div>
 </div>
 </div>
 
-<div id="pauseScreen" class="modal-screen">
-<div class="modal-box">
-<h2 class="modal-title">II PAUSED</h2>
-<button class="modal-btn menu-btn--primary" id="resumeBtn" type="button">▶ RESUME</button>
-<button class="modal-btn" id="quitBtn" type="button">✕ QUIT TO MENU</button>
-</div>
+<div id="controls" style="display:none">
+<button class="ctrl-btn ctrl-btn--left" id="btnLeft" type="button">
+<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
+</button>
+<button class="ctrl-btn ctrl-btn--right" id="btnRight" type="button">
+<svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
+</button>
+<button class="ctrl-btn ctrl-btn--attack" id="btnAttack" type="button">
+<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6" fill="currentColor"/></svg>
+</button>
+<button class="ctrl-btn ctrl-btn--jump" id="btnJump" type="button">
+<svg viewBox="0 0 24 24"><path d="M12 20V6M6 12l6-6 6 6" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
+</button>
 </div>
 
-<div id="loading">LOADING...</div>
+<div id="game-container"><div id="game-wrap"></div></div>
+<div id="loading">🔥</div>
 
 <script>
-setTimeout(function(){var l=document.getElementById('loading');if(l){l.classList.add('hide');l.style.display='none';}},1500);
+setTimeout(function(){var l=document.getElementById('loading');if(l)l.classList.add('hide');},800);
 </script>
-<script src="js/audio.js"></script>
+<script src="lib/phaser.min.js"></script>
 <script src="js/story.js"></script>
-<script src="js/sprites.js"></script>
-<script src="js/map.js"></script>
-<script src="js/game.js"></script>
 <script src="js/ui.js"></script>
+<script src="js/game.js"></script>
 </body>
 </html>
