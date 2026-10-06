@@ -31,6 +31,7 @@ key:function(){tone(660,0.12,'triangle',0.35);setTimeout(function(){tone(900,0.1
 portal:function(){tone(440,0.15,'sine',0.35);setTimeout(function(){tone(660,0.15,'sine',0.35);},100);setTimeout(function(){tone(900,0.32,'sine',0.35);},200);},
 bossRoar:function(){tone(70,0.9,'sawtooth',0.5);tone(110,0.7,'square',0.35);noise(0.6,0.35,400);},
 bossHit:function(){noise(0.1,0.45,1200);tone(180,0.15,'square',0.3);},
+enemySkill:function(){tone(400,0.15,'sawtooth',0.3);tone(600,0.1,'square',0.2);},
 levelComplete:function(){[523,659,784,1047].forEach(function(f,i){setTimeout(function(){tone(f,0.28,'triangle',0.35);},i*130);});},
 gameOver:function(){[440,370,294,220].forEach(function(f,i){setTimeout(function(){tone(f,0.38,'sawtooth',0.35);},i*180);});}
 };})();
