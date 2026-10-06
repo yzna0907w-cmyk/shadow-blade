@@ -1,10 +1,10 @@
 (function(){
 'use strict';
+try{
 
 var VW=480,VH=270,GRAVITY=900,MOVE_SPEED=130,JUMP_FORCE=-370,FRICTION=0.82;
 var ATK_DUR=0.22,ATK_CD=0.30,ATK_RANGE=28,INV_TIME=1.2;
-var BASE_DAMAGE=30;
-var BASE_HP=100;
+var BASE_DAMAGE=30,BASE_HP=100;
 
 var canvas=document.getElementById('game');
 var ctx=canvas.getContext('2d');
@@ -15,25 +15,23 @@ function resize(){
 }
 window.addEventListener('resize',resize);resize();
 
-/* ============ SAVE DATA ============ */
 var saveData=Save.load();
 var settings=Save.loadSettings();
+var gameRunning=false;
 
-/* ============ INPUT ============ */
+/* ===== INPUT ===== */
 var input={left:false,right:false,jump:false,attack:false,jp:false,ap:false};
 window.addEventListener('keydown',function(e){var k=e.key.toLowerCase();
   if(k==='arrowleft'||k==='a')input.left=true;
   if(k==='arrowright'||k==='d')input.right=true;
   if(k===' '||k==='arrowup'||k==='w'){if(!input.jump)input.jp=true;input.jump=true;}
   if(k==='j'||k==='k'||k==='enter'){if(!input.attack)input.ap=true;input.attack=true;}
-  if(['arrowleft','arrowright','arrowup','arrowdown',' '].indexOf(k)!==-1)e.preventDefault();
-});
+  if(['arrowleft','arrowright','arrowup','arrowdown',' '].indexOf(k)!==-1)e.preventDefault();});
 window.addEventListener('keyup',function(e){var k=e.key.toLowerCase();
   if(k==='arrowleft'||k==='a')input.left=false;
   if(k==='arrowright'||k==='d')input.right=false;
   if(k===' '||k==='arrowup'||k==='w')input.jump=false;
-  if(k==='j'||k==='k'||k==='enter')input.attack=false;
-});
+  if(k==='j'||k==='k'||k==='enter')input.attack=false;});
 
 function bind(id,onD,onU){
   var b=document.getElementById(id);if(!b)return;
@@ -51,11 +49,10 @@ bind('btnRight',function(){input.right=true;},function(){input.right=false;});
 bind('btnJump',function(){if(!input.jump)input.jp=true;input.jump=true;},function(){input.jump=false;});
 bind('btnAttack',function(){if(!input.attack)input.ap=true;input.attack=true;},function(){input.attack=false;});
 
-/* ============ ZONES ============ */
-var ZONE_W=1200;
+/* ===== ZONES DATA ===== */
 var ZONES=[
   {name:'CRYPT',startX:0,endX:1200,
-   theme:{bg1:'#1a0d2e',bg2:'#0a0515',bg3:'#050208',platTop:'#7c3aed',platBot:'#1a1030',edge:'#c4b5fd',star:'#c4b5fd',fog:'rgba(139,92,246,0.12)',particle:'rgba(196,181,253,0.6)'},
+   theme:{bg1:'#1a0d2e',bg2:'#0a0515',bg3:'#050208',platTop:'#7c3aed',platBot:'#1a1030',edge:'#c4b5fd',star:'#c4b5fd',fog:'rgba(139,92,246,0.12)'},
    enemies:[
      {kind:'bat',w:12,h:12,hp:60,speed:55,type:'flyer'},
      {kind:'slime',w:10,h:10,hp:80,speed:30,type:'crawler'},
@@ -64,7 +61,7 @@ var ZONES=[
    boss:{kind:'skeletonKing',w:22,h:26,hp:800,dmg:22,name:'SKELETON KING'},
    spawnCount:10},
   {name:'FIRE',startX:1200,endX:2400,
-   theme:{bg1:'#3a0a05',bg2:'#1a0402',bg3:'#0a0202',platTop:'#ff6b00',platBot:'#3e0a05',edge:'#ffb366',star:'#ff9f1c',fog:'rgba(255,107,0,0.12)',particle:'rgba(255,159,28,0.7)'},
+   theme:{bg1:'#3a0a05',bg2:'#1a0402',bg3:'#0a0202',platTop:'#ff6b00',platBot:'#3e0a05',edge:'#ffb366',star:'#ff9f1c',fog:'rgba(255,107,0,0.12)'},
    enemies:[
      {kind:'imp',w:12,h:12,hp:80,speed:65,type:'flyer'},
      {kind:'fireGolem',w:12,h:12,hp:160,speed:35,type:'crawler'},
@@ -73,7 +70,7 @@ var ZONES=[
    boss:{kind:'fireDemon',w:22,h:26,hp:1200,dmg:26,name:'FIRE DEMON'},
    spawnCount:12},
   {name:'FROZEN',startX:2400,endX:3600,
-   theme:{bg1:'#0a2540',bg2:'#041525',bg3:'#020810',platTop:'#00d4ff',platBot:'#0a2540',edge:'#7dd3fc',star:'#bae6fd',fog:'rgba(0,212,255,0.1)',particle:'rgba(186,230,253,0.7)'},
+   theme:{bg1:'#0a2540',bg2:'#041525',bg3:'#020810',platTop:'#00d4ff',platBot:'#0a2540',edge:'#7dd3fc',star:'#bae6fd',fog:'rgba(0,212,255,0.1)'},
    enemies:[
      {kind:'iceWraith',w:10,h:11,hp:100,speed:60,type:'flyer'},
      {kind:'frostSpider',w:12,h:10,hp:120,speed:55,type:'crawler'},
@@ -82,7 +79,7 @@ var ZONES=[
    boss:{kind:'iceQueen',w:20,h:26,hp:1600,dmg:30,name:'ICE QUEEN'},
    spawnCount:14},
   {name:'SHADOW',startX:3600,endX:4800,
-   theme:{bg1:'#2a0a40',bg2:'#14051f',bg3:'#050208',platTop:'#e879f9',platBot:'#2a0a40',edge:'#f0abfc',star:'#e9d5ff',fog:'rgba(232,121,249,0.12)',particle:'rgba(232,121,249,0.7)'},
+   theme:{bg1:'#2a0a40',bg2:'#14051f',bg3:'#050208',platTop:'#e879f9',platBot:'#2a0a40',edge:'#f0abfc',star:'#e9d5ff',fog:'rgba(232,121,249,0.12)'},
    enemies:[
      {kind:'shadowBeast',w:12,h:12,hp:140,speed:70,type:'flyer'},
      {kind:'voidCrawler',w:12,h:10,hp:160,speed:50,type:'crawler'},
@@ -93,44 +90,119 @@ var ZONES=[
    spawnCount:16}
 ];
 
-/* ============ WORLD GENERATION ============ */
+/* ===== ZONE WORLD GENERATION (DIFFERENT PER ZONE) ===== */
+function genZone0(sx,ex){ // CRYPT - أرض شبه مستوية + فجوات صغيرة
+  var p=[];
+  var x=sx+20;
+  while(x<ex-220){
+    var w=110+Math.floor(Math.random()*60);
+    if(x+w>ex-220)w=ex-220-x;
+    if(w<50)break;
+    p.push({x:x,y:230,w:w,h:40});
+    if(Math.random()<0.5){
+      var py=150+Math.floor(Math.random()*30);
+      p.push({x:x+20,y:py,w:50+Math.floor(Math.random()*30),h:8});
+    }
+    x+=w+20+Math.floor(Math.random()*20);
+  }
+  p.push({x:ex-220,y:230,w:220,h:40});
+  p.push({x:ex-160,y:130,w:120,h:8});
+  // أعمدة
+  for(var i=0;i<6;i++){
+    var cx=sx+100+i*180;
+    if(cx>ex-100)break;
+    p.push({x:cx,y:80,w:12,h:150});
+  }
+  return p;
+}
+
+function genZone1(sx,ex){ // FIRE - فجوات كبيرة + حمم
+  var p=[];
+  var x=sx+20;
+  while(x<ex-250){
+    var w=80+Math.floor(Math.random()*50);
+    if(x+w>ex-250)w=ex-250-x;
+    if(w<50)break;
+    p.push({x:x,y:230,w:w,h:40});
+    x+=w+60+Math.floor(Math.random()*40); // فجوات كبيرة
+  }
+  p.push({x:ex-220,y:230,w:220,h:40});
+  p.push({x:ex-170,y:140,w:100,h:8});
+  // منصات طائرة فوق الحمم
+  for(var i=0;i<8;i++){
+    var px=sx+120+i*140;
+    if(px>ex-100)break;
+    p.push({x:px,y:180,w:36,h:6});
+  }
+  return p;
+}
+
+function genZone2(sx,ex){ // FROZEN - منصات عالية + أبراج
+  var p=[];
+  var x=sx+20;
+  p.push({x:sx+20,y:230,w:120,h:40});
+  // أبراج
+  for(var i=0;i<8;i++){
+    var tx=sx+180+i*140;
+    if(tx>ex-100)break;
+    var th=60+Math.floor(Math.random()*80);
+    p.push({x:tx,y:230-th,w:50,h:th+40});
+    // منصة فوق البرج
+    if(Math.random()<0.6){
+      p.push({x:tx-10,y:230-th-30,w:70,h:6});
+    }
+  }
+  p.push({x:ex-220,y:230,w:220,h:40});
+  p.push({x:ex-160,y:120,w:120,h:8});
+  return p;
+}
+
+function genZone3(sx,ex){ // SHADOW - متاهة متعددة المستويات
+  var p=[];
+  var x=sx+20;
+  // أرض سفلية
+  while(x<ex-250){
+    var w=90+Math.floor(Math.random()*50);
+    if(x+w>ex-250)w=ex-250-x;
+    if(w<50)break;
+    p.push({x:x,y:250,w:w,h:20});
+    x+=w+30+Math.floor(Math.random()*30);
+  }
+  p.push({x:ex-220,y:250,w:220,h:20});
+  // طبقات متوسطة
+  for(var i=0;i<10;i++){
+    var px=sx+80+i*110;
+    if(px>ex-120)break;
+    var py=140+Math.floor(Math.random()*60);
+    p.push({x:px,y:py,w:60,h:6});
+  }
+  // طبقات عليا
+  for(var j=0;j<8;j++){
+    var qx=sx+140+j*140;
+    if(qx>ex-100)break;
+    p.push({x:qx,y:80,w:50,h:6});
+  }
+  p.push({x:ex-160,y:130,w:120,h:8});
+  return p;
+}
+
 function buildWorld(){
   var platforms=[];
-  var npcs=[];
-  for(var zi=0;zi<ZONES.length;zi++){
-    var z=ZONES[zi];
-    var sx=z.startX;
-    // أرض متصلة مع فجوات
-    var x=sx;
-    var groundY=230;
-    while(x<z.endX-200){
-      var segW=60+Math.floor(Math.random()*80);
-      if(x+segW>z.endX-200)segW=z.endX-200-x;
-      if(segW<30)break;
-      platforms.push({x:x,y:groundY,w:segW,h:40});
-      // منصات علوية
-      if(Math.random()<0.4){
-        var py=140+Math.floor(Math.random()*40);
-        var pw=50+Math.floor(Math.random()*50);
-        platforms.push({x:x+20,y:py,w:pw,h:8});
-      }
-      x+=segW+30+Math.floor(Math.random()*40);
-    }
-    // أرضية البوس النهائية
-    platforms.push({x:z.endX-200,y:groundY,w:200,h:40});
-    // منصة للبوس
-    platforms.push({x:z.endX-160,y:120,w:120,h:8});
-  }
-  // NPCs في منطقة البداية
-  npcs.push({x:350,y:200,type:'shop'});
-  npcs.push({x:520,y:200,type:'forge'});
-  return{width:ZONES[ZONES.length-1].endX,platforms:platforms,npcs:npcs,groundY:groundY};
+  platforms=platforms.concat(genZone0(0,1200));
+  platforms=platforms.concat(genZone1(1200,2400));
+  platforms=platforms.concat(genZone2(2400,3600));
+  platforms=platforms.concat(genZone3(3600,4800));
+  var npcs=[
+    {x:200,y:200,type:'shop'},
+    {x:400,y:200,type:'forge'}
+  ];
+  return{width:4800,platforms:platforms,npcs:npcs};
 }
 
 var world=buildWorld();
 
-/* ============ STATE ============ */
-var state='playing';
+/* ===== STATE ===== */
+var state='idle';
 var camera={x:0,y:0};
 var shake={t:0,i:0};
 var hitPause=0;
@@ -140,35 +212,16 @@ var currentZoneIdx=0;
 var bossKilled=[false,false,false,false];
 var zoneBossActive=[false,false,false,false];
 var zoneEnemiesSpawned=[false,false,false,false];
-
-/* ============ PLAYER ============ */
-var player=null;
-
-function initPlayer(){
-  var bonusHP=(saveData.armorLevel-1)*40;
-  player={
-    x:saveData.playerX||60,
-    y:saveData.playerY||100,
-    vx:0,vy:0,w:12,h:20,
-    onGround:false,facing:1,animTime:0,
-    hp:BASE_HP+bonusHP,maxHp:BASE_HP+bonusHP,
-    attacking:false,attackTimer:0,attackCooldown:0,
-    invincible:0,hitFlash:0,
-    playerDamage:BASE_DAMAGE+(saveData.weaponLevel-1)*20
-  };
-}
-
-/* ============ ENEMIES/ITEMS ============ */
 var enemies=[];
 var particles=[];
 var enemyProjectiles=[];
 var heroParticles=[];
 var boss=null;
 var currentNpc=null;
+var player=null;
 
 function rect(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;}
 function rand(a,b){return a+Math.random()*(b-a);}
-function clamp(v,a,b){return v<a?a:(v>b?b:v);}
 function shakeNow(i,d){shake.i=i;shake.t=d;}
 
 function spawnParticles(x,y,color,n,sz){
@@ -182,7 +235,19 @@ function spawnParticles(x,y,color,n,sz){
   }
 }
 
-/* ============ ENEMY SPAWNING ============ */
+function initPlayer(){
+  var bonusHP=(saveData.armorLevel-1)*40;
+  player={
+    x:saveData.playerX||60,y:saveData.playerY||100,
+    vx:0,vy:0,w:12,h:20,
+    onGround:false,facing:1,animTime:0,
+    hp:BASE_HP+bonusHP,maxHp:BASE_HP+bonusHP,
+    attacking:false,attackTimer:0,attackCooldown:0,
+    invincible:0,hitFlash:0,
+    playerDamage:BASE_DAMAGE+(saveData.weaponLevel-1)*20
+  };
+}
+
 function getZoneIndex(px){
   for(var i=0;i<ZONES.length;i++){
     if(px>=ZONES[i].startX&&px<ZONES[i].endX)return i;
@@ -190,57 +255,31 @@ function getZoneIndex(px){
   return ZONES.length-1;
 }
 
-function spawnEnemyInZone(zi){
-  var z=ZONES[zi];
-  if(zoneBossActive[zi])return;
-  var t=z.enemies[Math.floor(Math.random()*z.enemies.length)];
-  var fromLeft=Math.random()<0.5;
-  var sx=player.x+(fromLeft?-40:VW+40);
-  if(sx<z.startX+20)sx=z.startX+20;
-  if(sx>z.endX-20)sx=z.endX-20;
-  var baseY=t.type==='flyer'?rand(60,160):200;
-  enemies.push({
-    cfg:t,kind:t.kind,type:t.type,x:sx,y:baseY,
-    vx:(fromLeft?1:-1)*t.speed,vy:0,w:t.w,h:t.h,
-    hp:t.hp,maxHp:t.hp,direction:fromLeft?1:-1,
-    hitFlash:0,hitCooldown:0,dead:false,
-    baseY:baseY,bobPhase:Math.random()*Math.PI*2,
-    knockback:0,deathTimer:0,opacity:1,
-    attractPhase:Math.random()*6,skillTimer:2+Math.random()*2,
-    skillActive:0,skillVx:0,skillVy:0,zone:zi
-  });
+function getVisiblePlatforms(){
+  // Lazy: فقط منصات المنطقة الحالية + المنطقة المجاورة
+  var result=[];
+  var buffer=200;
+  var minX=camera.x-buffer;
+  var maxX=camera.x+VW+buffer;
+  var plats=world.platforms;
+  for(var i=0;i<plats.length;i++){
+    var p=plats[i];
+    if(p.x+p.w>minX&&p.x<maxX)result.push(p);
+  }
+  return result;
 }
 
-function spawnBoss(zi){
-  var z=ZONES[zi];
-  var b=z.boss;
-  boss={
-    cfg:b,kind:b.kind,
-    x:z.endX-100,y:170,vx:-40,vy:0,
-    w:b.w,h:b.h,hp:b.hp,maxHp:b.hp,
-    state:'enter',stateTimer:1.5,
-    hitFlash:0,hitCooldown:0,direction:-1,
-    baseY:170,bobPhase:0,attackTimer:2,
-    skillTimer:4+Math.random()*2,skillActive:0,skillPhase:0,
-    zone:zi
-  };
-  zoneBossActive[zi]=true;
-  Sound.bossRoar();
-  shakeNow(10,0.7);
-}
 
-/* ============ PLAYER PHYSICS ============ */
+/* ===== PLAYER PHYSICS ===== */
 function playerPhysics(dt){
   var move=0;
   if(input.left)move-=1;
   if(input.right)move+=1;
   if(move!==0){player.vx+=move*MOVE_SPEED*8*dt;player.facing=move;}
   player.vx*=Math.pow(FRICTION,dt*60);
-
   if(input.jp&&player.onGround){
     player.vy=JUMP_FORCE;player.onGround=false;
-    Sound.jump();
-    spawnParticles(player.x+6,player.y+19,'#a78bfa',5,1.5);
+    Sound.jump();spawnParticles(player.x+6,player.y+19,'#a78bfa',5,1.5);
   }
   input.jp=false;
   player.vy+=GRAVITY*dt;
@@ -249,8 +288,10 @@ function playerPhysics(dt){
   player.y+=player.vy*dt;
   player.onGround=false;
 
-  for(var i=0;i<world.platforms.length;i++){
-    var p=world.platforms[i];
+  // Lazy collision - فقط المنصات القريبة
+  var visible=getVisiblePlatforms();
+  for(var i=0;i<visible.length;i++){
+    var p=visible[i];
     if(rect(player,p)){
       if(player.vy>0&&player.y+player.h-player.vy*dt<=p.y+6){
         player.y=p.y-player.h;player.vy=0;player.onGround=true;
@@ -266,7 +307,6 @@ function playerPhysics(dt){
   }
   if(player.x<0){player.x=0;player.vx=0;}
   if(player.x+player.w>world.width){player.x=world.width-player.w;player.vx=0;}
-
   if(player.y>VH+80){
     player.hp-=20;Sound.hurt();
     player.x=Math.max(0,player.x-100);player.y=100;
@@ -275,7 +315,7 @@ function playerPhysics(dt){
   }
 }
 
-/* ============ COMBAT ============ */
+/* ===== COMBAT ===== */
 function attackBox(){
   if(player.facing===1)return{x:player.x+player.w,y:player.y+3,w:ATK_RANGE,h:13};
   return{x:player.x-ATK_RANGE,y:player.y+3,w:ATK_RANGE,h:13};
@@ -316,11 +356,12 @@ function updateCombat(dt){
           spawnParticles(e.x+e.w/2,e.y+e.h/2,'#ff3355',10,2);
           shakeNow(4,0.12);
           if(e.hp<=0){
-            e.dead=true;saveData.totalKills++;
+            e.dead=true;saveData.totalKills++;saveData.gold+=2;
             Sound.kill();shakeNow(6,0.22);
             spawnParticles(e.x+e.w/2,e.y+e.h/2,'#e879f9',22,2.5);
             spawnParticles(e.x+e.w/2,e.y+e.h/2,'#ff3355',14,2);
             spawnParticles(e.x+e.w/2,e.y+e.h/2,'#fbbf24',10,2);
+            if(Math.random()<0.3)saveData.gold+=1;
           }
         }
       }
@@ -336,12 +377,13 @@ function updateCombat(dt){
             boss.dead=true;Sound.levelComplete();shakeNow(16,0.9);
             bossKilled[boss.zone]=true;
             saveData.bossesDefeated[boss.zone]=true;
-            saveData.gold+=80;
+            saveData.gold+=100;
             Save.save(saveData);
             spawnParticles(boss.x+boss.w/2,boss.y+boss.h/2,'#e879f9',50,3);
             spawnParticles(boss.x+boss.w/2,boss.y+boss.h/2,'#ff3355',40,3);
             spawnParticles(boss.x+boss.w/2,boss.y+boss.h/2,'#fbbf24',30,3);
-            setTimeout(function(){boss=null;zoneBossActive[boss?boss.zone:0]=false;},2500);
+            var bz=boss.zone;
+            setTimeout(function(){boss=null;zoneBossActive[bz]=false;},2500);
           }
         }
       }
@@ -350,7 +392,39 @@ function updateCombat(dt){
   }
 }
 
-/* ============ ENEMY SKILLS ============ */
+/* ===== ENEMY SPAWN ===== */
+function spawnEnemyInZone(zi){
+  var z=ZONES[zi];
+  if(zoneBossActive[zi]||bossKilled[zi])return;
+  var t=z.enemies[Math.floor(Math.random()*z.enemies.length)];
+  var fromLeft=Math.random()<0.5;
+  var sx=player.x+(fromLeft?-40:VW+40);
+  if(sx<z.startX+20)sx=z.startX+20;
+  if(sx>z.endX-20)sx=z.endX-20;
+  var baseY=t.type==='flyer'?rand(60,160):200;
+  enemies.push({cfg:t,kind:t.kind,type:t.type,x:sx,y:baseY,
+    vx:(fromLeft?1:-1)*t.speed,vy:0,w:t.w,h:t.h,
+    hp:t.hp,maxHp:t.hp,direction:fromLeft?1:-1,
+    hitFlash:0,hitCooldown:0,dead:false,
+    baseY:baseY,bobPhase:Math.random()*Math.PI*2,
+    knockback:0,deathTimer:0,opacity:1,
+    attractPhase:Math.random()*6,skillTimer:2+Math.random()*2,
+    skillActive:0,skillVx:0,skillVy:0,zone:zi});
+}
+
+function spawnBoss(zi){
+  var z=ZONES[zi];var b=z.boss;
+  boss={cfg:b,kind:b.kind,x:z.endX-120,y:170,vx:-40,vy:0,
+    w:b.w,h:b.h,hp:b.hp,maxHp:b.hp,
+    state:'enter',stateTimer:1.5,
+    hitFlash:0,hitCooldown:0,direction:-1,
+    baseY:170,bobPhase:0,attackTimer:2,
+    skillTimer:4+Math.random()*2,skillActive:0,skillPhase:0,zone:zi};
+  zoneBossActive[zi]=true;
+  Sound.bossRoar();shakeNow(10,0.7);
+}
+
+/* ===== ENEMY SKILLS ===== */
 function enemySkill(e,dt){
   if(e.dead)return;
   e.skillTimer-=dt;
@@ -369,72 +443,27 @@ function enemySkill(e,dt){
   var dist=Math.sqrt(dx*dx+dy*dy);
   if(dist>220)return;
 
-  if(e.kind==='bat'){
-    e.skillActive=0.8;
-    e.skillVx=dx/dist*280;e.skillVy=dy/dist*280;
-    Sound.enemySkill();
-  } else if(e.kind==='slime'){
-    e.vy=-340;e.skillActive=0.5;
-    spawnParticles(e.x+5,e.y+10,'#4ade80',6,1);
-    Sound.enemySkill();
-  } else if(e.kind==='skeleton'){
-    enemyProjectiles.push({x:e.x+e.w/2,y:e.y+e.h/2,
-      vx:dx/dist*200,vy:dy/dist*200,life:3,dmg:10,color:'#e2e8f0',size:3});
-    Sound.enemySkill();
-  } else if(e.kind==='imp'){
-    for(var i=0;i<3;i++){
-      var a=Math.atan2(dy,dx)+(i-1)*0.3;
-      enemyProjectiles.push({x:e.x+e.w/2,y:e.y+e.h/2,
-        vx:Math.cos(a)*180,vy:Math.sin(a)*180,life:3,dmg:10,color:'#ff9f1c',size:3});
-    }
-    Sound.enemySkill();
-  } else if(e.kind==='fireGolem'){
-    e.skillActive=0.5;
-    e.skillVx=(player.x<e.x?-1:1)*280;
-    Sound.enemySkill();
-  } else if(e.kind==='iceWraith'){
-    e.x=player.x+(Math.random()<0.5?-35:35);
-    e.y=player.y-10+rand(-25,25);
-    spawnParticles(e.x,e.y,'#00d4ff',10,2);
-    Sound.enemySkill();
-  } else if(e.kind==='frostSpider'){
-    for(var j=0;j<5;j++){
-      var a2=Math.atan2(dy,dx)+(j-2)*0.25;
-      enemyProjectiles.push({x:e.x+e.w/2,y:e.y+e.h/2,
-        vx:Math.cos(a2)*200,vy:Math.sin(a2)*200,life:3,dmg:8,color:'#7dd3fc',size:2});
-    }
-    Sound.enemySkill();
-  } else if(e.kind==='iceGolem'){
-    spawnParticles(e.x+e.w/2,e.y+e.h,'#7dd3fc',15,2);
-    shakeNow(5,0.2);
-    if(player.onGround&&Math.abs(player.x-e.x)<100&&player.invincible<=0)damagePlayer(15,e.x);
-    Sound.enemySkill();
-  } else if(e.kind==='shadowBeast'){
-    e.skillActive=0.6;
-    e.skillVx=dx/dist*340;e.skillVy=dy/dist*340;
-    Sound.enemySkill();
-  } else if(e.kind==='voidCrawler'){
-    e.skillActive=0.5;
-    e.skillVx=dx/dist*220;
-    Sound.enemySkill();
-  } else if(e.kind==='nightmare'){
-    e.skillActive=1.0;
-    Sound.enemySkill();
-  } else if(e.kind==='cryptHorror'){
-    for(var k=0;k<6;k++){
-      var a3=Math.PI*2/6*k+Math.random()*0.3;
-      enemyProjectiles.push({x:e.x+e.w/2,y:e.y+e.h/2,
-        vx:Math.cos(a3)*160,vy:Math.sin(a3)*160,life:3,dmg:12,color:'#fbbf24',size:3});
-    }
-    Sound.enemySkill();
-  }
+  if(e.kind==='bat'){e.skillActive=0.8;e.skillVx=dx/dist*280;e.skillVy=dy/dist*280;Sound.enemySkill();}
+  else if(e.kind==='slime'){e.vy=-340;e.skillActive=0.5;spawnParticles(e.x+5,e.y+10,'#4ade80',6,1);Sound.enemySkill();}
+  else if(e.kind==='skeleton'){enemyProjectiles.push({x:e.x+e.w/2,y:e.y+e.h/2,vx:dx/dist*200,vy:dy/dist*200,life:3,dmg:10,color:'#e2e8f0',size:3});Sound.enemySkill();}
+  else if(e.kind==='imp'){for(var i=0;i<3;i++){var a=Math.atan2(dy,dx)+(i-1)*0.3;enemyProjectiles.push({x:e.x+e.w/2,y:e.y+e.h/2,vx:Math.cos(a)*180,vy:Math.sin(a)*180,life:3,dmg:10,color:'#ff9f1c',size:3});}Sound.enemySkill();}
+  else if(e.kind==='fireGolem'){e.skillActive=0.5;e.skillVx=(player.x<e.x?-1:1)*280;Sound.enemySkill();}
+  else if(e.kind==='iceWraith'){e.x=player.x+(Math.random()<0.5?-35:35);e.y=player.y-10+rand(-25,25);spawnParticles(e.x,e.y,'#00d4ff',10,2);Sound.enemySkill();}
+  else if(e.kind==='frostSpider'){for(var j=0;j<5;j++){var a2=Math.atan2(dy,dx)+(j-2)*0.25;enemyProjectiles.push({x:e.x+e.w/2,y:e.y+e.h/2,vx:Math.cos(a2)*200,vy:Math.sin(a2)*200,life:3,dmg:8,color:'#7dd3fc',size:2});}Sound.enemySkill();}
+  else if(e.kind==='iceGolem'){spawnParticles(e.x+e.w/2,e.y+e.h,'#7dd3fc',15,2);shakeNow(5,0.2);if(player.onGround&&Math.abs(player.x-e.x)<100&&player.invincible<=0)damagePlayer(15,e.x);Sound.enemySkill();}
+  else if(e.kind==='shadowBeast'){e.skillActive=0.6;e.skillVx=dx/dist*340;e.skillVy=dy/dist*340;Sound.enemySkill();}
+  else if(e.kind==='voidCrawler'){e.skillActive=0.5;e.skillVx=dx/dist*220;Sound.enemySkill();}
+  else if(e.kind==='nightmare'){e.skillActive=1.0;Sound.enemySkill();}
+  else if(e.kind==='cryptHorror'){for(var k=0;k<6;k++){var a3=Math.PI*2/6*k+Math.random()*0.3;enemyProjectiles.push({x:e.x+e.w/2,y:e.y+e.h/2,vx:Math.cos(a3)*160,vy:Math.sin(a3)*160,life:3,dmg:12,color:'#fbbf24',size:3});}Sound.enemySkill();}
   e.skillTimer=2.5+Math.random()*2;
 }
 
-/* ============ ENEMIES UPDATE ============ */
+/* ===== ENEMY UPDATE ===== */
 function updateEnemies(dt){
   for(var i=enemies.length-1;i>=0;i--){
     var e=enemies[i];
+    // Lazy: نشيل الأعداء البعيدين جداً
+    if(Math.abs(e.x-player.x)>700&&!e.dead){enemies.splice(i,1);continue;}
     if(e.hitFlash>0)e.hitFlash-=dt;
     if(e.hitCooldown>0)e.hitCooldown-=dt;
     if(e.dead){
@@ -469,16 +498,13 @@ function updateEnemies(dt){
         var spd=Math.sqrt(e.vx*e.vx+e.vy*e.vy);
         if(spd>maxSp*2.5){e.vx=e.vx/spd*maxSp*2.5;e.vy=e.vy/spd*maxSp*2.5;}
         e.x+=e.vx*dt;e.vy+=GRAVITY*dt;e.y+=e.vy*dt;
-        for(var j=0;j<world.platforms.length;j++){
-          var p=world.platforms[j];
-          if(rect({x:e.x,y:e.y,w:e.w,h:e.h},p)){
-            if(e.vy>0){e.y=p.y-e.h;e.vy=0;}
-          }
+        var vis=getVisiblePlatforms();
+        for(var j=0;j<vis.length;j++){
+          var p=vis[j];
+          if(rect({x:e.x,y:e.y,w:e.w,h:e.h},p)){if(e.vy>0){e.y=p.y-e.h;e.vy=0;}}
         }
       }
       if(e.y>VH+100){enemies.splice(i,1);continue;}
-      if(e.x<player.x-400)e.x=player.x-400;
-      if(e.x>player.x+400)e.x=player.x+400;
     } else if(e.type==='flyer'){
       if(e.skillActive<=0){
         var fSp=e.cfg.speed;
@@ -490,8 +516,6 @@ function updateEnemies(dt){
           e.y=e.baseY+Math.sin(e.bobPhase)*10;
         }
       }
-      if(e.x<player.x-400)e.x=player.x-400;
-      if(e.x>player.x+400)e.x=player.x+400;
       if(e.y<30)e.vy=Math.abs(e.vy);
       if(e.y>VH-30)e.vy=-Math.abs(e.vy);
     }
@@ -510,34 +534,28 @@ function updateEnemyProjectiles(dt){
     if(player.invincible<=0&&Math.abs(p.x-(player.x+player.w/2))<10&&Math.abs(p.y-(player.y+player.h/2))<12){
       damagePlayer(p.dmg,p.x);enemyProjectiles.splice(i,1);continue;
     }
-    if(p.life<=0||p.x<camera.x-60||p.x>camera.x+VW+60)enemyProjectiles.splice(i,1);
+    if(p.life<=0||p.x<camera.x-80||p.x>camera.x+VW+80)enemyProjectiles.splice(i,1);
   }
 }
 
-/* ============ BOSS UPDATE ============ */
+/* ===== BOSS ===== */
 function updateBoss(dt){
   if(!boss||boss.dead)return;
   if(boss.hitFlash>0)boss.hitFlash-=dt;
   if(boss.hitCooldown>0)boss.hitCooldown-=dt;
-
   if(boss.state==='enter'){
     boss.stateTimer-=dt;boss.x+=boss.vx*dt;
     var targetX=camera.x+VW-80;
     if(boss.x<targetX){boss.x=targetX;boss.vx=0;boss.state='idle';boss.attackTimer=1.5;}
     return;
   }
-
-  boss.attackTimer-=dt;
-  boss.skillTimer-=dt;
-
+  boss.attackTimer-=dt;boss.skillTimer-=dt;
   if(boss.skillActive>0){
-    boss.skillActive-=dt;
-    boss.skillPhase+=dt;
+    boss.skillActive-=dt;boss.skillPhase+=dt;
     if(boss.kind==='skeletonKing'){
       if(Math.floor(boss.skillPhase/0.3)>Math.floor((boss.skillPhase-dt)/0.3)){
         if(Math.random()<0.6){
-          var z=ZONES[boss.zone];
-          var e=z.enemies[2];
+          var z=ZONES[boss.zone];var e=z.enemies[2];
           enemies.push({cfg:e,kind:'skeleton',type:'walker',
             x:boss.x+rand(-50,50),y:boss.y,vx:rand(-70,70),vy:-100,
             w:10,h:12,hp:60,maxHp:60,direction:1,hitFlash:0,hitCooldown:0,dead:false,
@@ -572,20 +590,13 @@ function updateBoss(dt){
     if(boss.skillActive<=0){boss.state='idle';boss.attackTimer=1.5;}
     return;
   }
-
   if(boss.state==='idle'){
     boss.bobPhase+=dt*4;
     boss.y=boss.baseY+Math.sin(boss.bobPhase)*3;
-    if(boss.skillTimer<=0){
-      boss.skillActive=2.0;boss.skillPhase=0;
-      Sound.bossRoar();shakeNow(8,0.4);
-      boss.skillTimer=6+Math.random()*3;
-      return;
-    }
+    if(boss.skillTimer<=0){boss.skillActive=2.0;boss.skillPhase=0;Sound.bossRoar();shakeNow(8,0.4);boss.skillTimer=6+Math.random()*3;return;}
     if(boss.attackTimer<=0){
       var r=Math.random();
-      if(r<0.4){boss.state='charge';boss.stateTimer=1.4;
-        boss.vx=(player.x<boss.x?-1:1)*100;boss.vy=-180;Sound.bossRoar();}
+      if(r<0.4){boss.state='charge';boss.stateTimer=1.4;boss.vx=(player.x<boss.x?-1:1)*100;boss.vy=-180;Sound.bossRoar();}
       else if(r<0.7){boss.state='shoot';boss.stateTimer=1.2;boss.shootTimer=0;}
       else{boss.state='jump';boss.stateTimer=1.0;boss.vy=-280;}
       boss.attackTimer=1.8+Math.random()*1.2;
@@ -596,35 +607,28 @@ function updateBoss(dt){
     if(boss.y+boss.h>230){boss.y=230-boss.h;boss.vy=0;}
     if(boss.x<camera.x+20)boss.x=camera.x+20;
     if(boss.stateTimer<=0){boss.state='idle';boss.vx=0;}
-    if(player.invincible<=0&&rect(player,{x:boss.x,y:boss.y,w:boss.w,h:boss.h})){
-      damagePlayer(boss.cfg.dmg,boss.x);
-    }
+    if(player.invincible<=0&&rect(player,{x:boss.x,y:boss.y,w:boss.w,h:boss.h}))damagePlayer(boss.cfg.dmg,boss.x);
   } else if(boss.state==='shoot'){
     boss.stateTimer-=dt;boss.shootTimer-=dt;
-    if(boss.shootTimer<=0){
-      boss.shootTimer=0.35;
+    if(boss.shootTimer<=0){boss.shootTimer=0.35;
       var dx=(player.x+player.w/2)-(boss.x+boss.w/2);
       var dy=(player.y+player.h/2)-(boss.y+boss.h/2);
       var len=Math.sqrt(dx*dx+dy*dy);if(len<1)len=1;
-      enemyProjectiles.push({x:boss.x+boss.w/2,y:boss.y+boss.h/2,
-        vx:dx/len*180,vy:dy/len*180,life:3,dmg:14,color:'#ff3355',size:4});
+      enemyProjectiles.push({x:boss.x+boss.w/2,y:boss.y+boss.h/2,vx:dx/len*180,vy:dy/len*180,life:3,dmg:14,color:'#ff3355',size:4});
     }
     if(boss.stateTimer<=0)boss.state='idle';
   } else if(boss.state==='jump'){
     boss.stateTimer-=dt;boss.vy+=GRAVITY*dt;boss.y+=boss.vy*dt;
     if(boss.y+boss.h>230){
-      boss.y=230-boss.h;boss.vy=0;
-      shakeNow(9,0.35);
+      boss.y=230-boss.h;boss.vy=0;shakeNow(9,0.35);
       spawnParticles(boss.x+boss.w/2,230,'#fbbf24',20,2);
-      if(player.onGround&&Math.abs(player.x-boss.x)<100&&player.invincible<=0){
-        damagePlayer(boss.cfg.dmg,boss.x);
-      }
+      if(player.onGround&&Math.abs(player.x-boss.x)<100&&player.invincible<=0)damagePlayer(boss.cfg.dmg,boss.x);
       boss.state='idle';
     }
   }
 }
 
-/* ============ NPCs & SHOP ============ */
+/* ===== NPCs ===== */
 function checkNpcInteraction(){
   var closest=null;var closestDist=70;
   for(var i=0;i<world.npcs.length;i++){
@@ -634,59 +638,52 @@ function checkNpcInteraction(){
   }
   if(closest!==currentNpc){
     currentNpc=closest;
-    if(closest){
-      Hint.show();
-    } else {
-      Hint.hide();
-    }
+    if(closest)Hint.show();else Hint.hide();
   }
   if(currentNpc&&input.ap){
     input.ap=false;
     if(currentNpc.type==='shop'){
       Sound.shop();
-      Shop.open(saveData.gold,saveData.weaponLevel,function(item){
-        if(saveData.gold<item.price)return;
-        saveData.gold-=item.price;
-        if(item.id[0]==='w'){
-          saveData.weaponLevel++;
-          player.playerDamage=BASE_DAMAGE+(saveData.weaponLevel-1)*20;
-        } else {
-          saveData.armorLevel++;
-          var bonus=(saveData.armorLevel-1)*40;
-          player.maxHp=BASE_HP+bonus;
-          player.hp=player.maxHp;
-        }
-        Save.save(saveData);
-        Sound.buy();
-        Shop.open(saveData.gold,saveData.weaponLevel,arguments.callee);
-        updateHUD();
-      });
+      var openShop=function(){
+        Shop.open(saveData.gold,saveData.weaponLevel,function(item){
+          if(saveData.gold<item.price)return;
+          saveData.gold-=item.price;
+          if(item.id[0]==='w'){
+            saveData.weaponLevel++;
+            player.playerDamage=BASE_DAMAGE+(saveData.weaponLevel-1)*20;
+          } else {
+            saveData.armorLevel++;
+            var bonus=(saveData.armorLevel-1)*40;
+            player.maxHp=BASE_HP+bonus;player.hp=player.maxHp;
+          }
+          Save.save(saveData);Sound.buy();openShop();
+        });
+      };
+      openShop();
     } else if(currentNpc.type==='forge'){
       Sound.forge();
-      Forge.open(saveData.gold,saveData.weaponLevel,function(){
-        var prices=[0,0,80,180,350,600];
-        var price=prices[saveData.weaponLevel]||0;
-        if(saveData.gold<price||saveData.weaponLevel>=5)return;
-        saveData.gold-=price;
-        saveData.weaponLevel++;
-        player.playerDamage=BASE_DAMAGE+(saveData.weaponLevel-1)*20;
-        Save.save(saveData);
-        Sound.buy();
-        Forge.open(saveData.gold,saveData.weaponLevel,arguments.callee);
-        updateHUD();
-      });
+      var openForge=function(){
+        Forge.open(saveData.gold,saveData.weaponLevel,function(){
+          var prices=[0,0,80,180,350,600];
+          var price=prices[saveData.weaponLevel]||0;
+          if(saveData.gold<price||saveData.weaponLevel>=5)return;
+          saveData.gold-=price;saveData.weaponLevel++;
+          player.playerDamage=BASE_DAMAGE+(saveData.weaponLevel-1)*20;
+          Save.save(saveData);Sound.buy();openForge();
+        });
+      };
+      openForge();
     }
   }
 }
 
-/* ============ HERO PARTICLES ============ */
+/* ===== HERO PARTICLES ===== */
 function updateHeroParticles(dt){
   if(!player||!settings.particles)return;
   if(Math.random()<0.35){
     var ang=Math.random()*Math.PI*2;
     var r=8+Math.random()*8;
-    heroParticles.push({x:player.x+6+Math.cos(ang)*r,
-      y:player.y+10+Math.sin(ang)*r,
+    heroParticles.push({x:player.x+6+Math.cos(ang)*r,y:player.y+10+Math.sin(ang)*r,
       vx:(Math.random()-0.5)*15,vy:-15-Math.random()*20,
       life:0.8+Math.random()*0.4,maxLife:0.8+Math.random()*0.4,
       size:1+Math.random()*1.5});
@@ -698,38 +695,31 @@ function updateHeroParticles(dt){
   }
 }
 
-/* ============ ZONE PROGRESSION ============ */
+/* ===== ZONE PROGRESSION ===== */
 function checkZoneProgression(){
   var zi=getZoneIndex(player.x);
-  if(zi!==currentZoneIdx){
-    currentZoneIdx=zi;
-    saveData.currentZone=zi;
-    Save.save(saveData);
-  }
-  // Spawn enemies once per zone
+  if(zi!==currentZoneIdx){currentZoneIdx=zi;saveData.currentZone=zi;Save.save(saveData);}
   if(!zoneEnemiesSpawned[zi]&&!zoneBossActive[zi]&&!bossKilled[zi]){
     var z=ZONES[zi];
     for(var i=0;i<z.spawnCount;i++){
-      setTimeout(function(){spawnEnemyInZone(zi);},i*400);
+      (function(idx){setTimeout(function(){spawnEnemyInZone(idx);},idx*400);})(zi);
     }
     zoneEnemiesSpawned[zi]=true;
   }
-  // Spawn boss if all zone enemies cleared
-  if(zoneEnemiesSpawned[zi]&&!zoneBossActive[zi]&&!bossKilled[zi]){
+  if(zoneEnemiesSpawned[zi]&&!zoneBossActive[zi]&&!bossKilled[zi]&&boss===null){
     var aliveInZone=0;
     for(var j=0;j<enemies.length;j++){
       if(enemies[j].zone===zi&&!enemies[j].dead)aliveInZone++;
     }
-    if(aliveInZone===0&&boss===null){
+    if(aliveInZone===0){
       var z2=ZONES[zi];
-      if(player.x>z2.endX-250){
-        spawnBoss(zi);
-      }
+      if(player.x>z2.endX-280)spawnBoss(zi);
     }
   }
 }
 
-/* ============ HUD ============ */
+
+/* ===== HUD ===== */
 function updateHUD(){
   var hpFill=document.getElementById('hpFill');
   var goldEl=document.getElementById('goldCount');
@@ -745,7 +735,7 @@ function updateHUD(){
   if(aLvEl)aLvEl.textContent='Lv.'+saveData.armorLevel;
 }
 
-/* ============ CAMERA ============ */
+/* ===== CAMERA ===== */
 function updateCamera(){
   var targetX=player.x-VW*0.4;
   if(targetX<0)targetX=0;
@@ -755,7 +745,7 @@ function updateCamera(){
   if(camera.x>world.width-VW)camera.x=world.width-VW;
 }
 
-/* ============ DRAWING ============ */
+/* ===== BACKGROUND (each zone unique) ===== */
 function drawBackground(){
   var zi=currentZoneIdx;
   var t=ZONES[zi].theme;
@@ -776,8 +766,7 @@ function drawBackground(){
       var cx=(c*220+Math.floor(camX*0.1))%VW;
       var cy=40+c*20;
       ctx.fillStyle='rgba(45,27,94,'+(0.4+c*0.08)+')';
-      ctx.beginPath();
-      ctx.moveTo(cx-60,cy+50);
+      ctx.beginPath();ctx.moveTo(cx-60,cy+50);
       ctx.bezierCurveTo(cx-40,cy-20,cx-20,cy-40,cx-10,cy-10);
       ctx.bezierCurveTo(cx,cy-25,cx+10,cy-30,cx+15,cy-12);
       ctx.bezierCurveTo(cx+30,cy-35,cx+50,cy-15,cx+65,cy+50);
@@ -788,8 +777,7 @@ function drawBackground(){
     for(var s=0;s<15;s++){
       var sx2=(s*41+Math.floor(camX*0.6))%VW;
       var sLen=20+((s*23)%50);
-      ctx.beginPath();
-      ctx.moveTo(sx2-7,0);
+      ctx.beginPath();ctx.moveTo(sx2-7,0);
       ctx.bezierCurveTo(sx2-5,sLen*0.5,sx2-3,sLen*0.8,sx2,sLen);
       ctx.bezierCurveTo(sx2+3,sLen*0.8,sx2+5,sLen*0.5,sx2+7,0);
       ctx.closePath();ctx.fill();
@@ -797,8 +785,7 @@ function drawBackground(){
   } else if(zi===1){
     var sky2=lg(ctx,0,0,0,VH,[[0,'#3a0a05'],[0.4,'#1a0402'],[0.7,'#0a0202'],[1,'#000000']]);
     ctx.fillStyle=sky2;ctx.fillRect(0,0,VW,VH);
-    var moonX=VW*0.75;
-    var moonY=80;
+    var moonX=VW*0.75;var moonY=80;
     var mg=rg(ctx,moonX,moonY,80,[[0,'rgba(255,159,28,0.6)'],[0.4,'rgba(220,38,38,0.3)'],[1,'rgba(220,38,38,0)']]);
     ctx.fillStyle=mg;ctx.beginPath();ctx.arc(moonX,moonY,80,0,Math.PI*2);ctx.fill();
     ctx.fillStyle='#fbbf24';ctx.beginPath();ctx.arc(moonX,moonY,26,0,Math.PI*2);ctx.fill();
@@ -918,10 +905,10 @@ function drawBackground(){
 
 function drawPlatforms(){
   var t=ZONES[currentZoneIdx].theme;
-  for(var i=0;i<world.platforms.length;i++){
-    var p=world.platforms[i];
+  var vis=getVisiblePlatforms();
+  for(var i=0;i<vis.length;i++){
+    var p=vis[i];
     var px=Math.floor(p.x-camera.x);
-    if(px+p.w<-20||px>VW+20)continue;
     ctx.fillStyle='rgba(0,0,0,0.55)';
     ctx.fillRect(px+3,p.y+4,p.w,p.h);
     var pg=lg(ctx,0,p.y,0,p.y+p.h,[[0,t.platTop],[0.25,t.platBot],[1,'#000']]);
@@ -938,9 +925,9 @@ function drawNpcs(){
   for(var i=0;i<world.npcs.length;i++){
     var npc=world.npcs[i];
     var px=Math.floor(npc.x-camera.x);
-    if(px<-50||px>VW+50)continue;
+    if(px<-80||px>VW+80)continue;
     if(npc.type==='shop')drawShopkeeper(ctx,px,npc.y,gameTime);
-    else drawForge(ctx,px,npc.y,gameTime);
+    else drawBlacksmith(ctx,px,npc.y,gameTime);
   }
 }
 
@@ -958,7 +945,7 @@ function drawEnemies(){
   for(var i=0;i<enemies.length;i++){
     var e=enemies[i];
     var px=Math.floor(e.x-camera.x);
-    if(px<-50||px>VW+50)continue;
+    if(px<-60||px>VW+60)continue;
     ctx.globalAlpha=e.dead?e.opacity:1;
     var hit=e.hitFlash>0;
     switch(e.kind){
@@ -1014,7 +1001,7 @@ function drawEnemyProjectiles(){
   for(var i=0;i<enemyProjectiles.length;i++){
     var p=enemyProjectiles[i];
     var px=Math.floor(p.x-camera.x);
-    if(px<-30||px>VW+30)continue;
+    if(px<-40||px>VW+40)continue;
     ctx.globalAlpha=Math.max(0,p.life/3);
     ctx.fillStyle=p.color;ctx.shadowColor=p.color;ctx.shadowBlur=12;
     ctx.beginPath();ctx.arc(px,p.y,p.size+1,0,Math.PI*2);ctx.fill();
@@ -1062,11 +1049,13 @@ function drawAttackEffect(){
   }
 }
 
-/* ============ MAIN LOOP ============ */
+/* ===== MAIN LOOP ===== */
 var last=0;
 function loop(ts){
+  requestAnimationFrame(loop);
   var dt=Math.min((ts-last)/1000,0.05);last=ts;
-  if(hitPause>0){hitPause-=dt;requestAnimationFrame(loop);return;}
+  if(!gameRunning)return;
+  if(hitPause>0){hitPause-=dt;return;}
   dtGlobal=dt;gameTime+=dt;
 
   if(state==='playing'){
@@ -1127,87 +1116,64 @@ function loop(ts){
   drawAttackEffect();
   drawParticles();
   ctx.restore();
-
-  requestAnimationFrame(loop);
 }
 
-/* ============ GAME BRIDGE API ============ */
+/* ===== GAME BRIDGE ===== */
 window.GameBridge={
   startNewGame:function(){
     saveData=Save.load();
-    saveData.gold=0;
-    saveData.weaponLevel=1;
-    saveData.armorLevel=1;
-    saveData.totalKills=0;
-    saveData.bossesDefeated=[false,false,false,false];
-    saveData.playerX=60;
-    saveData.playerY=100;
-    saveData.currentZone=0;
+    saveData.gold=0;saveData.weaponLevel=1;saveData.armorLevel=1;
+    saveData.totalKills=0;saveData.bossesDefeated=[false,false,false,false];
+    saveData.playerX=60;saveData.playerY=100;saveData.currentZone=0;
     Save.save(saveData);
     bossKilled=[false,false,false,false];
     zoneBossActive=[false,false,false,false];
     zoneEnemiesSpawned=[false,false,false,false];
-    enemies=[];
-    particles=[];
-    enemyProjectiles=[];
-    heroParticles=[];
-    boss=null;
-    currentNpc=null;
-    Hint.hide();
+    enemies=[];particles=[];enemyProjectiles=[];heroParticles=[];
+    boss=null;currentNpc=null;Hint.hide();
     initPlayer();
-    camera.x=0;
-    currentZoneIdx=0;
-    state='playing';
+    camera.x=0;currentZoneIdx=0;state='playing';
+    gameRunning=true;
   },
   continueGame:function(){
     saveData=Save.load();
     bossKilled=saveData.bossesDefeated.slice();
     zoneBossActive=[false,false,false,false];
     zoneEnemiesSpawned=[false,false,false,false];
-    enemies=[];
-    particles=[];
-    enemyProjectiles=[];
-    heroParticles=[];
-    boss=null;
-    currentNpc=null;
-    Hint.hide();
+    enemies=[];particles=[];enemyProjectiles=[];heroParticles=[];
+    boss=null;currentNpc=null;Hint.hide();
     initPlayer();
     camera.x=Math.max(0,player.x-VW*0.4);
     currentZoneIdx=getZoneIndex(player.x);
     state='playing';
+    gameRunning=true;
   },
-  pause:function(){
-    if(state==='playing')state='paused';
-  },
-  resume:function(){
-    if(state==='paused')state='playing';
-  },
+  pause:function(){if(state==='playing')state='paused';},
+  resume:function(){if(state==='paused')state='playing';},
   save:function(){
     if(player){
-      saveData.playerX=player.x;
-      saveData.playerY=player.y;
-      saveData.playerHP=player.hp;
-      Save.save(saveData);
+      saveData.playerX=player.x;saveData.playerY=player.y;
+      saveData.playerHP=player.hp;Save.save(saveData);
     }
   },
-  setVolume:function(v){
-    // الحجم يتم تطبيقه في audio.js
-  }
+  setVolume:function(v){}
 };
 
-/* ============ INIT ============ */
+/* ===== INIT ===== */
 Sound.init();
-document.addEventListener('touchstart',function u(){
-  Sound.init();Sound.resume();
-  document.removeEventListener('touchstart',u);
-},{once:true});
-document.addEventListener('mousedown',function u(){
-  Sound.init();Sound.resume();
-  document.removeEventListener('mousedown',u);
-},{once:true});
+document.addEventListener('touchstart',function u(){Sound.init();Sound.resume();document.removeEventListener('touchstart',u);},{once:true});
+document.addEventListener('mousedown',function u(){Sound.init();Sound.resume();document.removeEventListener('mousedown',u);},{once:true});
 
 initPlayer();
 requestAnimationFrame(function(t){last=t;requestAnimationFrame(loop);});
 console.log('%c⚔️ Shadow Blade v2.0','color:#a78bfa;font-size:20px;font-weight:900;');
-console.log('%cFull open world · 4 zones · Save system · Shop · Forge','color:#e879f9;font-size:11px;');
+console.log('%cOpen World · 4 Unique Zones · Lazy Rendering','color:#e879f9;font-size:11px;');
+
+}catch(err){
+  console.error('Game error:',err);
+  var loading=document.getElementById('loading');
+  if(loading){
+    loading.innerHTML='<div style="color:#ff3355;text-align:center;padding:20px;font-family:monospace;font-size:12px">⚠️ Error Loading Game<br><br>'+err.message+'</div>';
+  }
+}
 })();
