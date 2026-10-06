@@ -38,7 +38,6 @@ jobs:
         rsvg-convert -w 96  -h 96  www/icon.svg -o icons/icon-96.png
         rsvg-convert -w 72  -h 72  www/icon.svg -o icons/icon-72.png
         rsvg-convert -w 48  -h 48  www/icon.svg -o icons/icon-48.png
-        ls -la icons/
 
     - name: Install npm dependencies
       run: npm install
@@ -47,11 +46,26 @@ jobs:
       run: npx cap add android
 
     - name: Set minSdkVersion
-      run: |
-        sed -i 's/minSdkVersion = [0-9]*/minSdkVersion = 24/' android/variables.gradle
-        cat android/variables.gradle
+      run: sed -i 's/minSdkVersion = [0-9]*/minSdkVersion = 24/' android/variables.gradle
 
-    - name: Copy Custom Icons to Android
+    - name: Force Landscape Orientation
+      run: |
+        python3 -c "
+        import re
+        with open('android/app/src/main/AndroidManifest.xml','r') as f:
+            content = f.read()
+        content = re.sub(
+            r'<activity([^>]*)>',
+            lambda m: '<activity' + m.group(1) + ' android:screenOrientation=\"sensorLandscape\" android:configChanges=\"orientation|screenSize|keyboardHidden\">' if 'screenOrientation' not in m.group(1) else m.group(0),
+            content
+        )
+        with open('android/app/src/main/AndroidManifest.xml','w') as f:
+            f.write(content)
+        print('Orientation set to landscape')
+        "
+        grep -A2 "<activity" android/app/src/main/AndroidManifest.xml
+
+    - name: Copy Custom Icons
       run: |
         cp icons/icon-48.png android/app/src/main/res/mipmap-mdpi/ic_launcher.png
         cp icons/icon-48.png android/app/src/main/res/mipmap-mdpi/ic_launcher_round.png
@@ -64,7 +78,6 @@ jobs:
         cp icons/icon-192.png android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
         cp icons/icon-192.png android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png
         rm -rf android/app/src/main/res/mipmap-anydpi-v26 || true
-        echo "Icons copied successfully"
 
     - name: Sync Capacitor
       run: npx cap sync android
