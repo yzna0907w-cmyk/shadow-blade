@@ -13,6 +13,7 @@ function loadImg(name, src){
   IMG[name] = img;
   return img;
 }
+loadImg('titleScreen',   'assets/title_screen.png');
 loadImg('knight',        'assets/knight.png');
 loadImg('bat',           'assets/bat.png');
 loadImg('slime',         'assets/slime.png');

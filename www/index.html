@@ -24,20 +24,22 @@
 </div>
 
 <div id="title-screen">
+<img src="assets/title_screen.png" alt="Shadow Blade" class="title-bg-img">
 <div class="title-vignette"></div>
 <div class="title-particles" id="titleParticles"></div>
 <div class="title-content">
+<div class="title-logo-area">
 <h1 class="title-name">SHADOW<span>BLADE</span></h1>
 <p class="title-sub">THE UMBRAL PATH</p>
+</div>
 <div class="title-menu">
 <button class="menu-btn menu-btn--primary" id="btnNewGame"><span>⚔ NEW GAME</span></button>
 <button class="menu-btn" id="btnContinue"><span>▶ CONTINUE</span></button>
 <button class="menu-btn" id="btnSettings"><span>⚙ SETTINGS</span></button>
-<button class="menu-btn" id="btnAbout"><span>ℹ ABOUT</span></button>
 <button class="menu-btn menu-btn--link" id="btnWebsite"><span>🌐 WEBSITE</span></button>
 </div>
-<div class="title-gold" id="titleGold">💰 0</div>
 </div>
+<div class="title-gold" id="titleGold">💰 0</div>
 </div>
 
 <div id="settingsScreen" class="modal-screen">
@@ -57,7 +59,7 @@
 <div style="text-align:center;color:#c4b5fd;line-height:1.8">
 <p style="font-size:1.3rem;color:#e879f9">&lt;/&gt; SHADOW BLADE</p>
 <p>2D Action Platformer</p>
-<p style="color:#fbbf24;font-weight:700">v3.0.0</p>
+<p style="color:#fbbf24;font-weight:700">v4.0.0</p>
 <p style="font-size:0.75rem;color:#7c7c8a">© 2026 YZ</p>
 </div>
 <button class="modal-btn modal-btn--close" id="closeAbout">CLOSE</button>
@@ -83,7 +85,18 @@
 </div>
 </div>
 
-<!-- شاشة الخريطة -->
+<div id="bossPromptScreen" class="modal-screen">
+<div class="modal-box">
+<h2 class="modal-title" id="bossPromptName">⚔ BOSS</h2>
+<div style="text-align:center;color:#c4b5fd;padding:15px 0;font-size:1rem">
+هل أنت مستعد لمواجهة البوس؟
+</div>
+<div style="text-align:center;font-size:2.5rem;margin:15px 0">👑</div>
+<button class="modal-btn menu-btn--primary" id="bossAcceptBtn">⚔ نعم، هيا نواجه!</button>
+<button class="modal-btn modal-btn--close" id="bossDeclineBtn">⏸ ليس الآن</button>
+</div>
+</div>
+
 <div id="mapScreen" class="map-screen">
 <div class="map-header">
 <h2 class="map-title">🗺️ AETHEL</h2>
@@ -91,47 +104,31 @@
 </div>
 <div class="map-container">
 <img src="assets/world_map.png" alt="World Map" id="worldMapImg" class="world-map-img">
-<div class="map-hotspot" data-target="0" style="left:12%;top:55%;">
-<div class="hotspot-icon">🪦</div>
-<div class="hotspot-label">CRYPT</div>
+<div class="map-hotspot" data-target="0" style="left:12%;top:55%;"><div class="hotspot-icon">🪦</div><div class="hotspot-label">CRYPT</div></div>
+<div class="map-hotspot" data-target="1" style="left:38%;top:55%;"><div class="hotspot-icon">🔥</div><div class="hotspot-label">FIRE</div></div>
+<div class="map-hotspot" data-target="2" style="left:62%;top:55%;"><div class="hotspot-icon">❄️</div><div class="hotspot-label">FROZEN</div></div>
+<div class="map-hotspot" data-target="3" style="left:88%;top:55%;"><div class="hotspot-icon">🌑</div><div class="hotspot-label">SHADOW</div></div>
+<div class="map-hotspot map-hotspot--shop" data-target="shop" style="left:22%;top:75%;"><div class="hotspot-icon">🏪</div><div class="hotspot-label">SHOP</div></div>
+<div class="map-hotspot map-hotspot--forge" data-target="forge" style="left:32%;top:75%;"><div class="hotspot-icon">⚒</div><div class="hotspot-label">FORGE</div></div>
 </div>
-<div class="map-hotspot" data-target="1" style="left:38%;top:55%;">
-<div class="hotspot-icon">🔥</div>
-<div class="hotspot-label">FIRE</div>
-</div>
-<div class="map-hotspot" data-target="2" style="left:62%;top:55%;">
-<div class="hotspot-icon">❄️</div>
-<div class="hotspot-label">FROZEN</div>
-</div>
-<div class="map-hotspot" data-target="3" style="left:88%;top:55%;">
-<div class="hotspot-icon">🌑</div>
-<div class="hotspot-label">SHADOW</div>
-</div>
-<div class="map-hotspot map-hotspot--shop" data-target="shop" style="left:22%;top:75%;">
-<div class="hotspot-icon">🏪</div>
-<div class="hotspot-label">SHOP</div>
-</div>
-<div class="map-hotspot map-hotspot--forge" data-target="forge" style="left:32%;top:75%;">
-<div class="hotspot-icon">⚒</div>
-<div class="hotspot-label">FORGE</div>
-</div>
-</div>
-<div class="map-footer">اختر منطقة للانتقال إليها</div>
+<div class="map-footer" id="mapFooter">اختر منطقة للانتقال إليها</div>
 </div>
 
 <div id="game-container">
 <div id="game-wrap">
 <canvas id="game" width="480" height="270"></canvas>
 <div id="hud">
-<div class="hud-row">
+<div class="hud-left">
 <div class="hud-item"><span class="hud-label">HP</span><div class="hp-bar"><div class="hp-fill" id="hpFill"></div></div></div>
-<div class="hud-item"><span class="hud-label">💰</span><span class="hud-value" id="goldCount">0</span></div>
 <div class="hud-item"><span class="hud-label">ZONE</span><span class="hud-value hud-value--level" id="levelName">CRYPT</span></div>
 </div>
-<div class="hud-row">
-<div class="hud-item"><span class="hud-label">☠</span><span class="hud-value" id="killCount">0</span></div>
+<div class="hud-center">
+<div class="hud-item"><span class="hud-label">💰</span><span class="hud-value" id="goldCount">0</span></div>
 <div class="hud-item"><span class="hud-label">🔑</span><span class="hud-value" id="keyCount">0/4</span></div>
+</div>
+<div class="hud-right">
 <div class="hud-item"><span class="hud-label">⚔</span><span class="hud-value" id="weaponLevel">Lv.1</span></div>
+<div class="hud-item"><span class="hud-label">☠</span><span class="hud-value" id="killCount">0</span></div>
 </div>
 </div>
 <div class="map-btn" id="mapBtn">🗺️</div>
