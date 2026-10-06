@@ -48,13 +48,12 @@ jobs:
     - name: Set minSdkVersion
       run: sed -i 's/minSdkVersion = [0-9]*/minSdkVersion = 24/' android/variables.gradle
 
-    - name: Show Original Manifest
+    - name: Debug Original Manifest
       run: cat android/app/src/main/AndroidManifest.xml
 
-    - name: Add Landscape Orientation
+    - name: Add Landscape Orientation (Perl)
       run: |
-        # إضافة screenOrientation داخل activity الرئيسي فقط
-        sed -i '0,/<activity/{s/<activity/<activity android:screenOrientation="sensorLandscape" android:configChanges="orientation|screenSize|keyboardHidden"/}' android/app/src/main/AndroidManifest.xml
+        perl -i -pe 's/(<activity\s+[^>]*android:name="\.MainActivity"[^>]*)(>)/$1 android:screenOrientation="sensorLandscape" android:configChanges="orientation|screenSize|keyboardHidden"$2/ unless /screenOrientation/' android/app/src/main/AndroidManifest.xml
         echo "--- After modification ---"
         cat android/app/src/main/AndroidManifest.xml
 
