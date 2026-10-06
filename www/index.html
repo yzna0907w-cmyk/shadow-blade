@@ -15,9 +15,7 @@
 <div class="story-vignette"></div>
 <div class="story-scanlines"></div>
 <div class="story-chapter" id="storyChapter">SHADOW BLADE</div>
-<div class="story-content">
-<div class="story-text" id="storyText"></div>
-</div>
+<div class="story-content"><div class="story-text" id="storyText"></div></div>
 <div class="story-controls">
 <button class="story-btn story-btn--skip" id="storySkip" type="button">تخطي ⟪</button>
 <button class="story-btn story-btn--next" id="storyNext" type="button">التالي ⟫</button>
@@ -59,7 +57,7 @@
 <div style="text-align:center;color:#c4b5fd;line-height:1.8">
 <p style="font-size:1.3rem;color:#e879f9">&lt;/&gt; SHADOW BLADE</p>
 <p>2D Action Platformer</p>
-<p style="color:#fbbf24;font-weight:700">v2.0.0</p>
+<p style="color:#fbbf24;font-weight:700">v3.0.0</p>
 <p style="font-size:0.75rem;color:#7c7c8a">© 2026 YZ</p>
 </div>
 <button class="modal-btn modal-btn--close" id="closeAbout">CLOSE</button>
@@ -85,6 +83,42 @@
 </div>
 </div>
 
+<!-- شاشة الخريطة -->
+<div id="mapScreen" class="map-screen">
+<div class="map-header">
+<h2 class="map-title">🗺️ AETHEL</h2>
+<button class="map-close" id="closeMap" type="button">✕</button>
+</div>
+<div class="map-container">
+<img src="assets/world_map.png" alt="World Map" id="worldMapImg" class="world-map-img">
+<div class="map-hotspot" data-target="0" style="left:12%;top:55%;">
+<div class="hotspot-icon">🪦</div>
+<div class="hotspot-label">CRYPT</div>
+</div>
+<div class="map-hotspot" data-target="1" style="left:38%;top:55%;">
+<div class="hotspot-icon">🔥</div>
+<div class="hotspot-label">FIRE</div>
+</div>
+<div class="map-hotspot" data-target="2" style="left:62%;top:55%;">
+<div class="hotspot-icon">❄️</div>
+<div class="hotspot-label">FROZEN</div>
+</div>
+<div class="map-hotspot" data-target="3" style="left:88%;top:55%;">
+<div class="hotspot-icon">🌑</div>
+<div class="hotspot-label">SHADOW</div>
+</div>
+<div class="map-hotspot map-hotspot--shop" data-target="shop" style="left:22%;top:75%;">
+<div class="hotspot-icon">🏪</div>
+<div class="hotspot-label">SHOP</div>
+</div>
+<div class="map-hotspot map-hotspot--forge" data-target="forge" style="left:32%;top:75%;">
+<div class="hotspot-icon">⚒</div>
+<div class="hotspot-label">FORGE</div>
+</div>
+</div>
+<div class="map-footer">اختر منطقة للانتقال إليها</div>
+</div>
+
 <div id="game-container">
 <div id="game-wrap">
 <canvas id="game" width="480" height="270"></canvas>
@@ -100,6 +134,7 @@
 <div class="hud-item"><span class="hud-label">⚔</span><span class="hud-value" id="weaponLevel">Lv.1</span></div>
 </div>
 </div>
+<div class="map-btn" id="mapBtn">🗺️</div>
 <div class="pause-btn" id="pauseBtn">II</div>
 <div id="controls">
 <div class="dpad">
@@ -131,6 +166,7 @@ setTimeout(function(){var l=document.getElementById('loading');if(l){l.classList
 <script src="js/audio.js"></script>
 <script src="js/story.js"></script>
 <script src="js/sprites.js"></script>
+<script src="js/map.js"></script>
 <script src="js/game.js"></script>
 <script src="js/ui.js"></script>
 </body>

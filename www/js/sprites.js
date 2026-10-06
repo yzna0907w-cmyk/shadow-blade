@@ -1,194 +1,164 @@
-/* ============================================
-   Shadow Blade - Image Loader + Draw Functions
-   ============================================ */
-
-/* ===== Helper: Gradient Functions ===== */
+/* ===== Gradient Helpers ===== */
 function lg(c,x1,y1,x2,y2,s){var g=c.createLinearGradient(x1,y1,x2,y2);for(var i=0;i<s.length;i++)g.addColorStop(s[i][0],s[i][1]);return g;}
 function rg(c,x,y,r,s){var g=c.createRadialGradient(x,y,0,x,y,r);for(var i=0;i<s.length;i++)g.addColorStop(s[i][0],s[i][1]);return g;}
 
-/* ===== Smart Background Remover ===== */
-function loadTransparentImage(src){
+/* ===== Load Images ===== */
+var IMG = {};
+function loadImg(name, src){
   var img = new Image();
-  img.crossOrigin = 'anonymous';
-  img.loaded = false;
-  img.onload = function(){
-    try{
-      var c = document.createElement('canvas');
-      c.width = img.width;
-      c.height = img.height;
-      var x = c.getContext('2d');
-      x.drawImage(img, 0, 0);
-      var data = x.getImageData(0, 0, c.width, c.height);
-      var p = data.data;
-      var w = c.width, h = c.height;
-      var corners = [0, (w-1)*4, (h-1)*w*4, ((h-1)*w + (w-1))*4];
-      var bgR=0, bgG=0, bgB=0;
-      for(var ci=0;ci<4;ci++){
-        var ii=corners[ci];
-        bgR += p[ii]; bgG += p[ii+1]; bgB += p[ii+2];
-      }
-      bgR = Math.round(bgR/4); bgG = Math.round(bgG/4); bgB = Math.round(bgB/4);
-      var tolerance = 100;
-      for(var j = 0; j < p.length; j += 4){
-        var r = p[j], g = p[j+1], b = p[j+2];
-        var diff = Math.abs(r-bgR) + Math.abs(g-bgG) + Math.abs(b-bgB);
-        if(diff < tolerance){p[j+3] = 0;}
-        else if(diff < tolerance * 1.5){
-          var alpha = Math.floor(255 * ((diff - tolerance) / (tolerance * 0.5)));
-          p[j+3] = Math.min(255, Math.max(0, alpha));
-        }
-      }
-      x.putImageData(data, 0, 0);
-      img.src = c.toDataURL('image/png');
-      img.loaded = true;
-    } catch(e){img.loaded = true;}
-  };
-  img.onerror = function(){img.loaded = true;};
   img.src = src;
+  img.loaded = false;
+  img.onload = function(){img.loaded = true;};
+  img.onerror = function(){img.loaded = true;};
+  IMG[name] = img;
   return img;
 }
+loadImg('knight',        'assets/knight.png');
+loadImg('bat',           'assets/bat.png');
+loadImg('slime',         'assets/slime.png');
+loadImg('skeleton',      'assets/skeleton.png');
+loadImg('imp',           'assets/imp.png');
+loadImg('fireGolem',     'assets/fireGolem.png');
+loadImg('iceWraith',     'assets/iceWraith.png');
+loadImg('frostSpider',   'assets/frostSpider.png');
+loadImg('iceGolem',      'assets/iceGolem.png');
+loadImg('shadowBeast',   'assets/shadowBeast.png');
+loadImg('voidCrawler',   'assets/voidCrawler.png');
+loadImg('nightmare',     'assets/nightmare.png');
+loadImg('cryptHorror',   'assets/cryptHorror.png');
+loadImg('skeletonKing',  'assets/skeletonKing.png');
+loadImg('fireDemon',     'assets/fireDemon.png');
+loadImg('iceQueen',      'assets/iceQueen.png');
+loadImg('shadowLord',    'assets/shadowLord.png');
+loadImg('umbra',         'assets/umbra.png');
+loadImg('shopkeeper',    'assets/shopkeeper.png');
+loadImg('blacksmith',    'assets/blacksmith.png');
+loadImg('shopBooth',     'assets/shop_booth.png');
+loadImg('forgeWorkshop', 'assets/forge_workshop.png');
+loadImg('coin',          'assets/coin.png');
+loadImg('key',           'assets/key.png');
+loadImg('portal',        'assets/portal.png');
 
-/* ===== Load All Images ===== */
-var IMG = {};
-IMG.knight       = loadTransparentImage('assets/knight.png');
-IMG.bat          = loadTransparentImage('assets/bat.png');
-IMG.slime        = loadTransparentImage('assets/slime.png');
-IMG.skeleton     = loadTransparentImage('assets/skeleton.png');
-IMG.imp          = loadTransparentImage('assets/imp.png');
-IMG.fireGolem    = loadTransparentImage('assets/fireGolem.png');
-IMG.iceWraith    = loadTransparentImage('assets/iceWraith.png');
-IMG.frostSpider  = loadTransparentImage('assets/frostSpider.png');
-IMG.iceGolem     = loadTransparentImage('assets/iceGolem.png');
-IMG.shadowBeast  = loadTransparentImage('assets/shadowBeast.png');
-IMG.voidCrawler  = loadTransparentImage('assets/voidCrawler.png');
-IMG.nightmare    = loadTransparentImage('assets/nightmare.png');
-IMG.cryptHorror  = loadTransparentImage('assets/cryptHorror.png');
-IMG.skeletonKing = loadTransparentImage('assets/skeletonKing.png');
-IMG.fireDemon    = loadTransparentImage('assets/fireDemon.png');
-IMG.iceQueen     = loadTransparentImage('assets/iceQueen.png');
-IMG.shadowLord   = loadTransparentImage('assets/shadowLord.png');
-IMG.umbra        = loadTransparentImage('assets/umbra.png');
-IMG.coin         = loadTransparentImage('assets/coin.png');
-IMG.key          = loadTransparentImage('assets/key.png');
-IMG.portal       = loadTransparentImage('assets/portal.png');
-IMG.shopkeeper   = loadTransparentImage('assets/shopkeeper.png');
-IMG.blacksmith   = loadTransparentImage('assets/blacksmith.png');
-
-/* ===== Backgrounds (بدون إزالة خلفية) ===== */
 var BG = {};
 BG.crypt  = new Image(); BG.crypt.src  = 'assets/bg_crypt.png';
 BG.fire   = new Image(); BG.fire.src   = 'assets/bg_fire.png';
 BG.frozen = new Image(); BG.frozen.src = 'assets/bg_frozen.png';
 BG.shadow = new Image(); BG.shadow.src = 'assets/bg_shadow.png';
 
-/* ===== Sprite Sheet Helper ===== */
+var PLAT_IMG = {};
+PLAT_IMG.crypt  = new Image(); PLAT_IMG.crypt.src  = 'assets/platform_crypt.png';
+PLAT_IMG.fire   = new Image(); PLAT_IMG.fire.src   = 'assets/platform_fire.png';
+PLAT_IMG.frozen = new Image(); PLAT_IMG.frozen.src = 'assets/platform_frozen.png';
+PLAT_IMG.shadow = new Image(); PLAT_IMG.shadow.src = 'assets/platform_shadow.png';
+
+/* ===== Sprite Data ===== */
 var SPRITE = {
-  knight:      {img:'knight',      cols:3, rows:2, total:6,  fw:0, fh:0},
-  bat:         {img:'bat',         cols:2, rows:2, total:4,  fw:0, fh:0},
-  slime:       {img:'slime',       cols:2, rows:2, total:4,  fw:0, fh:0},
-  skeleton:    {img:'skeleton',    cols:2, rows:2, total:4,  fw:0, fh:0},
-  imp:         {img:'imp',         cols:2, rows:2, total:4,  fw:0, fh:0},
-  fireGolem:   {img:'fireGolem',   cols:2, rows:2, total:4,  fw:0, fh:0},
-  iceWraith:   {img:'iceWraith',   cols:2, rows:2, total:4,  fw:0, fh:0},
-  frostSpider: {img:'frostSpider', cols:2, rows:2, total:4,  fw:0, fh:0},
-  iceGolem:    {img:'iceGolem',    cols:2, rows:2, total:4,  fw:0, fh:0},
-  shadowBeast: {img:'shadowBeast', cols:2, rows:2, total:4,  fw:0, fh:0},
-  voidCrawler: {img:'voidCrawler', cols:2, rows:2, total:4,  fw:0, fh:0},
-  nightmare:   {img:'nightmare',   cols:2, rows:2, total:4,  fw:0, fh:0},
-  cryptHorror: {img:'cryptHorror', cols:2, rows:2, total:4,  fw:0, fh:0},
-  skeletonKing:{img:'skeletonKing',cols:2, rows:3, total:6,  fw:0, fh:0},
-  fireDemon:   {img:'fireDemon',   cols:2, rows:3, total:6,  fw:0, fh:0},
-  iceQueen:    {img:'iceQueen',    cols:2, rows:3, total:6,  fw:0, fh:0},
-  shadowLord:  {img:'shadowLord',  cols:2, rows:3, total:6,  fw:0, fh:0},
-  umbra:       {img:'umbra',       cols:2, rows:3, total:6,  fw:0, fh:0}
+  knight:      {img:'knight',      cols:3, rows:2, total:6},
+  bat:         {img:'bat',         cols:2, rows:2, total:4},
+  slime:       {img:'slime',       cols:3, rows:2, total:5},
+  skeleton:    {img:'skeleton',    cols:2, rows:2, total:4},
+  imp:         {img:'imp',         cols:2, rows:2, total:4},
+  fireGolem:   {img:'fireGolem',   cols:2, rows:2, total:4},
+  iceWraith:   {img:'iceWraith',   cols:2, rows:2, total:4},
+  frostSpider: {img:'frostSpider', cols:2, rows:2, total:4},
+  iceGolem:    {img:'iceGolem',    cols:2, rows:2, total:4},
+  shadowBeast: {img:'shadowBeast', cols:2, rows:2, total:4},
+  voidCrawler: {img:'voidCrawler', cols:2, rows:2, total:4},
+  nightmare:   {img:'nightmare',   cols:2, rows:2, total:4},
+  cryptHorror: {img:'cryptHorror', cols:2, rows:2, total:4},
+  skeletonKing:{img:'skeletonKing',cols:3, rows:2, total:6},
+  fireDemon:   {img:'fireDemon',   cols:3, rows:2, total:6},
+  iceQueen:    {img:'iceQueen',    cols:3, rows:2, total:6},
+  shadowLord:  {img:'shadowLord',  cols:3, rows:2, total:6},
+  umbra:       {img:'umbra',       cols:3, rows:2, total:6}
 };
 
-/* ===== Draw Sprite from Sheet ===== */
-function drawSpriteFrame(ctx,key,x,y,targetW,targetH,facing,animTime,speed){
-  var s = SPRITE[key];
-  if(!s) return;
-  var img = IMG[s.img];
-  if(!img || !img.loaded) return;
-  speed = speed || 8;
-  var frame = Math.floor(animTime * speed) % s.total;
-  var col = frame % s.cols;
-  var row = Math.floor(frame / s.cols);
-  var fw = img.width / s.cols;
-  var fh = img.height / s.rows;
-  var sx = col * fw;
-  var sy = row * fh;
-  ctx.save();
-  if(facing === -1){
-    ctx.translate(x + targetW/2, 0);
-    ctx.scale(-1, 1);
-    ctx.translate(-(x + targetW/2), 0);
-  }
-  ctx.imageSmoothingEnabled = false;
-  ctx.drawImage(img, sx, sy, fw, fh, x, y, targetW, targetH);
-  ctx.restore();
-}
-
-/* ===== Draw Functions ===== */
+/* ===== Draw Knight (6 frames: 3 walk + 3 attack) ===== */
 function drawKnight(ctx,x,y,facing,state,time,hitFlash,attacking,vx,vy,onGround,attackTimer,ATK_DUR){
-  var speed = (state==='walk') ? 10 : 4;
-  var w = 26, h = 39;
-  var px = x - 6;
-  var py = y - 12;
-  // هالة
-  ctx.globalAlpha = 0.35;
-  var halo = rg(ctx,x+6,y+10,22,[[0,hitFlash>0?'rgba(255,80,100,0.9)':'rgba(139,92,246,0.7)'],[1,'rgba(124,58,237,0)']]);
-  ctx.fillStyle = halo; ctx.beginPath(); ctx.arc(x+6,y+10,22,0,Math.PI*2); ctx.fill();
+  var img = IMG.knight;
+  if(!img || !img.loaded){ctx.fillStyle='#c4b5fd';ctx.fillRect(x-4,y-15,20,35);return;}
+  ctx.globalAlpha = 0.4;
+  var halo = rg(ctx,x+6,y+10,26,[[0,hitFlash>0?'rgba(255,80,100,0.9)':'rgba(139,92,246,0.7)'],[1,'rgba(124,58,237,0)']]);
+  ctx.fillStyle = halo; ctx.beginPath(); ctx.arc(x+6,y+10,26,0,Math.PI*2); ctx.fill();
   ctx.globalAlpha = 1;
+  var frame;
   if(attacking){
     var prog = 1 - (attackTimer/ATK_DUR);
-    var angle = Math.sin(prog*Math.PI) * 0.18;
-    ctx.save();
-    ctx.translate(x+6, y+10);
-    ctx.rotate(angle);
-    ctx.translate(-(x+6), -(y+10));
-    drawSpriteFrame(ctx,'knight',px,py,w,h,facing,time,speed);
-    ctx.restore();
-  } else {
-    drawSpriteFrame(ctx,'knight',px,py,w,h,facing,time,speed);
-  }
-  if(hitFlash > 0){
-    ctx.globalCompositeOperation = 'source-atop';
-    ctx.fillStyle = 'rgba(255,50,80,0.5)';
-    ctx.fillRect(px,py,w,h);
-    ctx.globalCompositeOperation = 'source-over';
+    frame = 3 + Math.min(2, Math.floor(prog * 3));
+  } else if(state === 'walk'){
+    frame = Math.floor(time * 8) % 3;
+  } else {frame = 1;}
+  var fw = img.width / 3, fh = img.height / 2;
+  var sx = (frame % 3) * fw;
+  var sy = Math.floor(frame / 3) * fh;
+  var tW = 40, tH = 55;
+  var px = x - 14, py = y - 25;
+  var bob = (state === 'walk') ? Math.sin(time*10)*1 : 0;
+  ctx.save();
+  if(facing === -1){ctx.translate(x,0);ctx.scale(-1,1);ctx.translate(-x,0);}
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(img, sx, sy, fw, fh, px, py+bob, tW, tH);
+  ctx.restore();
+  if(hitFlash > 0){ctx.globalAlpha=0.4;ctx.fillStyle='#ff3355';ctx.fillRect(px,py+bob,tW,tH);ctx.globalAlpha=1;}
+  if(attacking && attackTimer > ATK_DUR*0.3){
+    var trailA = (attackTimer/ATK_DUR - 0.3)/0.7;
+    ctx.globalAlpha = trailA*0.5;
+    var tGrad = lg(ctx,x-15,-9,x+15,4,[[0,'rgba(196,181,253,0)'],[0.5,'rgba(232,121,249,0.7)'],[1,'rgba(196,181,253,0)']]);
+    ctx.strokeStyle=tGrad;ctx.lineWidth=3;ctx.lineCap='round';
+    ctx.beginPath();ctx.moveTo(x-12,y-4);
+    ctx.bezierCurveTo(x-6,y-9,x+6,y-9,x+14,y-4);ctx.stroke();
+    ctx.globalAlpha=1;
   }
 }
 
+/* ===== Draw Enemy ===== */
 function drawEnemy(ctx,key,x,y,facing,time,hitFlash){
-  var w = 24, h = 24;
-  var px = x - 6, py = y - 4;
+  var s = SPRITE[key];
+  if(!s)return;
+  var img = IMG[s.img];
+  if(!img || !img.loaded)return;
   ctx.globalAlpha = 0.35;
-  var halo = rg(ctx,x+6,y+6,16,[[0,hitFlash>0?'rgba(255,255,255,0.9)':'rgba(139,92,246,0.5)'],[1,'rgba(124,58,237,0)']]);
-  ctx.fillStyle = halo; ctx.beginPath(); ctx.arc(x+6,y+6,16,0,Math.PI*2); ctx.fill();
+  var halo = rg(ctx,x+6,y+6,20,[[0,hitFlash>0?'rgba(255,255,255,0.9)':'rgba(139,92,246,0.5)'],[1,'rgba(124,58,237,0)']]);
+  ctx.fillStyle=halo;ctx.beginPath();ctx.arc(x+6,y+6,20,0,Math.PI*2);ctx.fill();
   ctx.globalAlpha = 1;
-  drawSpriteFrame(ctx,key,px,py,w,h,facing,time,7);
-  if(hitFlash > 0){
-    ctx.globalCompositeOperation = 'source-atop';
-    ctx.fillStyle = 'rgba(255,50,80,0.55)';
-    ctx.fillRect(px,py,w,h);
-    ctx.globalCompositeOperation = 'source-over';
-  }
+  var frame = Math.floor(time*7) % s.total;
+  var fw = img.width/s.cols, fh = img.height/s.rows;
+  var sx = (frame % s.cols) * fw;
+  var sy = Math.floor(frame / s.cols) * fh;
+  var tW = 36, tH = 36;
+  var px = x - 12, py = y - 14;
+  var bob = Math.sin(time*3 + x*0.01) * 1.5;
+  ctx.save();
+  if(facing === -1){ctx.translate(x+6,0);ctx.scale(-1,1);ctx.translate(-(x+6),0);}
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(img, sx, sy, fw, fh, px, py+bob, tW, tH);
+  ctx.restore();
+  if(hitFlash > 0){ctx.globalAlpha=0.5;ctx.fillStyle='#ff3355';ctx.fillRect(px,py+bob,tW,tH);ctx.globalAlpha=1;}
 }
 
+/* ===== Draw Boss ===== */
 function drawBoss(ctx,key,x,y,facing,time,hitFlash){
-  var w = 60, h = 72;
-  var px = x - 20, py = y - 25;
+  var s = SPRITE[key];
+  if(!s)return;
+  var img = IMG[s.img];
+  if(!img || !img.loaded)return;
   ctx.globalAlpha = 0.5;
-  var halo = rg(ctx,x+10,y+12,45,[[0,hitFlash>0?'rgba(255,255,255,0.9)':'rgba(232,121,249,0.6)'],[1,'rgba(124,58,237,0)']]);
-  ctx.fillStyle = halo; ctx.beginPath(); ctx.arc(x+10,y+12,45,0,Math.PI*2); ctx.fill();
+  var halo = rg(ctx,x+10,y+12,55,[[0,hitFlash>0?'rgba(255,255,255,0.9)':'rgba(232,121,249,0.6)'],[1,'rgba(124,58,237,0)']]);
+  ctx.fillStyle=halo;ctx.beginPath();ctx.arc(x+10,y+12,55,0,Math.PI*2);ctx.fill();
   ctx.globalAlpha = 1;
-  drawSpriteFrame(ctx,key,px,py,w,h,facing,time,4);
-  if(hitFlash > 0){
-    ctx.globalCompositeOperation = 'source-atop';
-    ctx.fillStyle = 'rgba(255,50,80,0.55)';
-    ctx.fillRect(px,py,w,h);
-    ctx.globalCompositeOperation = 'source-over';
-  }
+  var frame = Math.floor(time*4) % s.total;
+  var fw = img.width/s.cols, fh = img.height/s.rows;
+  var sx = (frame % s.cols) * fw;
+  var sy = Math.floor(frame / s.cols) * fh;
+  var tW = 90, tH = 100;
+  var px = x - 35, py = y - 35;
+  var bob = Math.sin(time*2) * 3;
+  ctx.save();
+  if(facing === -1){ctx.translate(x+10,0);ctx.scale(-1,1);ctx.translate(-(x+10),0);}
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(img, sx, sy, fw, fh, px, py+bob, tW, tH);
+  ctx.restore();
+  if(hitFlash > 0){ctx.globalAlpha=0.5;ctx.fillStyle='#ff3355';ctx.fillRect(px,py+bob,tW,tH);ctx.globalAlpha=1;}
 }
 
 /* ===== Individual Enemy Drawers ===== */
@@ -215,58 +185,68 @@ function drawUmbra(ctx,x,y,f,t,h){drawBoss(ctx,'umbra',x,y,f,t,h);}
 /* ===== Items ===== */
 function drawCoinItem(ctx,x,y,bob){
   var img = IMG.coin;
-  if(!img || !img.loaded) return;
-  var frame = Math.floor(bob * 3) % 4;
+  if(!img || !img.loaded){ctx.fillStyle='#fbbf24';ctx.beginPath();ctx.arc(x,y,5,0,Math.PI*2);ctx.fill();return;}
+  var bounce = Math.sin(bob)*2;
   var fw = img.width/4;
+  var frame = Math.floor(bob*3)%4;
   ctx.imageSmoothingEnabled = false;
-  ctx.drawImage(img, frame*fw, 0, fw, img.height, x-8, y-8, 16, 16);
+  ctx.drawImage(img, frame*fw, 0, fw, img.height, x-10, y-10+bounce, 20, 20);
 }
-
 function drawKeyItem(ctx,x,y,bob){
   var img = IMG.key;
-  if(!img || !img.loaded) return;
-  var frame = Math.floor(bob * 3) % 4;
+  if(!img || !img.loaded){ctx.fillStyle='#fbbf24';ctx.fillRect(x-4,y-8,8,16);return;}
+  var bounce = Math.sin(bob)*2;
   var fw = img.width/4;
+  var frame = Math.floor(bob*3)%4;
   ctx.imageSmoothingEnabled = false;
-  ctx.shadowColor = '#fbbf24'; ctx.shadowBlur = 15;
-  ctx.drawImage(img, frame*fw, 0, fw, img.height, x-12, y-12, 24, 24);
-  ctx.shadowBlur = 0;
+  ctx.shadowColor='#fbbf24';ctx.shadowBlur=15;
+  ctx.drawImage(img, frame*fw, 0, fw, img.height, x-15, y-15+bounce, 30, 30);
+  ctx.shadowBlur=0;
 }
-
 function drawPortalItem(ctx,x,y,time){
   var img = IMG.portal;
-  if(!img || !img.loaded) return;
-  var frame = Math.floor(time * 4) % 4;
+  if(!img || !img.loaded){ctx.fillStyle='#06ffa5';ctx.beginPath();ctx.arc(x,y,15,0,Math.PI*2);ctx.fill();return;}
+  var pulse = 1 + Math.sin(time*3)*0.1;
   var fw = img.width/4;
+  var frame = Math.floor(time*4)%4;
   ctx.imageSmoothingEnabled = false;
-  ctx.shadowColor = '#06ffa5'; ctx.shadowBlur = 20;
-  ctx.drawImage(img, frame*fw, 0, fw, img.height, x-20, y-20, 40, 40);
-  ctx.shadowBlur = 0;
+  ctx.shadowColor='#06ffa5';ctx.shadowBlur=20;
+  ctx.drawImage(img, frame*fw, 0, fw, img.height, x-25*pulse, y-25*pulse, 50*pulse, 50*pulse);
+  ctx.shadowBlur=0;
 }
 
-/* ===== NPCs ===== */
+/* ===== NPCs (characters) ===== */
 function drawShopkeeper(ctx,x,y,time){
   var img = IMG.shopkeeper;
-  if(!img || !img.loaded){
-    ctx.fillStyle='#fbbf24'; ctx.fillRect(x-10,y-20,20,30);
-    return;
-  }
-  var frame = Math.floor(time * 4) % 4;
-  var fw = img.width/2, fh = img.height/2;
-  var col = frame % 2, row = Math.floor(frame/2);
+  if(!img || !img.loaded){ctx.fillStyle='#fbbf24';ctx.fillRect(x-12,y-20,24,35);return;}
+  var bob = Math.sin(time*2)*2;
   ctx.imageSmoothingEnabled = false;
-  ctx.drawImage(img, col*fw, row*fh, fw, fh, x-15, y-15, 30, 30);
+  ctx.drawImage(img, x-20, y-25+bob, 40, 40);
 }
-
 function drawBlacksmith(ctx,x,y,time){
   var img = IMG.blacksmith;
-  if(!img || !img.loaded){
-    ctx.fillStyle='#dc2626'; ctx.fillRect(x-10,y-20,20,30);
-    return;
-  }
-  var frame = Math.floor(time * 4) % 4;
-  var fw = img.width/2, fh = img.height/2;
-  var col = frame % 2, row = Math.floor(frame/2);
+  if(!img || !img.loaded){ctx.fillStyle='#dc2626';ctx.fillRect(x-12,y-20,24,35);return;}
+  var bob = Math.sin(time*2)*2;
   ctx.imageSmoothingEnabled = false;
-  ctx.drawImage(img, col*fw, row*fh, fw, fh, x-15, y-15, 30, 30);
+  ctx.drawImage(img, x-20, y-25+bob, 40, 40);
+}
+
+/* ===== Booths (map buildings) ===== */
+function drawShopBooth(ctx,x,y,time){
+  var img = IMG.shopBooth;
+  if(!img || !img.loaded){ctx.fillStyle='#7c3aed';ctx.fillRect(x-40,y-60,80,60);return;}
+  var bob = Math.sin(time*1.5)*1.5;
+  ctx.imageSmoothingEnabled = false;
+  ctx.shadowColor='#fbbf24';ctx.shadowBlur=15;
+  ctx.drawImage(img, x-50, y-80+bob, 100, 100);
+  ctx.shadowBlur=0;
+}
+function drawForgeWorkshop(ctx,x,y,time){
+  var img = IMG.forgeWorkshop;
+  if(!img || !img.loaded){ctx.fillStyle='#dc2626';ctx.fillRect(x-40,y-60,80,60);return;}
+  var bob = Math.sin(time*1.5)*1.5;
+  ctx.imageSmoothingEnabled = false;
+  ctx.shadowColor='#ff6b00';ctx.shadowBlur=15;
+  ctx.drawImage(img, x-50, y-80+bob, 100, 100);
+  ctx.shadowBlur=0;
 }
