@@ -28,28 +28,11 @@
 <div id="settingsScreen" class="modal-screen">
 <div class="modal-box">
 <h2 class="modal-title">⚙ SETTINGS</h2>
-<div class="setting-row">
-<span class="setting-label">🔊 Master Volume</span>
-<input type="range" min="0" max="100" value="50" id="setMaster" class="setting-slider">
-<span class="setting-value" id="setMasterVal">50%</span>
-</div>
-<div class="setting-row">
-<span class="setting-label">🎵 Sound Effects</span>
-<input type="range" min="0" max="100" value="70" id="setSFX" class="setting-slider">
-<span class="setting-value" id="setSFXVal">70%</span>
-</div>
-<div class="setting-row">
-<span class="setting-label">📳 Vibration</span>
-<label class="toggle"><input type="checkbox" id="setVibration" checked><span></span></label>
-</div>
-<div class="setting-row">
-<span class="setting-label">✨ Particles</span>
-<label class="toggle"><input type="checkbox" id="setParticles" checked><span></span></label>
-</div>
-<div class="setting-row">
-<span class="setting-label">🩸 Blood Effects</span>
-<label class="toggle"><input type="checkbox" id="setBlood" checked><span></span></label>
-</div>
+<div class="setting-row"><span class="setting-label">🔊 Master Volume</span><input type="range" min="0" max="100" value="50" id="setMaster" class="setting-slider"><span class="setting-value" id="setMasterVal">50%</span></div>
+<div class="setting-row"><span class="setting-label">🎵 Sound Effects</span><input type="range" min="0" max="100" value="70" id="setSFX" class="setting-slider"><span class="setting-value" id="setSFXVal">70%</span></div>
+<div class="setting-row"><span class="setting-label">📳 Vibration</span><label class="toggle"><input type="checkbox" id="setVibration" checked><span></span></label></div>
+<div class="setting-row"><span class="setting-label">✨ Particles</span><label class="toggle"><input type="checkbox" id="setParticles" checked><span></span></label></div>
+<div class="setting-row"><span class="setting-label">🩸 Blood Effects</span><label class="toggle"><input type="checkbox" id="setBlood" checked><span></span></label></div>
 <button class="modal-btn modal-btn--close" id="closeSettings">CLOSE</button>
 </div>
 </div>
@@ -105,7 +88,7 @@
 <div class="hud-item"><span class="hud-label">ZONE</span><span class="hud-value hud-value--level" id="levelName">CRYPT</span></div>
 </div>
 <div class="hud-row">
-<div class="hud-item"><span class="hud-label">☠</span><span class="hud-value" id="killCount">0/10</span></div>
+<div class="hud-item"><span class="hud-label">☠</span><span class="hud-value" id="killCount">0</span></div>
 <div class="hud-item"><span class="hud-label">⚔</span><span class="hud-value" id="weaponLevel">Lv.1</span></div>
 <div class="hud-item"><span class="hud-label">🛡</span><span class="hud-value" id="armorLevel">Lv.1</span></div>
 </div>
@@ -123,11 +106,9 @@
 </div>
 
 <div id="interactHint" class="interact-hint">TAP TO INTERACT</div>
-
 <div id="loading">LOADING...</div>
 
 <script src="js/audio.js"></script>
-<script src="js/save.js"></script>
 <script src="js/sprites.js"></script>
 <script src="js/game.js"></script>
 <script src="js/ui.js"></script>

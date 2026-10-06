@@ -11,7 +11,6 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -27,6 +26,20 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
+    - name: Install ImageMagick
+      run: sudo apt-get update && sudo apt-get install -y imagemagick librsvg2-bin
+
+    - name: Generate App Icons
+      run: |
+        mkdir -p icons
+        rsvg-convert -w 512 -h 512 www/icon.svg -o icons/icon-512.png
+        rsvg-convert -w 192 -h 192 www/icon.svg -o icons/icon-192.png
+        rsvg-convert -w 144 -h 144 www/icon.svg -o icons/icon-144.png
+        rsvg-convert -w 96  -h 96  www/icon.svg -o icons/icon-96.png
+        rsvg-convert -w 72  -h 72  www/icon.svg -o icons/icon-72.png
+        rsvg-convert -w 48  -h 48  www/icon.svg -o icons/icon-48.png
+        ls -la icons/
+
     - name: Install npm dependencies
       run: npm install
 
@@ -37,6 +50,21 @@ jobs:
       run: |
         sed -i 's/minSdkVersion = [0-9]*/minSdkVersion = 24/' android/variables.gradle
         cat android/variables.gradle
+
+    - name: Copy Custom Icons to Android
+      run: |
+        cp icons/icon-48.png android/app/src/main/res/mipmap-mdpi/ic_launcher.png
+        cp icons/icon-48.png android/app/src/main/res/mipmap-mdpi/ic_launcher_round.png
+        cp icons/icon-72.png android/app/src/main/res/mipmap-hdpi/ic_launcher.png
+        cp icons/icon-72.png android/app/src/main/res/mipmap-hdpi/ic_launcher_round.png
+        cp icons/icon-96.png android/app/src/main/res/mipmap-xhdpi/ic_launcher.png
+        cp icons/icon-96.png android/app/src/main/res/mipmap-xhdpi/ic_launcher_round.png
+        cp icons/icon-144.png android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png
+        cp icons/icon-144.png android/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png
+        cp icons/icon-192.png android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
+        cp icons/icon-192.png android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png
+        rm -rf android/app/src/main/res/mipmap-anydpi-v26 || true
+        echo "Icons copied successfully"
 
     - name: Sync Capacitor
       run: npx cap sync android
@@ -51,13 +79,13 @@ jobs:
     - name: Rename APK
       run: |
         mkdir -p output
-        cp android/app/build/outputs/apk/debug/app-debug.apk output/Shadow-Blade-v1.0.0.apk
+        cp android/app/build/outputs/apk/debug/app-debug.apk output/Shadow-Blade-v2.0.0.apk
 
     - name: Create Release
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: v1.0.0-build${{ github.run_number }}
-        name: Shadow Blade v1.0.0 (Build ${{ github.run_number }})
-        files: output/Shadow-Blade-v1.0.0.apk
+        tag_name: v2.0.0-build${{ github.run_number }}
+        name: Shadow Blade v2.0.0 (Build ${{ github.run_number }})
+        files: output/Shadow-Blade-v2.0.0.apk
         draft: false
         prerelease: false
