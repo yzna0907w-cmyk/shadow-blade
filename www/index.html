@@ -108,6 +108,14 @@
 <div id="interactHint" class="interact-hint">TAP TO INTERACT</div>
 <div id="loading">LOADING...</div>
 
+<script>
+// إخفاء شاشة التحميل فوراً بعد ثانية واحدة (بغض النظر عن أي شي)
+setTimeout(function(){
+  var l=document.getElementById('loading');
+  if(l){l.classList.add('hide');l.style.display='none';}
+}, 800);
+</script>
+
 <script src="js/audio.js"></script>
 <script src="js/sprites.js"></script>
 <script src="js/game.js"></script>
