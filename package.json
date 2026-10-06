@@ -1,7 +1,7 @@
 {
   "name": "shadow-blade",
-  "version": "1.0.0",
-  "description": "Shadow Blade - A Pixel Art Action Platformer",
+  "version": "4.0.0",
+  "description": "Shadow Blade - A 2D Action Platformer",
   "main": "index.js",
   "scripts": {
     "build": "echo build done"

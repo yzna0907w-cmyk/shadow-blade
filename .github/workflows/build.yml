@@ -11,6 +11,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -32,12 +33,14 @@ jobs:
     - name: Generate App Icons
       run: |
         mkdir -p icons
-        rsvg-convert -w 512 -h 512 www/icon.svg -o icons/icon-512.png
-        rsvg-convert -w 192 -h 192 www/icon.svg -o icons/icon-192.png
-        rsvg-convert -w 144 -h 144 www/icon.svg -o icons/icon-144.png
-        rsvg-convert -w 96  -h 96  www/icon.svg -o icons/icon-96.png
-        rsvg-convert -w 72  -h 72  www/icon.svg -o icons/icon-72.png
-        rsvg-convert -w 48  -h 48  www/icon.svg -o icons/icon-48.png
+        if [ -f www/icon.svg ]; then
+          rsvg-convert -w 512 -h 512 www/icon.svg -o icons/icon-512.png
+          rsvg-convert -w 192 -h 192 www/icon.svg -o icons/icon-192.png
+          rsvg-convert -w 144 -h 144 www/icon.svg -o icons/icon-144.png
+          rsvg-convert -w 96  -h 96  www/icon.svg -o icons/icon-96.png
+          rsvg-convert -w 72  -h 72  www/icon.svg -o icons/icon-72.png
+          rsvg-convert -w 48  -h 48  www/icon.svg -o icons/icon-48.png
+        fi
 
     - name: Install npm dependencies
       run: npm install
@@ -48,27 +51,39 @@ jobs:
     - name: Set minSdkVersion
       run: sed -i 's/minSdkVersion = [0-9]*/minSdkVersion = 24/' android/variables.gradle
 
-    - name: Debug Original Manifest
-      run: cat android/app/src/main/AndroidManifest.xml
+    - name: Set App Version
+      run: |
+        python3 -c "
+        import re, os
+        path = 'android/app/build.gradle'
+        if os.path.exists(path):
+            with open(path, 'r') as f:
+                content = f.read()
+            content = re.sub(r'versionCode\s+\d+', 'versionCode 400', content)
+            content = re.sub(r'versionName\s+\"[^\"]*\"', 'versionName \"4.0.0\"', content)
+            with open(path, 'w') as f:
+                f.write(content)
+            print('Version set to 4.0.0 (code 400)')
+        else:
+            print('build.gradle not found')
+        "
 
-    - name: Add Landscape Orientation (Perl)
+    - name: Add Landscape Orientation
       run: |
         perl -i -pe 's/(<activity\s+[^>]*android:name="\.MainActivity"[^>]*)(>)/$1 android:screenOrientation="sensorLandscape" android:configChanges="orientation|screenSize|keyboardHidden"$2/ unless /screenOrientation/' android/app/src/main/AndroidManifest.xml
-        echo "--- After modification ---"
-        cat android/app/src/main/AndroidManifest.xml
 
     - name: Copy Custom Icons
       run: |
-        cp icons/icon-48.png android/app/src/main/res/mipmap-mdpi/ic_launcher.png
-        cp icons/icon-48.png android/app/src/main/res/mipmap-mdpi/ic_launcher_round.png
-        cp icons/icon-72.png android/app/src/main/res/mipmap-hdpi/ic_launcher.png
-        cp icons/icon-72.png android/app/src/main/res/mipmap-hdpi/ic_launcher_round.png
-        cp icons/icon-96.png android/app/src/main/res/mipmap-xhdpi/ic_launcher.png
-        cp icons/icon-96.png android/app/src/main/res/mipmap-xhdpi/ic_launcher_round.png
-        cp icons/icon-144.png android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png
-        cp icons/icon-144.png android/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png
-        cp icons/icon-192.png android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
-        cp icons/icon-192.png android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png
+        [ -f icons/icon-48.png ] && cp icons/icon-48.png android/app/src/main/res/mipmap-mdpi/ic_launcher.png || true
+        [ -f icons/icon-48.png ] && cp icons/icon-48.png android/app/src/main/res/mipmap-mdpi/ic_launcher_round.png || true
+        [ -f icons/icon-72.png ] && cp icons/icon-72.png android/app/src/main/res/mipmap-hdpi/ic_launcher.png || true
+        [ -f icons/icon-72.png ] && cp icons/icon-72.png android/app/src/main/res/mipmap-hdpi/ic_launcher_round.png || true
+        [ -f icons/icon-96.png ] && cp icons/icon-96.png android/app/src/main/res/mipmap-xhdpi/ic_launcher.png || true
+        [ -f icons/icon-96.png ] && cp icons/icon-96.png android/app/src/main/res/mipmap-xhdpi/ic_launcher_round.png || true
+        [ -f icons/icon-144.png ] && cp icons/icon-144.png android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png || true
+        [ -f icons/icon-144.png ] && cp icons/icon-144.png android/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png || true
+        [ -f icons/icon-192.png ] && cp icons/icon-192.png android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png || true
+        [ -f icons/icon-192.png ] && cp icons/icon-192.png android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png || true
         rm -rf android/app/src/main/res/mipmap-anydpi-v26 || true
 
     - name: Sync Capacitor
@@ -84,13 +99,13 @@ jobs:
     - name: Rename APK
       run: |
         mkdir -p output
-        cp android/app/build/outputs/apk/debug/app-debug.apk output/Shadow-Blade-v2.0.0.apk
+        cp android/app/build/outputs/apk/debug/app-debug.apk output/Shadow-Blade-v4.0.0.apk
 
     - name: Create Release
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: v2.0.0-build${{ github.run_number }}
-        name: Shadow Blade v2.0.0 (Build ${{ github.run_number }})
-        files: output/Shadow-Blade-v2.0.0.apk
+        tag_name: v4.0.0-build${{ github.run_number }}
+        name: Shadow Blade v4.0.0 (Build ${{ github.run_number }})
+        files: output/Shadow-Blade-v4.0.0.apk
         draft: false
         prerelease: false
