@@ -2,11 +2,13 @@
 'use strict';
 var VW=320,VH=180,GRAVITY=900,MOVE_SPEED=115,JUMP_FORCE=-340,FRICTION=0.82;
 var ATK_DUR=0.22,ATK_CD=0.30,ATK_RANGE=26,PLAYER_DMG=50,ENEMY_DMG=15,INV_TIME=1.2;
+var SAVE_KEY='shadow_blade_save_v1';
 var canvas=document.getElementById('game');
 var ctx=canvas.getContext('2d');
 function resize(){var s=Math.min(window.innerWidth/VW,window.innerHeight/VH);
 canvas.style.width=Math.floor(VW*s)+'px';canvas.style.height=Math.floor(VH*s)+'px';}
 window.addEventListener('resize',resize);resize();
+
 var input={left:false,right:false,jump:false,attack:false,jp:false,ap:false};
 window.addEventListener('keydown',function(e){var k=e.key.toLowerCase();
 if(k==='arrowleft'||k==='a')input.left=true;
@@ -32,6 +34,7 @@ bind('btnLeft',function(){input.left=true;},function(){input.left=false;});
 bind('btnRight',function(){input.right=true;},function(){input.right=false;});
 bind('btnJump',function(){if(!input.jump)input.jp=true;input.jump=true;},function(){input.jump=false;});
 bind('btnAttack',function(){if(!input.attack)input.ap=true;input.attack=true;},function(){input.attack=false;});
+
 var LEVELS=[
 {name:'CRYPT',theme:{bg1:'#1a0d2e',bg2:'#0a0515',bg3:'#050208',platTop:'#7c3aed',platBot:'#1a1030',edge:'#c4b5fd',star:'#c4b5fd',fog:'rgba(139,92,246,0.12)',particle:'rgba(196,181,253,0.6)'},
 killTarget:12,enemies:[{kind:'bat',w:12,h:12,hp:60,speed:45,type:'flyer'},{kind:'slime',w:10,h:10,hp:80,speed:25,type:'crawler'},{kind:'skeleton',w:10,h:12,hp:100,speed:35,type:'walker'}],
@@ -45,11 +48,43 @@ boss:{kind:'iceQueen',w:16,h:24,hp:1200,dmg:30,name:'ICE QUEEN'}},
 {name:'SHADOW',theme:{bg1:'#2a0a40',bg2:'#14051f',bg3:'#050208',platTop:'#e879f9',platBot:'#2a0a40',edge:'#f0abfc',star:'#e9d5ff',fog:'rgba(232,121,249,0.12)',particle:'rgba(232,121,249,0.7)'},
 killTarget:22,enemies:[{kind:'shadowBeast',w:12,h:12,hp:110,speed:60,type:'flyer'},{kind:'voidCrawler',w:12,h:10,hp:130,speed:40,type:'crawler'},{kind:'nightmare',w:12,h:12,hp:180,speed:32,type:'crawler'}],
 boss:{kind:'shadowLord',w:18,h:24,hp:1600,dmg:34,name:'SHADOW LORD'}}];
+
 var state='playing',currentLevel=0,level=null,world=null;
 var player=null,enemies=[],particles=[],coins=[];
 var key=null,portal=null,boss=null;
 var camera={x:0},shake={t:0,i:0},hitPause=0;
 var spawnTimer=0,kills=0,gameTime=0,dtGlobal=0.016;
+var deaths=0;
+var MAX_DEATHS=3;
+
+function saveGame(){
+try{
+var collected=0;
+for(var i=0;i<coins.length;i++)if(coins[i].collected)collected++;
+var data={
+level:currentLevel,
+kills:kills,
+coins:collected,
+deaths:deaths,
+state:state,
+bossHP:boss?boss.hp:null,
+playerHP:player.hp,
+timestamp:Date.now()
+};
+localStorage.setItem(SAVE_KEY,JSON.stringify(data));
+}catch(e){console.log('Save error:',e);}
+}
+function loadGame(){
+try{
+var raw=localStorage.getItem(SAVE_KEY);
+if(!raw)return null;
+return JSON.parse(raw);
+}catch(e){return null;}
+}
+function clearSave(){
+try{localStorage.removeItem(SAVE_KEY);}catch(e){}
+}
+
 function buildWorld(){
 return{width:1100,platforms:[
 {x:0,y:150,w:120,h:30},{x:70,y:120,w:40,h:5},{x:130,y:130,w:40,h:5},
@@ -57,16 +92,41 @@ return{width:1100,platforms:[
 {x:380,y:130,w:60,h:5},{x:460,y:110,w:40,h:5},{x:520,y:90,w:40,h:5},
 {x:580,y:110,w:40,h:5},{x:640,y:130,w:60,h:5},{x:720,y:110,w:50,h:5},
 {x:790,y:90,w:50,h:5},{x:860,y:120,w:40,h:5},{x:920,y:150,w:180,h:30}]};}
-function initLevel(idx){
+
+function initLevel(idx,keepState){
 level=LEVELS[idx];world=buildWorld();
 player={x:30,y:100,vx:0,vy:0,w:12,h:20,onGround:false,facing:1,animTime:0,
 hp:100,maxHp:100,attacking:false,attackTimer:0,attackCooldown:0,invincible:0,hitFlash:0};
 enemies=[];particles=[];coins=[];key=null;portal=null;boss=null;
-kills=0;camera.x=0;spawnTimer=1.2;state='playing';hitPause=0;
+if(!keepState)kills=0;
+camera.x=0;spawnTimer=1.2;state='playing';hitPause=0;
 var positions=[[80,105],[140,115],[200,125],[260,105],[320,90],[390,115],[470,95],
 [530,75],[590,95],[650,115],[730,95],[800,75],[870,105],[220,90],
 [440,90],[700,90],[880,80],[180,110],[400,105],[640,110]];
-for(var i=0;i<positions.length;i++){coins.push({x:positions[i][0],y:positions[i][1],collected:false,bob:Math.random()*Math.PI*2});}}
+for(var i=0;i<positions.length;i++){coins.push({x:positions[i][0],y:positions[i][1],collected:false,bob:Math.random()*Math.PI*2});}
+}
+
+function restoreGame(){
+var saved=loadGame();
+if(!saved)return false;
+currentLevel=Math.min(saved.level,LEVELS.length-1);
+deaths=saved.deaths||0;
+initLevel(currentLevel,true);
+kills=saved.kills||0;
+if(saved.coins){
+var restored=0;
+for(var i=0;i<coins.length&&restored<saved.coins;i++){
+coins[i].collected=true;restored++;
+}
+}
+player.hp=Math.max(50,saved.playerHP||100);
+if(saved.state==='boss'){
+state='boss';
+setTimeout(function(){spawnBoss();},100);
+}
+return true;
+}
+
 function rect(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;}
 function rand(a,b){return a+Math.random()*(b-a);}
 function spawnParticles(x,y,color,n,sz){sz=sz||2;
@@ -75,8 +135,9 @@ particles.push({x:x,y:y,vx:Math.cos(ang)*sp,vy:Math.sin(ang)*sp-50,
 life:0.5+Math.random()*0.5,maxLife:0.5+Math.random()*0.5,color:color,
 size:1+Math.random()*sz});}}
 function shakeNow(i,d){shake.i=i;shake.t=d;}
+
 function spawnEnemy(){
-if(state!=='playing'||enemies.length>=8)return;
+if(state!=='playing'||enemies.length>=10)return;
 var t=level.enemies[Math.floor(Math.random()*level.enemies.length)];
 var fromLeft=Math.random()<0.5;
 var sx=camera.x+(fromLeft?-20:VW+5);
@@ -85,14 +146,17 @@ enemies.push({cfg:t,kind:t.kind,type:t.type,x:sx,y:baseY,
 vx:(fromLeft?1:-1)*t.speed,vy:0,w:t.w,h:t.h,hp:t.hp,maxHp:t.hp,
 direction:fromLeft?1:-1,hitFlash:0,hitCooldown:0,dead:false,
 baseY:baseY,bobPhase:Math.random()*Math.PI*2,
-knockback:0,deathTimer:0,opacity:1,attractPhase:Math.random()*6});}
+knockback:0,deathTimer:0,opacity:1,attractPhase:Math.random()*6,
+offscreenTimer:0});}
 function spawnGroup(){var n=Math.random();
-if(n<0.1)return 5;if(n<0.35)return 3;return 1;}
+if(n<0.1)return 4;if(n<0.35)return 2;return 1;}
 function spawnBoss(){var b=level.boss;
 boss={cfg:b,kind:b.kind,x:camera.x+VW+30,y:120,vx:-40,vy:0,w:b.w,h:b.h,
 hp:b.hp,maxHp:b.hp,state:'enter',stateTimer:1.5,hitFlash:0,hitCooldown:0,
 direction:-1,baseY:120,bobPhase:0,attackTimer:2};
-Sound.bossRoar();shakeNow(10,0.7);}function playerPhysics(dt){var move=0;
+Sound.bossRoar();shakeNow(10,0.7);saveGame();}
+
+function playerPhysics(dt){var move=0;
 if(input.left)move-=1;if(input.right)move+=1;
 if(move!==0){player.vx+=move*MOVE_SPEED*8*dt;player.facing=move;}
 player.vx*=Math.pow(FRICTION,dt*60);
@@ -135,7 +199,8 @@ spawnParticles(e.x+e.w/2,e.y+e.h/2,'#ff3355',10,2);shakeNow(4,0.12);
 if(e.hp<=0){e.dead=true;kills++;Sound.kill();shakeNow(6,0.22);
 spawnParticles(e.x+e.w/2,e.y+e.h/2,'#e879f9',25,2.5);
 spawnParticles(e.x+e.w/2,e.y+e.h/2,'#ff3355',15,2);
-spawnParticles(e.x+e.w/2,e.y+e.h/2,'#fbbf24',10,2);}}}
+spawnParticles(e.x+e.w/2,e.y+e.h/2,'#fbbf24',10,2);
+saveGame();}}}
 if(boss&&!boss.dead&&boss.hitCooldown<=0&&boss.state!=='enter'){
 if(rect(hb,{x:boss.x,y:boss.y,w:boss.w,h:boss.h})){
 boss.hp-=PLAYER_DMG;boss.hitFlash=0.12;boss.hitCooldown=0.15;
@@ -168,27 +233,31 @@ var dx=player.x-e.x,dy=player.y-e.y;
 var dist=Math.sqrt(dx*dx+dy*dy);
 e.attractPhase+=dt*1.5;
 var attractStrength=Math.sin(e.attractPhase)*0.5+0.5;
-if(dist<140&&dist>0){
-var pull=(e.type==='flyer'?25:18)*attractStrength;
-e.vx+=dx/dist*pull*dt*3;
-e.vy+=dy/dist*pull*dt*2;
+if(dist<180&&dist>0){
+var pull=(e.type==='flyer'?35:25)*attractStrength;
+e.vx+=dx/dist*pull*dt*3.5;
+e.vy+=dy/dist*pull*dt*2.5;
 }
 if(e.type==='crawler'||e.type==='walker'){
 var maxSp=e.cfg.speed;
 var spd=Math.sqrt(e.vx*e.vx+e.vy*e.vy);
-if(spd>maxSp*2){e.vx=e.vx/spd*maxSp*2;e.vy=e.vy/spd*maxSp*2;}
+if(spd>maxSp*2.5){e.vx=e.vx/spd*maxSp*2.5;e.vy=e.vy/spd*maxSp*2.5;}
 e.x+=e.vx*dt;e.vy+=GRAVITY*dt;e.y+=e.vy*dt;
 for(var j=0;j<world.platforms.length;j++){var p=world.platforms[j];
 if(rect({x:e.x,y:e.y,w:e.w,h:e.h},p)){if(e.vy>0){e.y=p.y-e.h;e.vy=0;}}}
-if(e.y>VH+30){enemies.splice(i,1);continue;}
-if(e.x<camera.x-40||e.x>camera.x+VW+40)enemies.splice(i,1);}
+if(e.y>VH+80){enemies.splice(i,1);continue;}
+if(e.x<camera.x-300)e.x=camera.x-300;
+if(e.x>camera.x+VW+300)e.x=camera.x+VW+300;}
 else if(e.type==='flyer'){
 var fSp=e.cfg.speed;
 var fspd=Math.sqrt(e.vx*e.vx+e.vy*e.vy);
-if(fspd>fSp*2){e.vx=e.vx/fspd*fSp*2;e.vy=e.vy/fspd*fSp*2;}
+if(fspd>fSp*2.5){e.vx=e.vx/fspd*fSp*2.5;e.vy=e.vy/fspd*fSp*2.5;}
 e.x+=e.vx*dt;e.y+=e.vy*dt;
 e.bobPhase+=dt*3;
-if(e.x<camera.x-40||e.x>camera.x+VW+40){enemies.splice(i,1);continue;}}
+if(e.x<camera.x-300)e.x=camera.x-300;
+if(e.x>camera.x+VW+300)e.x=camera.x+VW+300;
+if(e.y<20)e.vy=Math.abs(e.vy);
+if(e.y>VH-20)e.vy=-Math.abs(e.vy);}
 if(player.invincible<=0&&!player.attacking){
 if(rect({x:player.x,y:player.y,w:player.w,h:player.h},{x:e.x,y:e.y,w:e.w,h:e.h})){
 damagePlayer(ENEMY_DMG,e.x);}}}}
@@ -236,7 +305,7 @@ boss.state='idle';}}}
 function updateCoins(){for(var i=0;i<coins.length;i++){var c=coins[i];
 if(c.collected)continue;c.bob+=0.08;
 if(rect(player,{x:c.x-4,y:c.y-4,w:8,h:8})){c.collected=true;Sound.coin();
-spawnParticles(c.x,c.y,'#fbbf24',8,1.5);}}}
+spawnParticles(c.x,c.y,'#fbbf24',8,1.5);saveGame();}}}
 function updateKeyAndPortal(){
 if(!key&&!portal&&state==='playing'&&kills>=level.killTarget){
 key={x:player.x,y:player.y-10,vy:-120,bob:0,taken:false};
@@ -249,13 +318,15 @@ if(key.y>VH+30){key.y=140;key.vy=0;}
 if(rect(player,{x:key.x-5,y:key.y-7,w:10,h:14})){
 key.taken=true;Sound.portal();shakeNow(5,0.3);
 spawnParticles(key.x,key.y,'#fbbf24',25,2);
-portal={x:world.width-80,y:120,active:true};}}
+portal={x:world.width-80,y:120,active:true};saveGame();}}
 if(portal&&portal.active){
 if(rect(player,{x:portal.x-6,y:portal.y-14,w:16,h:28})){
 portal.active=false;state='boss';spawnBoss();}}}
 function nextLevel(){currentLevel++;
-if(currentLevel>=LEVELS.length){state='won';return;}
-initLevel(currentLevel);}
+if(currentLevel>=LEVELS.length){state='won';clearSave();return;}
+deaths=0;
+initLevel(currentLevel,false);
+saveGame();}
 function updateCamera(){var targetX=player.x-VW*0.4;
 if(targetX<0)targetX=0;if(targetX>world.width-VW)targetX=world.width-VW;
 camera.x+=(targetX-camera.x)*0.08;
@@ -287,7 +358,7 @@ var y2=125+Math.sin((x2+camera.x*0.3)*0.05)*14+Math.cos((x2+camera.x*0.3)*0.08)*
 ctx.lineTo(x2,y2);}
 ctx.lineTo(VW,VH);ctx.fill();
 ctx.globalAlpha=1;
-for(var j=0;j<8;j++){
+for(var j=0;j<10;j++){
 var fx=(j*57+Math.floor(camera.x*0.3)+Math.sin(gameTime*0.5+j)*20)%VW;
 var fy=80+Math.sin(gameTime*0.3+j*2)*30+((j*23)%40);
 ctx.fillStyle=t.particle;ctx.globalAlpha=0.15+Math.sin(gameTime+j)*0.1;
@@ -330,7 +401,7 @@ player.hitFlash,player.attacking,player.vx,player.vy,player.onGround,
 player.attackTimer,ATK_DUR);}
 function drawEnemies(){for(var i=0;i<enemies.length;i++){var e=enemies[i];
 var px=Math.floor(e.x-camera.x);
-if(px<-30||px>VW+30)continue;
+if(px<-40||px>VW+40)continue;
 ctx.globalAlpha=e.dead?e.opacity:1;
 var hit=e.hitFlash>0;
 switch(e.kind){
@@ -394,7 +465,7 @@ if(hpFill)hpFill.style.width=Math.max(0,player.hp/player.maxHp*100)+'%';
 if(killEl)killEl.textContent=kills+'/'+level.killTarget;
 var c=0;for(var i=0;i<coins.length;i++)if(coins[i].collected)c++;
 if(coinEl)coinEl.textContent=c+'/'+coins.length;
-if(levelEl)levelEl.textContent=level.name;
+if(levelEl)levelEl.textContent=level.name+' · ✕'+deaths;
 if(progressEl){
 if(state==='boss')progressEl.textContent='⚔ BOSS FIGHT';
 else if(key&&key.taken)progressEl.textContent='🔑 TO PORTAL';
@@ -442,11 +513,25 @@ var sx=0,sy=0;
 if(shake.t>0){shake.t-=dt;
 sx=(Math.random()-0.5)*shake.i*2;
 sy=(Math.random()-0.5)*shake.i*2;}
-if(player.hp<=0&&state!=='gameover'){state='gameover';Sound.gameOver();
+if(player.hp<=0&&state!=='gameover'){state='gameover';
+deaths++;
+Sound.gameOver();
 spawnParticles(player.x+6,player.y+10,'#ff3355',35,3);
 spawnParticles(player.x+6,player.y+10,'#e879f9',25,3);
 shakeNow(12,0.7);
-setTimeout(function(){initLevel(currentLevel);},2200);}
+if(deaths>=MAX_DEATHS){
+kills=0;deaths=0;
+clearSave();
+}
+setTimeout(function(){
+if(state==='gameover'){
+if(loadGame()&&state!=='won'){
+restoreGame();
+}else{
+initLevel(currentLevel,true);
+}
+}
+},2200);}
 updateHUD();
 ctx.clearRect(0,0,VW,VH);
 ctx.save();
@@ -460,9 +545,10 @@ requestAnimationFrame(loop);}
 Sound.init();
 document.addEventListener('touchstart',function u(){Sound.init();Sound.resume();document.removeEventListener('touchstart',u);},{once:true});
 document.addEventListener('mousedown',function u(){Sound.init();Sound.resume();document.removeEventListener('mousedown',u);},{once:true});
-initLevel(0);
+var restored=restoreGame();
+if(!restored){initLevel(0,false);}
 document.getElementById('loading').classList.add('hide');
 requestAnimationFrame(function(t){last=t;requestAnimationFrame(loop);});
-console.log('%c⚔️ Shadow Blade v0.6','color:#a78bfa;font-size:20px;font-weight:900;');
-console.log('%cJuicy Combat + Parallax + Attraction','color:#e879f9;font-size:11px;');
+console.log('%c⚔️ Shadow Blade v0.7','color:#a78bfa;font-size:20px;font-weight:900;');
+console.log('%cSave System + Persistent Enemies + Bezier Art','color:#e879f9;font-size:11px;');
 })();
