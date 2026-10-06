@@ -1,7 +1,24 @@
+@import url('https://fonts.googleapis.com/css2?family=Handjet:wght@400;700;900&family=Cairo:wght@400;700;900&display=swap');
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{width:100%;height:100%;overflow:hidden;background:#000;touch-action:none;-webkit-user-select:none;user-select:none;font-family:'Segoe UI',system-ui,sans-serif;position:fixed;color:#e9d5ff}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;touch-action:none;-webkit-user-select:none;user-select:none;font-family:'Cairo',sans-serif;position:fixed;color:#e9d5ff}
 
-/* ===== شاشة الدخول ===== */
+/* ===== شاشة القصة ===== */
+.story-screen{position:fixed;inset:0;z-index:900;background:#000;display:none;align-items:center;justify-content:center;overflow:hidden;opacity:0;transition:opacity 0.6s}
+.story-screen.active{display:flex;opacity:1}
+.story-vignette{position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(26,13,46,0.4) 0%,rgba(0,0,0,0.9) 100%);pointer-events:none}
+.story-scanlines{position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,0.25) 0px,rgba(0,0,0,0.25) 1px,transparent 1px,transparent 3px);pointer-events:none;opacity:0.5}
+.story-chapter{position:absolute;top:20px;left:0;right:0;text-align:center;font-family:'Handjet','Cairo',sans-serif;font-size:0.9rem;font-weight:700;letter-spacing:8px;color:#7c3aed;opacity:0.75;text-shadow:0 0 10px #7c3aed}
+.story-content{position:relative;z-index:10;text-align:center;padding:40px 25px;max-width:90%;min-height:100px;display:flex;align-items:center;justify-content:center}
+.story-text{font-family:'Handjet','Cairo',sans-serif;font-weight:700;font-size:clamp(1.4rem,5vw,2.6rem);line-height:1.9;color:#f5f0ff;letter-spacing:2px;text-shadow:2px 2px 0 #050208,-1px -1px 0 #4c1d95,1px -1px 0 #4c1d95,-1px 1px 0 #4c1d95,0 0 20px #a78bfa,0 0 40px #7c3aed;opacity:0;transform:translateY(15px);transition:opacity 0.9s ease,transform 0.9s ease;filter:contrast(1.2) saturate(1.3)}
+.story-text.visible{opacity:1;transform:translateY(0)}
+.story-controls{position:absolute;bottom:70px;left:0;right:0;display:flex;justify-content:center;gap:14px;z-index:20;padding:0 20px}
+.story-btn{padding:10px 22px;border-radius:6px;background:rgba(5,2,8,0.85);border:2px solid rgba(167,139,250,0.6);color:#e9d5ff;font-family:'Handjet','Cairo',sans-serif;font-weight:700;font-size:1rem;letter-spacing:1px;cursor:pointer;touch-action:manipulation;transition:all 0.15s;text-shadow:1px 1px 0 #000;box-shadow:2px 2px 0 rgba(0,0,0,0.8),0 0 15px rgba(124,58,237,0.3)}
+.story-btn:active{transform:translate(2px,2px);background:rgba(124,58,237,0.5)}
+.story-btn--next{background:linear-gradient(135deg,#7c3aed,#e879f9);border-color:rgba(255,255,255,0.5)}
+.story-hint{position:absolute;bottom:30px;left:0;right:0;text-align:center;font-family:'Handjet','Cairo',sans-serif;font-size:0.75rem;letter-spacing:3px;color:#7c3aed;opacity:0.5;animation:hintPulse 2.5s ease-in-out infinite}
+@keyframes hintPulse{0%,100%{opacity:0.3}50%{opacity:0.8}}
+
+/* ===== Title ===== */
 #title-screen{position:fixed;inset:0;z-index:500;background:radial-gradient(circle at 50% 30%,#1a0d2e 0%,#0a0515 50%,#050208 100%);display:flex;align-items:center;justify-content:center;overflow:hidden;transition:opacity 0.8s}
 #title-screen.hide{opacity:0;pointer-events:none}
 .title-vignette{position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,transparent 30%,rgba(0,0,0,0.7) 100%);pointer-events:none}
@@ -54,63 +71,31 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;touch-action:no
 .forge-info .next{font-size:0.8rem;color:#c4b5fd}
 .forge-info .arrow{font-size:1.1rem;color:#e879f9;margin:4px 0}
 
-/* ===== شاشة اللعبة ===== */
+/* ===== Game ===== */
 #game-container{position:fixed;inset:0;background:#000;display:none;align-items:center;justify-content:center}
 #game-container.active{display:flex}
-
-#game-wrap{
-  position:relative;
-  width:100%;
-  height:100%;
-  max-width:calc(100vh * 16 / 9);
-  max-height:calc(100vw * 9 / 16);
-  aspect-ratio:16/9;
-  background:#0a0a12;
-  overflow:hidden;
-  touch-action:none;
-}
-
+#game-wrap{position:relative;width:100%;height:100%;max-width:calc(100vh * 16 / 9);max-height:calc(100vw * 9 / 16);aspect-ratio:16/9;background:#0a0a12;overflow:hidden;touch-action:none}
 #game{display:block;width:100%;height:100%;background:#0a0a12;touch-action:none}
-
-/* HUD */
 #hud{position:absolute;top:8px;left:8px;right:8px;z-index:50;pointer-events:none;display:flex;flex-direction:column;gap:5px}
-.hud-row{display:flex;justify-content:space-between;align-items:center;gap:6px}
+.hud-row{display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap}
 .hud-item{display:flex;align-items:center;gap:4px;background:rgba(0,0,0,0.65);padding:3px 8px;border-radius:8px;border:1px solid rgba(167,139,250,0.3)}
 .hud-label{color:#a78bfa;font-size:9px;letter-spacing:1px;font-weight:bold}
-.hp-bar{width:60px;height:8px;background:rgba(0,0,0,0.7);border:1px solid rgba(167,139,250,0.4);border-radius:2px;overflow:hidden}
+.hp-bar{width:50px;height:8px;background:rgba(0,0,0,0.7);border:1px solid rgba(167,139,250,0.4);border-radius:2px;overflow:hidden}
 .hp-fill{width:100%;height:100%;background:linear-gradient(90deg,#7c3aed,#e879f9);transition:width 0.25s}
 .hud-value{color:#fbbf24;font-size:11px;font-weight:bold;min-width:24px;text-align:right}
 .hud-value--level{color:#e879f9;font-size:10px;letter-spacing:1px}
-
 .pause-btn{position:absolute;top:8px;right:8px;width:36px;height:36px;background:rgba(0,0,0,0.7);border:2px solid rgba(167,139,250,0.6);border-radius:50%;color:#e9d5ff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;z-index:110;cursor:pointer;touch-action:manipulation}
 .pause-btn:active{background:rgba(124,58,237,0.6)}
-
-/* الأزرار */
 #controls{position:absolute;inset:0;pointer-events:none;z-index:100}
 .dpad{position:absolute;bottom:14px;left:14px;display:flex;gap:10px;pointer-events:auto}
 .actions{position:absolute;bottom:14px;right:14px;display:flex;gap:10px;align-items:flex-end;pointer-events:auto}
-.ctrl-btn{
-  width:64px;height:64px;border-radius:50%;
-  background:rgba(124,58,237,0.35);
-  border:2.5px solid rgba(167,139,250,0.75);
-  color:#e9d5ff;
-  display:flex;align-items:center;justify-content:center;
-  pointer-events:auto;touch-action:none;
-  font-size:1.5rem;font-weight:900;
-  transition:transform 0.08s,background 0.08s;
-  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
-  box-shadow:0 4px 20px rgba(124,58,237,0.5);
-  user-select:none;-webkit-user-select:none;
-  cursor:pointer;font-family:inherit;
-}
+.ctrl-btn{width:64px;height:64px;border-radius:50%;background:rgba(124,58,237,0.35);border:2.5px solid rgba(167,139,250,0.75);color:#e9d5ff;display:flex;align-items:center;justify-content:center;pointer-events:auto;touch-action:none;font-size:1.5rem;font-weight:900;transition:transform 0.08s,background 0.08s;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);box-shadow:0 4px 20px rgba(124,58,237,0.5);user-select:none;-webkit-user-select:none;cursor:pointer;font-family:inherit}
 .ctrl-btn.pressed{transform:scale(0.85);background:rgba(124,58,237,0.9);box-shadow:0 0 30px rgba(167,139,250,1)}
 .ctrl-btn--jump{width:72px;height:72px;background:rgba(232,121,249,0.35);border-color:rgba(232,121,249,0.8);box-shadow:0 4px 20px rgba(232,121,249,0.5)}
-.ctrl-btn--jump.pressed{background:rgba(232,121,249,0.9);box-shadow:0 0 35px rgba(232,121,249,1)}
+.ctrl-btn--jump.pressed{background:rgba(232,121,249,0.9)}
 .ctrl-btn--attack{width:72px;height:72px;background:rgba(255,51,85,0.35);border-color:rgba(255,51,85,0.8);color:#ffb8c6;box-shadow:0 4px 20px rgba(255,51,85,0.5)}
-.ctrl-btn--attack.pressed{background:rgba(255,51,85,0.9);box-shadow:0 0 35px rgba(255,51,85,1)}
-
+.ctrl-btn--attack.pressed{background:rgba(255,51,85,0.9)}
 .interact-hint{position:absolute;bottom:100px;left:50%;transform:translateX(-50%);padding:6px 16px;background:rgba(0,0,0,0.8);border:1.5px solid #fbbf24;border-radius:100px;color:#fbbf24;font-size:0.75rem;font-weight:700;display:none;z-index:55;pointer-events:none}
 .interact-hint.active{display:block}
-
 #loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;color:#a78bfa;font-size:1.2rem;letter-spacing:3px;background:#000;z-index:2000;transition:opacity 0.5s}
 #loading.hide{opacity:0;pointer-events:none}
