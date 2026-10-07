@@ -197,7 +197,7 @@ function updateHUD(){
 function loadZone(idx){
   currentZone = idx;
   const z = ZONES[idx];
-  const W = 6000;
+  const W = 3500;
   z.width = W;
 
   if(platforms) platforms.clear(true, true);
@@ -234,7 +234,7 @@ function loadZone(idx){
     pl.setScale(w / 32, (GH - groundY) / 32);
     pl.refreshBody();
     pl.setDepth(-5);
-    x += w + Phaser.Math.Between(20, 60);
+    x += w - 5;
 
     if(Math.random() < 0.5){
       const px = x + Phaser.Math.Between(-30, 30);
@@ -603,7 +603,7 @@ function handleCoins(){
 
 function handleBoss(delta){
   if(bossActive || bossDefeated) return;
-  if(player.x > ZONES[currentZone].width - 500){
+  if(player.x > ZONES[currentZone].width - 700){
     spawnBoss();
   }
 }
