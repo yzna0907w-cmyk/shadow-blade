@@ -165,15 +165,29 @@ const Enemies = {
 
   despawn(e){
     if(!e.active) return;
+    
+    // Object Pooling: نخفيه بدل ما نحذفه
+    e.setActive(false);
+    e.setVisible(false);
+    e.isActive = false;
+    e.state = "idle";
+    e.hp = 0;
+    if(e.body){
+      e.body.setVelocity(0, 0);
+      e.body.enable = false;
+    }
+    
+    // نخرجه من القائمة النشطة
     const idx = this.activeEnemies.indexOf(e);
     if(idx !== -1) this.activeEnemies.splice(idx, 1);
-    e.destroy();
   },
 
   clearAll(){
-    this.timers.forEach(t => { try { if(t) t.remove(); } catch(err){} });
+    // إلغاء timers
+    this.timers.forEach(t => { try { if(t) t.remove(); } catch(e){} });
     this.timers = [];
-
+    
+    // حذف كل الأعداء (destroy حقيقي)
     if(this.group){
       this.group.getChildren().forEach(e => {
         if(e && e.active) e.destroy();
@@ -249,20 +263,33 @@ const Enemies = {
   _updateCulling(time){
     const player = Player.sprite;
     if(!player) return;
-
-    const px = player.x;
-    const py = player.y;
-
+    
+    // استخدام Camera Viewport (أسرع 100×)
+    const cam = this.scene.cameras.main;
+    const view = cam.worldView;
+    const buffer = 200; // مساحة إضافية
+    
+    const left = view.x - buffer;
+    const right = view.x + view.width + buffer;
+    const top = view.y - buffer;
+    const bottom = view.y + view.height + buffer;
+    
     this.activeEnemies.forEach(e => {
       if(!e.active) return;
-
-      const dist = Phaser.Math.Distance.Between(px, py, e.x, e.y);
-
-      if(!e.isActive && dist < this.CULL.ACTIVATION_DIST){
+      
+      const inView = e.x >= left && e.x <= right && e.y >= top && e.y <= bottom;
+      
+      if(inView && !e.isActive){
+        // تفعيل
         e.isActive = true;
-      } else if(e.isActive && dist > this.CULL.DEACTIVATION_DIST){
+        if(e.body) e.body.enable = true;
+      } else if(!inView && e.isActive){
+        // إيقاف (مع إطفاء الفيزياء)
         e.isActive = false;
-        if(e.body) e.body.setVelocity(0, 0);
+        if(e.body){
+          e.body.setVelocity(0, 0);
+          e.body.enable = false;
+        }
       }
     });
   },

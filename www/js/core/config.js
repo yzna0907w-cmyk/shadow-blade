@@ -17,17 +17,17 @@ const CFG = {
   // ═══════════════════════════════════════════════
   // 2. الفيزياء الأساسية
   // ═══════════════════════════════════════════════
-  GRAVITY: 900,
+  GRAVITY: 1300,
   MAX_FALL_SPEED: 600,
 
   // ═══════════════════════════════════════════════
   // 3. البطل — الحركة
   // ═══════════════════════════════════════════════
   PLAYER: {
-    WALK_SPEED: 130,
-    RUN_SPEED: 180,
-    JUMP_VELOCITY: -400,
-    DOUBLE_JUMP_VELOCITY: -380,
+    WALK_SPEED: 140,
+    RUN_SPEED: 200,
+    JUMP_VELOCITY: -480,
+    DOUBLE_JUMP_VELOCITY: -440,
     DASH_SPEED: 400,
     DASH_DURATION: 200,
     DASH_COOLDOWN: 600,
