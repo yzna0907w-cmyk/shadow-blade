@@ -31,59 +31,39 @@ const ENEMY_ANIMS = {
 };
 
 const ZONES = [
-  {
-    name: 'ASHES', nameAr:'الرماد',
-    bg: 'bg-graveyard', tint: 0x4a3a2a,
-    enemies: ['skeleton','skeleton-clothed','hell-gato'],
-    enemyCount: 10,
-    bossSprite: 'skeleton-clothed-1',
-    bossAnim: 'skeleton-clothed-walk',
-    boss: { nameAr:'حارس الرماد', hp:400, gold:15 }
-  },
-  {
-    name: 'RUST', nameAr:'الصدأ',
-    bg: 'bg-graveyard', tint: 0xff6a3a,
-    enemies: ['hell-gato','skeleton-clothed'],
-    enemyCount: 12,
-    bossSprite: 'hell-gato-1',
-    bossAnim: 'hell-gato-walk',
-    boss: { nameAr:'حارس الحديد', hp:600, gold:20 }
-  },
-  {
-    name: 'FROST', nameAr:'الصقيع',
-    bg: 'bg-graveyard', tint: 0x6ab8ff,
-    enemies: ['ghost','skeleton'],
-    enemyCount: 14,
-    bossSprite: 'ghost-1',
-    bossAnim: 'ghost-float',
-    boss: { nameAr:'الأم المتجمدة', hp:800, gold:30 }
-  },
-  {
-    name: 'VOID', nameAr:'الفراغ',
-    bg: 'bg-graveyard', tint: 0x3a2a5a,
-    enemies: ['ghost','skeleton-clothed','skeleton'],
-    enemyCount: 16,
-    bossSprite: 'ghost-1',
-    bossAnim: 'ghost-float',
-    boss: { nameAr:'الأب', hp:1500, gold:50 }
-  }
+  { name:'ASHES', nameAr:'الرماد', bg:'bg-graveyard', tint:0x5a3a2a,
+    enemies:['skeleton','skeleton-clothed','hell-gato'], enemyCount:10,
+    enemyTint:0xc9a37a,
+    bossSprite:'skeleton-clothed-1', bossAnim:'skeleton-clothed-walk',
+    boss:{ nameAr:'حارس الرماد', hp:400, gold:15 } },
+  { name:'RUST', nameAr:'الصدأ', bg:'bg-graveyard', tint:0x8a4a2a,
+    enemies:['hell-gato','skeleton-clothed'], enemyCount:12,
+    enemyTint:0xffa860,
+    bossSprite:'hell-gato-1', bossAnim:'hell-gato-walk',
+    boss:{ nameAr:'حارس الحديد', hp:600, gold:20 } },
+  { name:'FROST', nameAr:'الصقيع', bg:'bg-graveyard', tint:0x3a6a9a,
+    enemies:['ghost','skeleton'], enemyCount:14,
+    enemyTint:0xa8d8ff,
+    bossSprite:'ghost-1', bossAnim:'ghost-float',
+    boss:{ nameAr:'الأم المتجمدة', hp:800, gold:30 } },
+  { name:'VOID', nameAr:'الفراغ', bg:'bg-graveyard', tint:0x3a2a5a,
+    enemies:['ghost','skeleton-clothed','skeleton'], enemyCount:16,
+    enemyTint:0xc8a8ff,
+    bossSprite:'ghost-1', bossAnim:'ghost-float',
+    boss:{ nameAr:'الأب', hp:1500, gold:50 } }
 ];
 
-const State = {
-  data: Save.load(),
-  zoneIdx: 0,
-  started: false
-};
+const State = { data: Save.load(), started: false };
 
 let scene, player, cursors, keys;
 let platforms, enemies, coins;
 let hp = 100, maxHp = 100, gold = 0, kills = 0;
 let facing = 1;
 let invulnTimer = 0, coyoteTimer = 0, jumpPressedAt = 0;
-let attackCooldown = 0, attackTimer = 0;
 let lastAttack = 0;
 let currentZone = 0;
 let boss = null, bossActive = false, bossDefeated = false;
+let music = null;
 const keysMap = {left:false,right:false,jump:false,attack:false};
 
 const GW = 480, GH = 270;
@@ -98,6 +78,9 @@ const ATK_RANGE = 45;
 const INVULN_TIME = 1200;
 const PLAYER_DAMAGE = 50;
 const BASE_HP = 100;
+const PLAYER_SCALE = 1.2;
+const ENEMY_SCALE = 1.2;
+const BOSS_SCALE = 1.8;
 
 /* ===== Preload ===== */
 function preload(){
@@ -121,21 +104,23 @@ function preload(){
   scene.load.audio('sfx-attack', 'assets/gv/sounds/attack.ogg');
   scene.load.audio('sfx-hurt', 'assets/gv/sounds/hurt.ogg');
   scene.load.audio('sfx-kill', 'assets/gv/sounds/kill.ogg');
+  scene.load.audio('music-main', 'assets/gv/sounds/sci_fi_platformer04_main_loop.ogg');
 }
 
 /* ===== Animations ===== */
 function createAnimations(){
-  scene.anims.create({ key:'hero-idle', frames:[1,2,3,4].map(i=>({key:'hero-idle-'+i})), frameRate:8, repeat:-1 });
-  scene.anims.create({ key:'hero-run', frames:[1,2,3,4,5,6].map(i=>({key:'hero-run-'+i})), frameRate:12, repeat:-1 });
-  scene.anims.create({ key:'hero-jump', frames:[1,2,3,4].map(i=>({key:'hero-jump-'+i})), frameRate:10, repeat:0 });
-  scene.anims.create({ key:'hero-attack', frames:[1,2,3,4,5].map(i=>({key:'hero-attack-'+i})), frameRate:20, repeat:0 });
-  scene.anims.create({ key:'hero-hurt', frames:[{key:'hero-hurt'}], frameRate:1, repeat:0 });
+  const A = scene.anims;
+  if(!A.exists('hero-idle')) A.create({key:'hero-idle', frames:[1,2,3,4].map(i=>({key:'hero-idle-'+i})), frameRate:8, repeat:-1});
+  if(!A.exists('hero-run'))  A.create({key:'hero-run',  frames:[1,2,3,4,5,6].map(i=>({key:'hero-run-'+i})), frameRate:12, repeat:-1});
+  if(!A.exists('hero-jump')) A.create({key:'hero-jump', frames:[1,2,3,4].map(i=>({key:'hero-jump-'+i})), frameRate:10, repeat:0});
+  if(!A.exists('hero-attack')) A.create({key:'hero-attack', frames:[1,2,3,4,5].map(i=>({key:'hero-attack-'+i})), frameRate:20, repeat:0});
+  if(!A.exists('hero-hurt')) A.create({key:'hero-hurt', frames:[{key:'hero-hurt'}], frameRate:1, repeat:0});
 
-  scene.anims.create({ key:'skeleton-walk', frames:[1,2,3,4,5,6,7,8].map(i=>({key:'skeleton-'+i})), frameRate:10, repeat:-1 });
-  scene.anims.create({ key:'skeleton-clothed-walk', frames:[1,2,3,4,5,6,7,8].map(i=>({key:'skeleton-clothed-'+i})), frameRate:10, repeat:-1 });
-  scene.anims.create({ key:'ghost-float', frames:[1,2,3,4].map(i=>({key:'ghost-'+i})), frameRate:6, repeat:-1 });
-  scene.anims.create({ key:'hell-gato-walk', frames:[1,2,3,4].map(i=>({key:'hell-gato-'+i})), frameRate:8, repeat:-1 });
-  scene.anims.create({ key:'enemy-death', frames:[1,2,3,4,5].map(i=>({key:'enemy-death-'+i})), frameRate:15, repeat:0 });
+  if(!A.exists('skeleton-walk')) A.create({key:'skeleton-walk', frames:[1,2,3,4,5,6,7,8].map(i=>({key:'skeleton-'+i})), frameRate:10, repeat:-1});
+  if(!A.exists('skeleton-clothed-walk')) A.create({key:'skeleton-clothed-walk', frames:[1,2,3,4,5,6,7,8].map(i=>({key:'skeleton-clothed-'+i})), frameRate:10, repeat:-1});
+  if(!A.exists('ghost-float')) A.create({key:'ghost-float', frames:[1,2,3,4].map(i=>({key:'ghost-'+i})), frameRate:6, repeat:-1});
+  if(!A.exists('hell-gato-walk')) A.create({key:'hell-gato-walk', frames:[1,2,3,4].map(i=>({key:'hell-gato-'+i})), frameRate:8, repeat:-1});
+  if(!A.exists('enemy-death')) A.create({key:'enemy-death', frames:[1,2,3,4,5].map(i=>({key:'enemy-death-'+i})), frameRate:15, repeat:0});
 }
 
 /* ===== Create ===== */
@@ -144,7 +129,7 @@ function create(){
   createAnimations();
   scene.physics.world.setBounds(0, 0, 10000, 1500);
 
-  // نصنع تكستشر للأرضية (لون حجري)
+  // تكستشرات مساعدة
   if(!scene.textures.exists('platform')){
     const g = scene.add.graphics();
     g.fillStyle(0x3a2f26, 1);
@@ -161,19 +146,28 @@ function create(){
     g.generateTexture('coin', 16, 16);
     g.destroy();
   }
+  if(!scene.textures.exists('dust')){
+    const g = scene.add.graphics();
+    g.fillStyle(0xffffff, 1);
+    g.fillCircle(4, 4, 4);
+    g.generateTexture('dust', 8, 8);
+    g.destroy();
+  }
 
   loadZone(0);
 
   player = scene.physics.add.sprite(60, 100, 'hero-idle-1');
   player.play('hero-idle');
   player.setDepth(10);
-  player.setScale(1.2);
+  player.setScale(PLAYER_SCALE);
   player.body.setSize(14, 28).setOffset(10, 14);
   player.body.setMaxVelocity(300, 500);
+  player._wasOnGround = true;
 
   scene.cameras.main.setBounds(0, 0, ZONES[currentZone].width || 6000, GH);
   scene.cameras.main.startFollow(player, true, 0.1, 0.1);
   scene.cameras.main.setDeadzone(120, 60);
+  scene.cameras.main.fadeIn(800, 0, 0, 0);
 
   cursors = scene.input.keyboard.createCursorKeys();
   keys = scene.input.keyboard.addKeys('A,D,W,S,SPACE,J,K,ENTER');
@@ -181,6 +175,14 @@ function create(){
   bindMobileButtons();
   scene.physics.add.collider(player, platforms);
   updateHUD();
+
+  // موسيقى
+  if(!music && scene.sound){
+    try{
+      music = scene.sound.add('music-main', {volume: 0.18, loop: true});
+      music.play();
+    }catch(e){}
+  }
 }
 
 function updateHUD(){
@@ -268,12 +270,12 @@ function spawnEnemies(idx){
   const W = z.width;
   for(let i=0;i<z.enemyCount;i++){
     setTimeout(()=>{
-      if(!scene || !enemies) return;
+      if(!scene || !enemies || !player || !player.active) return;
       const key = z.enemies[i % z.enemies.length];
       const ex = Phaser.Math.Between(200, W - 500);
       const e = enemies.create(ex, 80, key + '-1');
       if(ENEMY_ANIMS[key]) e.play(ENEMY_ANIMS[key]);
-      e.setScale(1.2);
+      e.setScale(ENEMY_SCALE);
       e.setDepth(8);
       e.hp = 40 + idx*30;
       e.maxHp = e.hp;
@@ -284,6 +286,7 @@ function spawnEnemies(idx){
       e.body.setSize(14, 22).setOffset(9, 10);
       e.body.setCollideWorldBounds(false);
       e.setFlipX(e.body.velocity.x < 0);
+      if(z.enemyTint) e.setTint(z.enemyTint);
     }, i * 400);
   }
 }
@@ -321,6 +324,12 @@ function update(time, delta){
   updateHUD();
 }
 
+function setPlayerAnim(key){
+  if(!player.anims) return;
+  if(player.anims.currentAnim && player.anims.currentAnim.key === key) return;
+  player.play(key, true);
+}
+
 function handleInput(time, delta){
   const left = cursors.left.isDown || keys.A.isDown || keysMap.left;
   const right = cursors.right.isDown || keys.D.isDown || keysMap.right;
@@ -353,9 +362,14 @@ function handleInput(time, delta){
     if(scene.sound) scene.sound.play('sfx-jump', {volume: 0.4});
     jumpPressedAt = 0;
     coyoteTimer = 0;
+    spawnDust(player.x, player.y + 12, 5);
   }
 
-  // الأنيميشن
+  // غبار الهبوط + الجري
+  if(onGround && !player._wasOnGround) spawnDust(player.x, player.y + 12, 8);
+  if(onGround && Math.abs(player.body.velocity.x) > 50 && Math.random() < 0.15) spawnDust(player.x - facing*8, player.y + 12, 1);
+  player._wasOnGround = onGround;
+
   if(invulnTimer > 0){
     invulnTimer -= delta;
     player.alpha = (Math.floor(time/60)%2===0) ? 0.3 : 1;
@@ -364,11 +378,11 @@ function handleInput(time, delta){
   }
 
   if(!onGround){
-    if(!player.anims.isPlaying || player.anims.currentAnim.key !== 'hero-jump') player.play('hero-jump', true);
+    setPlayerAnim('hero-jump');
   } else if(Math.abs(player.body.velocity.x) > 10){
-    if(!player.anims.isPlaying || player.anims.currentAnim.key !== 'hero-run') player.play('hero-run', true);
+    setPlayerAnim('hero-run');
   } else {
-    if(!player.anims.isPlaying || player.anims.currentAnim.key !== 'hero-idle') player.play('hero-idle', true);
+    setPlayerAnim('hero-idle');
   }
 
   if(attackDown && time - lastAttack > ATK_COOLDOWN){
@@ -377,16 +391,34 @@ function handleInput(time, delta){
   }
 }
 
+function spawnDust(x, y, count){
+  for(let i=0;i<count;i++){
+    const d = scene.add.image(x, y, 'dust');
+    d.setTint(0xaaaaaa);
+    d.setDepth(9);
+    d.setAlpha(0.6);
+    const vx = (Math.random()-0.5) * 40;
+    const vy = -20 - Math.random()*30;
+    scene.tweens.add({
+      targets: d,
+      x: x + vx, y: y + vy,
+      alpha: 0, scale: 0.2,
+      duration: 400 + Math.random()*200,
+      onComplete: ()=>d.destroy()
+    });
+  }
+}
+
 function doAttack(){
   player.play('hero-attack', true);
   if(scene.sound) scene.sound.play('sfx-attack', {volume: 0.5});
 
-  const arcX = facing === 1 ? player.x + 30 : player.x - 30;
-  const arc = scene.add.circle(arcX, player.y, 20, 0xff8c3c, 0.6);
+  const arcX = facing === 1 ? player.x + 25 : player.x - 25;
+  const arc = scene.add.circle(arcX, player.y, 18, 0xff8c3c, 0.7);
   arc.setDepth(11);
   scene.tweens.add({
     targets:arc,
-    alpha:0, scale:2, duration:ATK_DURATION,
+    alpha:0, scale:2.2, duration:ATK_DURATION,
     onComplete:()=>arc.destroy()
   });
 
@@ -394,20 +426,33 @@ function doAttack(){
     ? new Phaser.Geom.Rectangle(player.x + 10, player.y - 25, ATK_RANGE, 50)
     : new Phaser.Geom.Rectangle(player.x - ATK_RANGE - 10, player.y - 25, ATK_RANGE, 50);
 
+  let hit = false;
   enemies.getChildren().forEach(e=>{
-    if(e.active && Phaser.Geom.Intersects.RectangleToRectangle(range, e.getBounds())){
+    if(e.active && e.body.enable && Phaser.Geom.Intersects.RectangleToRectangle(range, e.getBounds())){
       damageEnemy(e, PLAYER_DAMAGE);
+      hit = true;
     }
   });
 
   if(boss && boss.active && !boss._defeated){
     if(Phaser.Geom.Intersects.RectangleToRectangle(range, boss.getBounds())){
       damageBoss(PLAYER_DAMAGE);
+      hit = true;
     }
+  }
+
+  if(hit) hitStop(60);
+}
+
+function hitStop(ms){
+  if(scene.physics && scene.physics.world){
+    scene.physics.world.pause();
+    scene.time.delayedCall(ms, ()=>{ if(scene.physics) scene.physics.world.resume(); });
   }
 }
 
 function damageEnemy(e, dmg){
+  if(!e.active || !e.body.enable) return;
   e.hp -= dmg;
   e.setTint(0xffffff);
   scene.time.delayedCall(80, ()=>{ if(e.active) e.clearTint(); });
@@ -429,6 +474,7 @@ function damageEnemy(e, dmg){
 }
 
 function damageBoss(dmg){
+  if(!boss || !boss.active) return;
   boss.hp -= dmg;
   boss.setTint(0xffffff);
   scene.time.delayedCall(80, ()=>{ if(boss && boss.active) boss.clearTint(); });
@@ -504,12 +550,14 @@ function handleEnemies(delta){
     if(!e.active) return;
     if(e.y > GH + 60){ e.destroy(); return; }
 
-    const dist = player.x - e.x;
-    if(Math.abs(dist) < 250 && e.body.enable){
-      if(dist > 0) e.body.setVelocityX(Math.abs(e.speed) * 1.3);
-      else e.body.setVelocityX(-Math.abs(e.speed) * 1.3);
+    if(e.body.enable){
+      const dist = player.x - e.x;
+      if(Math.abs(dist) < 250){
+        if(dist > 0) e.body.setVelocityX(Math.abs(e.speed) * 1.3);
+        else e.body.setVelocityX(-Math.abs(e.speed) * 1.3);
+      }
+      e.setFlipX(e.body.velocity.x < 0);
     }
-    if(e.body.enable) e.setFlipX(e.body.velocity.x < 0);
 
     if(e.body.enable && Phaser.Geom.Intersects.RectangleToRectangle(player.getBounds(), e.getBounds())){
       damagePlayer(e.damage);
@@ -539,6 +587,15 @@ function handleCoins(){
       State.data.gold = gold;
       Save.save(State.data);
       burst(c.x, c.y, 5, 0xfbbf24);
+      // تأثير طيران
+      const t = scene.add.image(c.x, c.y, 'coin').setScale(0.5).setDepth(20);
+      scene.tweens.add({
+        targets: t,
+        x: player.x + 60, y: player.y - 100,
+        alpha: 0, scale: 0,
+        duration: 400,
+        onComplete: ()=>t.destroy()
+      });
       c.destroy();
     }
   });
@@ -562,7 +619,7 @@ function spawnBoss(){
       boss = scene.physics.add.sprite(bx, by, z.bossSprite);
       if(z.bossAnim) boss.play(z.bossAnim);
       boss.setDepth(12);
-      boss.setScale(1.8);
+      boss.setScale(BOSS_SCALE);
       boss.hp = z.boss.hp;
       boss.maxHp = z.boss.hp;
       boss.body.setSize(14, 22).setOffset(9, 10);
@@ -617,7 +674,7 @@ function playFinalBoss(){
   boss = scene.physics.add.sprite(player.x + 200, 80, 'ghost-1');
   boss.play('ghost-float');
   boss.setDepth(12);
-  boss.setScale(2.2);
+  boss.setScale(BOSS_SCALE + 0.4);
   boss.hp = 2000;
   boss.maxHp = 2000;
   boss.body.setSize(14, 22).setOffset(9, 10);
@@ -639,6 +696,7 @@ function reloadZone(){
   loadZone(currentZone);
   scene.physics.add.collider(player, platforms);
   scene.cameras.main.setBounds(0, 0, ZONES[currentZone].width, GH);
+  scene.cameras.main.fadeIn(600, 0, 0, 0);
 }
 
 window.EmberGame = {
