@@ -99,6 +99,7 @@ function preload(){
 
   scene.load.image('bg-graveyard', 'assets/gv/env/background.png');
   scene.load.image('bg-mountains', 'assets/gv/env/mountains.png');
+  scene.load.spritesheet('tileset', 'assets/gv/env/tileset.png', { frameWidth: 16, frameHeight: 16 });
 
   scene.load.audio('sfx-jump', 'assets/gv/sounds/jump.ogg');
   scene.load.audio('sfx-attack', 'assets/gv/sounds/attack.ogg');
@@ -130,29 +131,34 @@ function create(){
   scene.physics.world.setBounds(0, 0, 10000, 1500);
 
   // تكستشرات مساعدة
-  // تكسترات أرضية لكل منطقة
-  function makeGround(key, topC, mainC, darkC, spotC){
+  // تكسترات أرضية من tileset مع تلوين لكل منطقة
+  function makeTintedGround(key, frameIdx, tintC){
     if(scene.textures.exists(key)) return;
-    const g = scene.add.graphics();
-    g.fillStyle(mainC, 1);
-    g.fillRect(0, 0, 32, 32);
-    g.fillStyle(topC, 1);
-    g.fillRect(0, 0, 32, 5);
-    g.fillStyle(darkC, 1);
-    g.fillRect(0, 26, 32, 6);
-    for(let i=0;i<8;i++){
-      g.fillStyle(spotC, 0.5);
-      const sx = Phaser.Math.Between(2, 28);
-      const sy = Phaser.Math.Between(7, 23);
-      g.fillRect(sx, sy, 2, 2);
+    const srcImg = scene.textures.get("tileset").getSourceImage();
+    const cols = Math.floor(srcImg.width / 16);
+    const col = frameIdx % cols;
+    const row = Math.floor(frameIdx / cols);
+    const cv = document.createElement("canvas");
+    cv.width = 16; cv.height = 16;
+    const ctx = cv.getContext("2d");
+    ctx.drawImage(srcImg, col*16, row*16, 16, 16, 0, 0, 16, 16);
+    const imgData = ctx.getImageData(0, 0, 16, 16);
+    const d = imgData.data;
+    const tr = (tintC >> 16) & 0xFF;
+    const tg = (tintC >> 8) & 0xFF;
+    const tb = tintC & 0xFF;
+    for(let i=0; i<d.length; i+=4){
+      d[i] = (d[i] * tr) / 255;
+      d[i+1] = (d[i+1] * tg) / 255;
+      d[i+2] = (d[i+2] * tb) / 255;
     }
-    g.generateTexture(key, 32, 32);
-    g.destroy();
+    ctx.putImageData(imgData, 0, 0);
+    scene.textures.addCanvas(key, cv);
   }
-  makeGround('ground-0', 0x8a6a4a, 0x4a3626, 0x2a1a10, 0xa8a088); // الرماد
-  makeGround('ground-1', 0xd08030, 0x7a4020, 0x3a1810, 0xf0a050); // الصدأ
-  makeGround('ground-2', 0xa8d0e8, 0x4a7a9a, 0x1a3a5a, 0xd8f0ff); // الصقيع
-  makeGround('ground-3', 0x9a7ac8, 0x4a3a6a, 0x1a0a2a, 0xc8a8ff); // الفراغ
+  makeTintedGround("ground-0", 0, 0xb89a7a); // الرماد - بني دافئ
+  makeTintedGround("ground-1", 0, 0xff8040); // الصدأ - برتقالي
+  makeTintedGround("ground-2", 0, 0x9ac8e8); // الصقيع - أزرق
+  makeTintedGround("ground-3", 0, 0xa888e0); // الفراغ - بنفسجي
   if(!scene.textures.exists('coin')){
     const g = scene.add.graphics();
     g.fillStyle(0xfbbf24, 1);
