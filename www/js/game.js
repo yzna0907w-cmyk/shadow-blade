@@ -658,7 +658,7 @@ function playZoneClearScene(){
   if(window.Story && currentZone < 4){
     Story.play(scenes[currentZone], ()=>{
       if(currentZone === 3){
-        Story.play('father_intro', ()=>{ playFinalBoss(); }, Story.chapters.father);
+        Story.play('shadow_intro', ()=>{ playFinalBoss(); }, Story.chapters.shadow);
       } else {
         currentZone++;
         State.data.zone = currentZone;
