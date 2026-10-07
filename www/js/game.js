@@ -101,6 +101,7 @@ const BASE_HP = 100;
 
 /* ===== Preload ===== */
 function preload(){
+  scene = this;
   for(let i=1;i<=4;i++) scene.load.image('hero-idle-'+i, 'assets/gv/hero/hero-idle-'+i+'.png');
   for(let i=1;i<=6;i++) scene.load.image('hero-run-'+i, 'assets/gv/hero/hero-run-'+i+'.png');
   for(let i=1;i<=4;i++) scene.load.image('hero-jump-'+i, 'assets/gv/hero/hero-jump-'+i+'.png');
