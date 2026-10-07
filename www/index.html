@@ -1,89 +1,126 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<script src="js/error-handler.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="screen-orientation" content="landscape">
 <title>EMBER</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Amiri:wght@700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
+<script src="js/error-handler.js"></script>
 </head>
 <body>
-<div id="rotate-warning"><div class="rotate-icon">📱</div><div class="rotate-text">أدر جوالك أفقياً</div></div>
 
+<div id="rotate-warning">
+  <div class="rotate-icon">📱</div>
+  <div class="rotate-text">أدر جوالك أفقياً</div>
+</div>
+
+<!-- شاشة القصة -->
 <div id="storyScreen" class="story-screen">
-<div class="story-vignette"></div>
-<div class="story-scanlines"></div>
-<div class="story-chapter" id="storyChapter">EMBER</div>
-<div class="story-content"><div class="story-text" id="storyText"></div></div>
-<div class="story-controls">
-<button class="story-btn story-btn--skip" id="storySkip" type="button">تخطي</button>
-<button class="story-btn story-btn--next" id="storyNext" type="button">التالي ⟫</button>
-</div>
-<div class="story-hint">المس الشاشة للمتابعة</div>
+  <div class="story-vignette"></div>
+  <div class="story-scanlines"></div>
+  <div class="story-chapter" id="storyChapter">EMBER</div>
+  <div class="story-content"><div class="story-text" id="storyText"></div></div>
+  <div class="story-controls">
+    <button class="story-btn story-btn--skip" id="storySkip" type="button">تخطي</button>
+    <button class="story-btn story-btn--next" id="storyNext" type="button">التالي ⟫</button>
+  </div>
+  <div class="story-hint">المس الشاشة للمتابعة</div>
 </div>
 
+<!-- شاشة البداية -->
 <div id="title-screen">
-<div class="title-bg"></div>
-<div class="title-ember" id="titleEmber"></div>
-<div class="title-vignette"></div>
-<div class="title-particles" id="titleParticles"></div>
-<div class="title-content">
-<div class="title-logo-area">
-<h1 class="title-name">EMBER</h1>
-<p class="title-sub">رحلة عبر عوالم تحتضر</p>
-</div>
-<div class="title-menu">
-<button class="menu-btn menu-btn--primary" id="btnNewGame" type="button">🔥 ابدأ الرحلة</button>
-<button class="menu-btn" id="btnContinue" type="button">▶ متابعة</button>
-<button class="menu-btn menu-btn--link" id="btnWebsite" type="button">🌐 الدعم</button>
-</div>
-</div>
+  <div class="title-bg"></div>
+  <div class="title-ember" id="titleEmber"></div>
+  <div class="title-vignette"></div>
+  <div class="title-particles" id="titleParticles"></div>
+  <div class="title-content">
+    <div class="title-logo-area">
+      <h1 class="title-name">EMBER</h1>
+      <p class="title-sub">رحلة عبر عوالم تحتضر</p>
+    </div>
+    <div class="title-menu">
+      <button class="menu-btn menu-btn--primary" id="btnNewGame" type="button">🔥 ابدأ الرحلة</button>
+      <button class="menu-btn" id="btnContinue" type="button">▶ متابعة</button>
+      <button class="menu-btn menu-btn--link" id="btnWebsite" type="button">🌐 الدعم</button>
+    </div>
+  </div>
 </div>
 
+<!-- شاشة طلب البوس -->
 <div id="bossPromptScreen" class="modal-screen">
-<div class="modal-box" style="text-align:center">
-<div style="font-size:3rem;margin:10px 0">👑</div>
-<h2 class="modal-title" id="bossPromptName">BOSS</h2>
-<div style="color:#ffb87a;padding:15px 0;font-size:1.1rem">هل أنت مستعد للمواجهة؟</div>
-<button class="modal-btn menu-btn--primary" id="bossAcceptBtn" type="button">⚔ نعم، هيا نواجه!</button>
-<button class="modal-btn modal-btn--close" id="bossDeclineBtn" type="button">⏸ ليس الآن</button>
-</div>
+  <div class="modal-box" style="text-align:center">
+    <div style="font-size:3rem;margin:10px 0">👑</div>
+    <h2 class="modal-title" id="bossPromptName">BOSS</h2>
+    <div style="color:#ffb87a;padding:15px 0;font-size:1.1rem">هل أنت مستعد للمواجهة؟</div>
+    <button class="modal-btn menu-btn--primary" id="bossAcceptBtn" type="button">⚔ نعم، هيا نواجه!</button>
+    <button class="modal-btn modal-btn--close" id="bossDeclineBtn" type="button">⏸ ليس الآن</button>
+  </div>
 </div>
 
+<!-- HUD -->
 <div id="hud" style="display:none">
-<div class="hud-top">
-<div class="hud-item"><span class="hud-icon">🔥</span><div class="flame-bar"><div class="flame-fill" id="flameFill"></div></div></div>
-<div class="hud-zone" id="zoneName">الرماد</div>
-<div class="hud-gold"><span>💰</span><span id="goldCount">0</span></div>
-</div>
+  <div class="hud-top">
+    <div class="hud-item">
+      <span class="hud-icon">🔥</span>
+      <div class="flame-bar"><div class="flame-fill" id="flameFill"></div></div>
+    </div>
+    <div class="hud-zone" id="zoneName">المقبرة</div>
+    <div class="hud-gold"><span>💰</span><span id="goldCount">0</span></div>
+  </div>
 </div>
 
+<!-- أزرار التحكم -->
 <div id="controls" style="display:none">
-<button class="ctrl-btn ctrl-btn--left" id="btnLeft" type="button">
-<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
-</button>
-<button class="ctrl-btn ctrl-btn--right" id="btnRight" type="button">
-<svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
-</button>
-<button class="ctrl-btn ctrl-btn--attack" id="btnAttack" type="button">
-<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6" fill="currentColor"/></svg>
-</button>
-<button class="ctrl-btn ctrl-btn--jump" id="btnJump" type="button">
-<svg viewBox="0 0 24 24"><path d="M12 20V6M6 12l6-6 6 6" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
-</button>
+  <button class="ctrl-btn ctrl-btn--left" id="btnLeft" type="button">
+    <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
+  </button>
+  <button class="ctrl-btn ctrl-btn--right" id="btnRight" type="button">
+    <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
+  </button>
+  <button class="ctrl-btn ctrl-btn--attack" id="btnAttack" type="button">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6" fill="currentColor"/></svg>
+  </button>
+  <button class="ctrl-btn ctrl-btn--jump" id="btnJump" type="button">
+    <svg viewBox="0 0 24 24"><path d="M12 20V6M6 12l6-6 6 6" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
+  </button>
 </div>
 
+<!-- حاوية اللعبة -->
 <div id="game-container"><div id="game-wrap"></div></div>
 <div id="loading">🔥</div>
+<script>setTimeout(function(){var l=document.getElementById('loading');if(l)l.classList.add('hide');},800);</script>
 
-<script>
-setTimeout(function(){var l=document.getElementById('loading');if(l)l.classList.add('hide');},800);
-</script>
+<!-- ═══ السكربتات - بالترتيب الصحيح ═══ -->
 <script src="lib/phaser.min.js"></script>
+
+<!-- 1. الأساسيات -->
+<script src="js/config.js"></script>
+<script src="js/state.js"></script>
+
+<!-- 2. الأنظمة -->
+<script src="js/abilities.js"></script>
+<script src="js/player.js"></script>
+<script src="js/enemies.js"></script>
+<script src="js/bosses.js"></script>
+<script src="js/puzzles.js"></script>
+<script src="js/hud.js"></script>
+
+<!-- 3. المراحل -->
+<script src="js/levels/level-common.js"></script>
+<script src="js/levels/level-1-crypt.js"></script>
+<script src="js/levels/level-2-swamp.js"></script>
+<script src="js/levels/level-3-caves.js"></script>
+<script src="js/levels/level-4-forest.js"></script>
+<script src="js/levels/level-5-factory.js"></script>
+
+<!-- 4. القصة -->
 <script src="js/story.js"></script>
-<script src="js/ui.js"></script>
+
+<!-- 5. اللعبة والواجهة -->
 <script src="js/game.js"></script>
+<script src="js/ui.js"></script>
+
 </body>
 </html>
