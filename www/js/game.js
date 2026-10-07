@@ -384,8 +384,8 @@ function doAttack(){
   });
 
   const range = facing === 1
-    ? Phaser.Geom.Rectangle(player.x + 10, player.y - 25, ATK_RANGE, 50)
-    : Phaser.Geom.Rectangle(player.x - ATK_RANGE - 10, player.y - 25, ATK_RANGE, 50);
+    ? new Phaser.Geom.Rectangle(player.x + 10, player.y - 25, ATK_RANGE, 50)
+    : new Phaser.Geom.Rectangle(player.x - ATK_RANGE - 10, player.y - 25, ATK_RANGE, 50);
 
   enemies.getChildren().forEach(e=>{
     if(e.active && Phaser.Geom.Intersects.RectangleToRectangle(range, e.getBounds())){
