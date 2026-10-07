@@ -4,13 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="screen-orientation" content="landscape">
-<title>EMBER</title>
+<title>EMBER — The Last Echo</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Amiri:wght@700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
-<script src="js/error-handler.js"></script>
+<script src="js/core/error-handler.js"></script>
 </head>
 <body>
 
+<!-- تحذير الاتجاه -->
 <div id="rotate-warning">
   <div class="rotate-icon">📱</div>
   <div class="rotate-text">أدر جوالك أفقياً</div>
@@ -38,7 +39,7 @@
   <div class="title-content">
     <div class="title-logo-area">
       <h1 class="title-name">EMBER</h1>
-      <p class="title-sub">رحلة عبر عوالم تحتضر</p>
+      <p class="title-sub">The Last Echo · صدى الرماد</p>
     </div>
     <div class="title-menu">
       <button class="menu-btn menu-btn--primary" id="btnNewGame" type="button">🔥 ابدأ الرحلة</button>
@@ -85,6 +86,12 @@
   <button class="ctrl-btn ctrl-btn--jump" id="btnJump" type="button">
     <svg viewBox="0 0 24 24"><path d="M12 20V6M6 12l6-6 6 6" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
   </button>
+  <button class="ctrl-btn ctrl-btn--dash" id="btnDash" type="button" style="bottom:20px;right:200px;width:60px;height:60px">
+    <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
+  </button>
+  <button class="ctrl-btn ctrl-btn--switch" id="btnSwitch" type="button" style="top:80px;right:20px;width:50px;height:50px">
+    <svg viewBox="0 0 24 24"><path d="M7 7h10M7 7l3-3M7 7l3 3M17 17H7M17 17l-3-3M17 17l-3 3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+  </button>
 </div>
 
 <!-- حاوية اللعبة -->
@@ -92,35 +99,58 @@
 <div id="loading">🔥</div>
 <script>setTimeout(function(){var l=document.getElementById('loading');if(l)l.classList.add('hide');},800);</script>
 
-<!-- ═══ السكربتات - بالترتيب الصحيح ═══ -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- السكربتات — بالترتيب الصحيح (مهم جداً!) -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+
+<!-- 0. المكتبة -->
 <script src="lib/phaser.min.js"></script>
 
-<!-- 1. الأساسيات -->
-<script src="js/config.js"></script>
-<script src="js/state.js"></script>
+<!-- 1. الأساسيات (Core) -->
+<script src="js/core/error-handler.js"></script>
+<script src="js/core/config.js"></script>
+<script src="js/core/state.js"></script>
+<script src="js/core/events.js"></script>
+<script src="js/core/input.js"></script>
+<script src="js/core/audio.js"></script>
 
-<!-- 2. الأنظمة -->
-<script src="js/abilities.js"></script>
-<script src="js/player.js"></script>
-<script src="js/enemies.js"></script>
-<script src="js/bosses.js"></script>
-<script src="js/puzzles.js"></script>
-<script src="js/hud.js"></script>
+<!-- 2. البيانات (Data) -->
+<script src="js/data/weapons.js"></script>
+<script src="js/data/enemies.js"></script>
+<script src="js/data/bosses.js"></script>
+<script src="js/data/items.js"></script>
+<script src="js/data/prices.js"></script>
+<script src="js/data/npcs.js"></script>
+<script src="js/data/rooms.js"></script>
+<script src="js/data/rooms-2-swamp.js"></script>
+<script src="js/data/rooms-3-caves.js"></script>
+<script src="js/data/rooms-4-forest.js"></script>
+<script src="js/data/rooms-5-factory.js"></script>
 
-<!-- 3. المراحل -->
-<script src="js/levels/level-common.js"></script>
-<script src="js/levels/level-1-crypt.js"></script>
-<script src="js/levels/level-2-swamp.js"></script>
-<script src="js/levels/level-3-caves.js"></script>
-<script src="js/levels/level-4-forest.js"></script>
-<script src="js/levels/level-5-factory.js"></script>
+<!-- 3. الأنظمة (Systems) -->
+<script src="js/systems/combat.js"></script>
+<script src="js/systems/enemies.js"></script>
+<script src="js/systems/bosses.js"></script>
+<script src="js/systems/dialogue.js"></script>
+<script src="js/systems/inventory.js"></script>
+<script src="js/systems/shop.js"></script>
+<script src="js/systems/puzzles.js"></script>
+<script src="js/systems/hud.js"></script>
 
-<!-- 4. القصة -->
+<!-- 4. الكائنات (Entities) -->
+<script src="js/entities/player.js"></script>
+
+<!-- 5. المراحل (Levels) -->
+<script src="js/levels/levels.js"></script>
+
+<!-- 6. القصة -->
 <script src="js/story.js"></script>
 
-<!-- 5. اللعبة والواجهة -->
-<script src="js/game.js"></script>
+<!-- 7. الواجهة -->
 <script src="js/ui.js"></script>
+
+<!-- 8. الملف الرئيسي (آخر شي!) -->
+<script src="js/main.js"></script>
 
 </body>
 </html>

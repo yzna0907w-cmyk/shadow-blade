@@ -46,8 +46,8 @@ jobs:
         run: |
           echo "=== BEFORE ==="
           grep -n "versionCode\|versionName" android/app/build.gradle || true
-          sed -i 's/versionCode [0-9]\+/versionCode 600/g' android/app/build.gradle
-          sed -i 's/versionName "[^"]*"/versionName "6.0.0"/g' android/app/build.gradle
+          sed -i 's/versionCode [0-9]\+/versionCode 100/g' android/app/build.gradle
+          sed -i 's/versionName "[^"]*"/versionName "1.0.0"/g' android/app/build.gradle
           echo "=== AFTER ==="
           grep -n "versionCode\|versionName" android/app/build.gradle || true
 
@@ -93,13 +93,14 @@ jobs:
       - name: Rename APK
         run: |
           mkdir -p output
-          cp android/app/build/outputs/apk/debug/app-debug.apk output/Ember-v6.0.0.apk
+          cp android/app/build/outputs/apk/debug/app-debug.apk "output/EMBER-The-Last-Echo-v1.0.0.apk"
+          ls -lh output/
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v6.0.0-build${{ github.run_number }}
-          name: Ember v6.0.0 (Build ${{ github.run_number }})
-          files: output/Ember-v6.0.0.apk
+          tag_name: v1.0.0-build${{ github.run_number }}
+          name: EMBER - The Last Echo (Build ${{ github.run_number }})
+          files: output/EMBER-The-Last-Echo-v1.0.0.apk
           draft: false
           prerelease: false

@@ -1,11 +1,19 @@
 {
-  "appId": "com.yz.shadowblade",
-  "appName": "EMBER",
+  "appId": "com.yz.ember",
+  "appName": "EMBER: The Last Echo",
   "webDir": "www",
   "server": {
     "androidScheme": "https"
   },
   "android": {
-    "allowMixedContent": true
+    "allowMixedContent": true,
+    "backgroundColor": "#050208"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "backgroundColor": "#050208",
+      "showSpinner": false,
+      "launchAutoHide": true
+    }
   }
 }
