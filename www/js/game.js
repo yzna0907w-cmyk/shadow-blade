@@ -148,6 +148,11 @@ function create(){
     const tg = (tintC >> 8) & 0xFF;
     const tb = tintC & 0xFF;
     for(let i=0; i<d.length; i+=4){
+      // نضيء المصدر أولاً (×2.5)
+      d[i] = Math.min(255, d[i] * 2.5);
+      d[i+1] = Math.min(255, d[i+1] * 2.5);
+      d[i+2] = Math.min(255, d[i+2] * 2.5);
+      // ثم نطبق التلوين
       d[i] = (d[i] * tr) / 255;
       d[i+1] = (d[i+1] * tg) / 255;
       d[i+2] = (d[i+2] * tb) / 255;
@@ -263,7 +268,7 @@ function loadZone(idx){
     const groundY = baseY - h;
     hIdx++;
     const pl = platforms.create(x + w/2, groundY, 'ground-'+idx);
-    pl.setScale(w / 32, (GH - groundY) / 32 + 0.5);
+    pl.setScale(w / 16, (GH - groundY) / 16 + 1);
     pl.refreshBody();
     pl.setDepth(-5);
     x += w - 5;
@@ -277,14 +282,14 @@ function loadZone(idx){
       const py = groundY - Phaser.Math.Between(pfHeight[0], pfHeight[1]);
       const pw = Phaser.Math.Between(70, 130);
       const pf = platforms.create(px, py, 'ground-'+idx);
-      pf.setScale(pw / 32, 0.25);
+      pf.setScale(pw / 16, 0.4);
       pf.refreshBody();
       pf.setDepth(-5);
     }
   }
   const endY = baseY;
   const endPlat = platforms.create(W - 120, endY, 'ground-'+idx);
-  endPlat.setScale(3, (GH - endY) / 32 + 0.5);
+  endPlat.setScale(6, (GH - endY) / 16 + 1);
   endPlat.refreshBody();
   endPlat.setDepth(-5);
 
@@ -354,6 +359,11 @@ function bindMobileButtons(){
 
 function update(time, delta){
   if(!player || !player.active) return;
+  if(player.y > GH + 100){
+    player.y = 60;
+    player.body.setVelocity(0, 0);
+    return;
+  }
   handleInput(time, delta);
   handleEnemies(delta);
   handleCoins();
