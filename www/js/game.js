@@ -102,6 +102,11 @@ const Game = {
 
   // ═══ تنظيف المرحلة ═══
   _cleanup(){
+    // إلغاء timers الأعداء
+    if(scene._enemyTimers){
+      scene._enemyTimers.forEach(t => { try { if(t) t.remove(); } catch(e){} });
+      scene._enemyTimers = [];
+    }
     if(scene.platforms) scene.platforms.clear(true, true);
     if(scene.coins) scene.coins.clear(true, true);
     if(Enemies.group) Enemies.group.clear(true, true);
@@ -134,6 +139,8 @@ function preload(){
   scene.load.audio('sfx-attack', 'assets/sounds/attack.wav');
   scene.load.audio('sfx-hurt', 'assets/sounds/hit.wav');
   scene.load.audio('sfx-kill', 'assets/sounds/death.wav');
+  scene.load.audio('music-dungeon', 'assets/sounds/music-dungeon.ogg');
+  scene.load.audio('music-forest', 'assets/sounds/music-forest.ogg');
 
   // ═══ تكسترات أساسية ═══
   createBasicTextures(scene);
@@ -185,6 +192,14 @@ function create(){
   scene.physics.add.collider(Enemies.group, scene.platforms);
   scene.physics.add.collider(scene.coins, scene.platforms);
 
+  // ═══ الموسيقى ═══
+  if(!window._gameMusic && scene.sound){
+    try {
+      window._gameMusic = scene.sound.add("music-dungeon", {volume: 0.25, loop: true});
+      window._gameMusic.play();
+    } catch(e){ console.log("Music error:", e); }
+  }
+  
   // ═══ أزرار الجوال ═══
   bindMobileButtons();
 

@@ -41,12 +41,11 @@ const Bosses = {
   
   // ═══ تحميل الصور ═══
   preload(scene){
-    // نشيل صورة placeholder لكل بوس (نستخدم صور الأعداء مؤقتاً)
-    scene.load.image('boss-robot', 'assets/bosses/factory/boss-1-idle.png');
-    scene.load.image('boss-centipede', 'assets/bosses/swamp/centipede-idle.png');
-    scene.load.image('boss-turtle', 'assets/bosses/swamp/turtle-idle.png');
-    scene.load.image('boss-boar', 'assets/enemies/boar-idle.png');
-    scene.load.image('boss-tank', 'assets/bosses/factory/boss-2-idle.png');
+    scene.load.image("boss-robot", "assets/bosses/robot-idle.png");
+    scene.load.image("boss-tank", "assets/bosses/tank-idle.png");
+    scene.load.image("boss-centipede", "assets/bosses/centipede-idle.png");
+    scene.load.image("boss-turtle", "assets/bosses/turtle-idle.png");
+    scene.load.image("boss-boar", "assets/enemies/boar-idle.png");
   },
   
   // ═══ إنشاء بوس ═══
@@ -157,19 +156,31 @@ const Bosses = {
     }
     
     // إزالة
+    this.current = null;
+    this.active = false;
+    
     scene.tweens.add({
       targets: b,
       alpha: 0, scale: 0,
       duration: 1500,
       onComplete: ()=>{
-        if(b) b.destroy();
-        this.current = null;
+        if(b && b.active) b.destroy();
         this.hideBossUI();
         
-        // فتح العالم التالي
-        scene.time.delayedCall(2000, ()=>{
+        // نلعب قصة النهاية حسب العالم
+        const storyKeys = ["crypt_clear","swamp_clear","caves_clear","forest_clear","factory_clear"];
+        const storyChapters = ["crypt","swamp","caves","forest","factory"];
+        const wIdx = State.data.worldIdx;
+        
+        const goNext = ()=>{
           if(Game) Game.nextWorld();
-        });
+        };
+        
+        if(window.Story && storyKeys[wIdx]){
+          Story.play(storyKeys[wIdx], goNext, Story.chapters[storyChapters[wIdx]]);
+        } else {
+          scene.time.delayedCall(1500, goNext);
+        }
       }
     });
   },

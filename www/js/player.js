@@ -52,7 +52,6 @@ const Player = {
     this.sprite.setDepth(10);
     this.sprite.setScale(CFG.PLAYER_SCALE);
     this.sprite.body.setSize(16, 30).setOffset(24, 24);
-    this.sprite.body.setCollideWorldBounds(true);
     this.sprite.body.setMaxVelocity(400, 700);
     this.sprite.play('hero-idle');
     this.facing = 1;
