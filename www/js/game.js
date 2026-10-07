@@ -529,7 +529,7 @@ function damagePlayer(dmg){
   if(invulnTimer > 0) return;
   hp -= dmg;
   invulnTimer = INVULN_TIME;
-  player.play('hero-hurt', true);
+  player.setTexture('hero-hurt');
   if(scene.sound) scene.sound.play('sfx-hurt', {volume: 0.6});
   scene.cameras.main.shake(200, 0.01);
   burst(player.x, player.y, 12, 0xff3c14);
