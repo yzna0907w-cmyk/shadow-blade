@@ -605,13 +605,7 @@ function handleCoins(){
 
 function handleBoss(delta){
   if(bossDefeated) return;
-  if(bossActive){
-    if(!boss || !boss.active){
-      var p = document.getElementById("bossPromptScreen");
-      if(!p || !p.classList.contains("active")) bossActive = false;
-    }
-    return;
-  }
+  if(bossActive) return;
   if(player.x > 800){
     spawnBoss();
   }
@@ -620,37 +614,27 @@ function handleBoss(delta){
 function spawnBoss(){
   bossActive = true;
   const z = ZONES[currentZone];
-
-  if(window.BossPrompt){
-    BossPrompt.show(z.boss.nameAr, ()=>{
-      const bx = ZONES[currentZone].width - 300;
-      const by = 80;
-      boss = scene.physics.add.sprite(bx, by, z.bossSprite);
-      if(z.bossAnim) boss.play(z.bossAnim);
-      boss.setDepth(12);
-      boss.setScale(BOSS_SCALE);
-      boss.hp = z.boss.hp;
-      boss.maxHp = z.boss.hp;
-      boss.body.setSize(14, 22).setOffset(9, 10);
-      boss.body.setCollideWorldBounds(true);
-      scene.physics.add.collider(boss, platforms);
-
-      ensureBossUI();
-      const wrap = document.getElementById('bossBar');
-      if(wrap){
-        wrap.style.display = 'block';
-        const nm = document.getElementById('bossName');
-        if(nm) nm.textContent = z.boss.nameAr;
-        const bf = document.getElementById('bossFill');
-        if(bf) bf.style.width = '100%';
-      }
-      scene.cameras.main.shake(600, 0.015);
-    }, ()=>{
-      bossActive = false;
-    });
-  } else {
-    bossActive = false;
+  const bx = player.x + 150;
+  const by = 80;
+  boss = scene.physics.add.sprite(bx, by, z.bossSprite);
+  if(z.bossAnim) boss.play(z.bossAnim);
+  boss.setDepth(12);
+  boss.setScale(BOSS_SCALE);
+  boss.hp = z.boss.hp;
+  boss.maxHp = z.boss.hp;
+  boss.body.setSize(14, 22).setOffset(9, 10);
+  boss.body.setCollideWorldBounds(true);
+  scene.physics.add.collider(boss, platforms);
+  ensureBossUI();
+  const wrap = document.getElementById("bossBar");
+  if(wrap){
+    wrap.style.display = "block";
+    const nm = document.getElementById("bossName");
+    if(nm) nm.textContent = z.boss.nameAr;
+    const bf = document.getElementById("bossFill");
+    if(bf) bf.style.width = "100%";
   }
+  scene.cameras.main.shake(600, 0.015);
 }
 
 function ensureBossUI(){
