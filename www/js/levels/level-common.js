@@ -8,7 +8,7 @@ const LevelCommon = {
     if(scene.textures.exists(bgKey)){
       const bg = scene.add.image(0, 0, bgKey);
       bg.setOrigin(0, 0);
-      bg.setScrollFactor(0.3);
+      bg.setScrollFactor(0);
       bg.setDisplaySize(CFG.GW, CFG.GH);
       bg.setDepth(-30);
       if(tint) bg.setTint(tint);
@@ -70,7 +70,8 @@ const LevelCommon = {
     for(let i = 0; i < count; i++){
       const type = types[i % types.length];
       const ex = Phaser.Math.Between(400, width - 500);
-      Enemies.spawn(scene, ex, 80, type, worldIdx);
+      const ey = CFG.GH - 100;
+      Enemies.spawn(scene, ex, ey, type, worldIdx);
     }
   }
 };

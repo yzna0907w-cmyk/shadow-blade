@@ -39,7 +39,7 @@ const Player = {
     A.create({ key:'hero-idle', frames:[0,1,2,3].map(i=>({key:'hero-idle-'+i})), frameRate:6, repeat:-1 });
     A.create({ key:'hero-run', frames:[0,1,2,3,4,5].map(i=>({key:'hero-run-'+i})), frameRate:12, repeat:-1 });
     A.create({ key:'hero-jump', frames:[0,1,2,3].map(i=>({key:'hero-jump-'+i})), frameRate:10, repeat:0 });
-    A.create({ key:'hero-attack', frames:[0,1,2,3,4].map(i=>({key:'hero-attack-'+i})), frameRate:20, repeat:0 });
+    A.create({ key:'hero-attack', frames:[0,1,2,3,4].map(i=>({key:'hero-attack-'+i})), frameRate:12, repeat:0 });
     A.create({ key:'hero-hurt', frames:[{key:'hero-hurt'}], frameRate:1, repeat:0 });
     A.create({ key:'hero-die', frames:[0,1,2,3].map(i=>({key:'hero-die-'+i})), frameRate:8, repeat:0 });
   },
@@ -49,8 +49,8 @@ const Player = {
     this.sprite = scene.physics.add.sprite(x, y, 'hero-idle-0');
     this.sprite.setDepth(10);
     this.sprite.setScale(CFG.PLAYER_SCALE);
-    this.sprite.body.setSize(14, 28).setOffset(10, 14);
-    this.sprite.body.setMaxVelocity(300, 600);
+    this.sprite.body.setSize(20, 40).setOffset(22, 20);
+    this.sprite.body.setMaxVelocity(400, 700);
     this.sprite.play('hero-idle');
     this.facing = 1;
     this.jumpsLeft = State.data.abilities.doubleJump ? 2 : 1;
@@ -158,9 +158,24 @@ const Player = {
 
   // ═══ الهجوم ═══
   attack(scene){
-    this.sprite.play('hero-attack', true);
-    if(scene.sound) scene.sound.play('sfx-attack', {volume: 0.5});
-    return this._getAttackRange();
+    this.sprite.play("hero-attack", true);
+    if(scene.sound) scene.sound.play("sfx-attack", {volume: 0.5});
+    const range = this._getAttackRange();
+    // كشف الأعداء
+    if(Enemies.group){
+      Enemies.group.getChildren().forEach(e => {
+        if(e.active && e.body.enable && Phaser.Geom.Intersects.RectangleToRectangle(range, e.getBounds())){
+          Enemies.damage(scene, e, CFG.PLAYER_DAMAGE, true);
+        }
+      });
+    }
+    // كشف البوس
+    if(Bosses.current && Bosses.current.active && !Bosses.current._defeated){
+      if(Phaser.Geom.Intersects.RectangleToRectangle(range, Bosses.current.getBounds())){
+        Bosses.damage(scene, CFG.PLAYER_DAMAGE);
+      }
+    }
+    return range;
   },
 
   _getAttackRange(){

@@ -17,9 +17,9 @@ const CFG = {
   INVULN_TIME: 1200,
   PLAYER_DAMAGE: 25,
   BASE_HP: 100,
-  PLAYER_SCALE: 1.0,
-  ENEMY_SCALE: 1.0,
-  BOSS_SCALE: 1.5
+  PLAYER_SCALE: 2.0,
+  ENEMY_SCALE: 2.0,
+  BOSS_SCALE: 2.5
 };
 
 // ═══════════════════════════════════════
