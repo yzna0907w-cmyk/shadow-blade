@@ -529,8 +529,10 @@ function damagePlayer(dmg){
   if(invulnTimer > 0) return;
   hp -= dmg;
   invulnTimer = INVULN_TIME;
-  player.setTexture('hero-hurt');
+  
   if(scene.sound) scene.sound.play('sfx-hurt', {volume: 0.6});
+  player.setTint(0xff0000);
+  scene.time.delayedCall(200, ()=>{ if(player) player.clearTint(); });
   scene.cameras.main.shake(200, 0.01);
   burst(player.x, player.y, 12, 0xff3c14);
   player.body.setVelocityX(-facing * 120);
@@ -603,7 +605,7 @@ function handleCoins(){
 
 function handleBoss(delta){
   if(bossActive || bossDefeated) return;
-  if(player.x > ZONES[currentZone].width - 700){
+  if(player.x > 800){
     spawnBoss();
   }
 }
