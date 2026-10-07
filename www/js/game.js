@@ -131,28 +131,32 @@ function create(){
   scene.physics.world.setBounds(0, 0, 10000, 1500);
 
   // تكستشرات مساعدة
-  // تكسترات أرضية من tileset مع تلوين لكل منطقة
-  function makeTintedGround(key, frameIdx, tintC){
+  // أرضية حقيقية من tileset (عشب + حجر بجماجم)
+  function makeGround(key, tintC){
     if(scene.textures.exists(key)) return;
     const srcImg = scene.textures.get("tileset").getSourceImage();
     const cols = Math.floor(srcImg.width / 16);
-    const col = frameIdx % cols;
-    const row = Math.floor(frameIdx / cols);
+    function getFrame(fIdx){
+      const col = fIdx % cols;
+      const row = Math.floor(fIdx / cols);
+      return { x: col*16, y: row*16 };
+    }
+    const fGrass = getFrame(160);
+    const fRock = getFrame(220);
     const cv = document.createElement("canvas");
-    cv.width = 16; cv.height = 16;
+    cv.width = 16; cv.height = 32;
     const ctx = cv.getContext("2d");
-    ctx.drawImage(srcImg, col*16, row*16, 16, 16, 0, 0, 16, 16);
-    const imgData = ctx.getImageData(0, 0, 16, 16);
+    ctx.drawImage(srcImg, fGrass.x, fGrass.y, 16, 16, 0, 0, 16, 16);
+    ctx.drawImage(srcImg, fRock.x, fRock.y, 16, 16, 0, 16, 16, 16);
+    const imgData = ctx.getImageData(0, 0, 16, 32);
     const d = imgData.data;
     const tr = (tintC >> 16) & 0xFF;
     const tg = (tintC >> 8) & 0xFF;
     const tb = tintC & 0xFF;
     for(let i=0; i<d.length; i+=4){
-      // نضيء المصدر أولاً (×2.5)
       d[i] = Math.min(255, d[i] * 2.5);
       d[i+1] = Math.min(255, d[i+1] * 2.5);
       d[i+2] = Math.min(255, d[i+2] * 2.5);
-      // ثم نطبق التلوين
       d[i] = (d[i] * tr) / 255;
       d[i+1] = (d[i+1] * tg) / 255;
       d[i+2] = (d[i+2] * tb) / 255;
@@ -160,10 +164,10 @@ function create(){
     ctx.putImageData(imgData, 0, 0);
     scene.textures.addCanvas(key, cv);
   }
-  makeTintedGround("ground-0", 0, 0xb89a7a); // الرماد - بني دافئ
-  makeTintedGround("ground-1", 0, 0xff8040); // الصدأ - برتقالي
-  makeTintedGround("ground-2", 0, 0x9ac8e8); // الصقيع - أزرق
-  makeTintedGround("ground-3", 0, 0xa888e0); // الفراغ - بنفسجي
+  makeGround("ground-0", 0xb89a7a);
+  makeGround("ground-1", 0xff8040);
+  makeGround("ground-2", 0x9ac8e8);
+  makeGround("ground-3", 0xa888e0);
   if(!scene.textures.exists('coin')){
     const g = scene.add.graphics();
     g.fillStyle(0xfbbf24, 1);
@@ -268,7 +272,7 @@ function loadZone(idx){
     const groundY = baseY - h;
     hIdx++;
     const pl = platforms.create(x + w/2, groundY, 'ground-'+idx);
-    pl.setScale(w / 16, (GH - groundY) / 16 + 1);
+    pl.setScale(w / 16, (GH - groundY) / 32 + 1);
     pl.refreshBody();
     pl.setDepth(-5);
     x += w - 5;
@@ -282,14 +286,14 @@ function loadZone(idx){
       const py = groundY - Phaser.Math.Between(pfHeight[0], pfHeight[1]);
       const pw = Phaser.Math.Between(70, 130);
       const pf = platforms.create(px, py, 'ground-'+idx);
-      pf.setScale(pw / 16, 0.4);
+      pf.setScale(pw / 16, 0.25);
       pf.refreshBody();
       pf.setDepth(-5);
     }
   }
   const endY = baseY;
   const endPlat = platforms.create(W - 120, endY, 'ground-'+idx);
-  endPlat.setScale(6, (GH - endY) / 16 + 1);
+  endPlat.setScale(6, (GH - endY) / 32 + 1);
   endPlat.refreshBody();
   endPlat.setDepth(-5);
 
