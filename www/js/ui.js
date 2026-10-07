@@ -88,7 +88,7 @@ function bindUI(){
 
   // الدعم
   bindButton('btnWebsite', function(){
-    var url = 'https://yzn-support.netlify.app/'\;
+    var url = 'https://yzn-support.netlify.app/';
     try {
       if(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Browser)
         window.Capacitor.Plugins.Browser.open({ url: url });
