@@ -35,9 +35,9 @@ const CFG = {
     JUMP_BUFFER: 120,
     MAX_HP: 100,
     INVULN_TIME: 1200,
-    SCALE: 1.5,
-    BODY_SIZE: { w: 16, h: 30 },
-    BODY_OFFSET: { x: 24, y: 24 }
+    SCALE: 0.4,
+    BODY_SIZE: { w: 40, h: 75 },
+    BODY_OFFSET: { x: 44, y: 53 }
   },
 
   // ═══════════════════════════════════════════════

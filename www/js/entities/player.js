@@ -144,7 +144,6 @@ const Player = {
 
     this.sprite.setDepth(100);
     this.sprite.setScale(CFG.PLAYER.SCALE);
-    this.sprite.setOrigin(0.5, 1);
     this.sprite.body.setSize(CFG.PLAYER.BODY_SIZE.w, CFG.PLAYER.BODY_SIZE.h);
     this.sprite.body.setOffset(CFG.PLAYER.BODY_OFFSET.x, CFG.PLAYER.BODY_OFFSET.y);
     this.sprite.body.setMaxVelocity(400, CFG.PLAYER.MAX_FALL_SPEED);
