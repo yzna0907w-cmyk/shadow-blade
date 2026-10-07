@@ -33,22 +33,22 @@ const ENEMY_ANIMS = {
 const ZONES = [
   { name:'ASHES', nameAr:'الرماد', bg:'bg-graveyard', tint:0x5a3a2a,
     enemies:['skeleton','skeleton-clothed','hell-gato'], enemyCount:10,
-    enemyTint:0xc9a37a,
+    
     bossSprite:'skeleton-clothed-1', bossAnim:'skeleton-clothed-walk',
     boss:{ nameAr:'حارس الرماد', hp:400, gold:15 } },
   { name:'RUST', nameAr:'الصدأ', bg:'bg-graveyard', tint:0x8a4a2a,
     enemies:['hell-gato','skeleton-clothed'], enemyCount:12,
-    enemyTint:0xffa860,
+    
     bossSprite:'hell-gato-1', bossAnim:'hell-gato-walk',
     boss:{ nameAr:'حارس الحديد', hp:600, gold:20 } },
   { name:'FROST', nameAr:'الصقيع', bg:'bg-graveyard', tint:0x3a6a9a,
     enemies:['ghost','skeleton'], enemyCount:14,
-    enemyTint:0xa8d8ff,
+    
     bossSprite:'ghost-1', bossAnim:'ghost-float',
     boss:{ nameAr:'الأم المتجمدة', hp:800, gold:30 } },
   { name:'VOID', nameAr:'الفراغ', bg:'bg-graveyard', tint:0x3a2a5a,
     enemies:['ghost','skeleton-clothed','skeleton'], enemyCount:16,
-    enemyTint:0xc8a8ff,
+    
     bossSprite:'ghost-1', bossAnim:'ghost-float',
     boss:{ nameAr:'الأب', hp:1500, gold:50 } }
 ];
@@ -258,10 +258,10 @@ function loadZone(idx){
   // نمط الأرضية حسب المنطقة
   const baseY = GH - 30;
   const patterns = [
-    [0,10,25,40,25,10,0,15,30,15],
-    [0,0,0,60,60,60,0,0,80,80],
-    [0,30,60,90,60,30,0,45,90,45],
-    [0,50,0,80,0,60,0,100,50,0]
+    [0,5,15,25,15,5,0,10,20,10],
+    [0,0,10,35,35,35,0,0,40,40],
+    [0,15,30,45,30,15,0,25,45,25],
+    [0,25,0,40,0,30,0,50,25,0]
   ];
   const pattern = patterns[idx % patterns.length];
   let x = 0;
@@ -286,7 +286,7 @@ function loadZone(idx){
       const py = groundY - Phaser.Math.Between(pfHeight[0], pfHeight[1]);
       const pw = Phaser.Math.Between(70, 130);
       const pf = platforms.create(px, py, 'ground-'+idx);
-      pf.setScale(pw / 16, 0.25);
+      pf.setScale(pw / 16, 0.5);
       pf.refreshBody();
       pf.setDepth(-5);
     }
@@ -332,7 +332,7 @@ function spawnEnemies(idx){
       e.body.setSize(14, 22).setOffset(9, 10);
       e.body.setCollideWorldBounds(false);
       e.setFlipX(e.body.velocity.x < 0);
-      if(z.enemyTint) e.setTint(z.enemyTint);
+      
     }, i * 400);
   }
 }
