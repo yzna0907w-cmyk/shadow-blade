@@ -10,7 +10,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#050208;touch-action
 .rotate-text{font-size:1.5rem;color:#f5f0ff;font-weight:700}
 @media (orientation:portrait){
   #rotate-warning.active{display:flex}
-  #title-screen,#game-container,#hud,#controls,.story-screen{display:none !important}
+  #title-screen,#game-container,#hud,#controls,#bossPromptScreen,#loading,#storyScreen,.story-screen,.modal-screen{display:none !important}
 }
 
 /* Story */

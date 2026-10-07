@@ -226,20 +226,36 @@ function loadZone(idx){
     bg.setDepth(-20);
   }
 
-  const groundY = GH - 30;
+  // نمط الأرضية حسب المنطقة
+  const baseY = GH - 30;
+  const patterns = [
+    [0,10,25,40,25,10,0,15,30,15],
+    [0,0,0,60,60,60,0,0,80,80],
+    [0,30,60,90,60,30,0,45,90,45],
+    [0,50,0,80,0,60,0,100,50,0]
+  ];
+  const pattern = patterns[idx % patterns.length];
   let x = 0;
+  let hIdx = 0;
   while(x < W - 150){
-    const w = Phaser.Math.Between(100, 180);
+    const w = Phaser.Math.Between(90, 140);
+    const h = pattern[hIdx % pattern.length];
+    const groundY = baseY - h;
+    hIdx++;
     const pl = platforms.create(x + w/2, groundY, 'platform');
-    pl.setScale(w / 32, (GH - groundY) / 32);
+    pl.setScale(w / 32, (GH - groundY) / 32 + 0.5);
     pl.refreshBody();
     pl.setDepth(-5);
     x += w - 5;
 
-    if(Math.random() < 0.5){
+    let pfChance = 0.4;
+    let pfHeight = [70, 130];
+    if(idx === 2){ pfChance = 0.6; pfHeight = [100, 160]; }
+    if(idx === 3){ pfChance = 0.7; pfHeight = [90, 180]; }
+    if(Math.random() < pfChance){
       const px = x + Phaser.Math.Between(-30, 30);
-      const py = groundY - Phaser.Math.Between(70, 130);
-      const pw = Phaser.Math.Between(80, 140);
+      const py = groundY - Phaser.Math.Between(pfHeight[0], pfHeight[1]);
+      const pw = Phaser.Math.Between(70, 130);
       const pf = platforms.create(px, py, 'platform');
       pf.setScale(pw / 32, 0.25);
       pf.refreshBody();
