@@ -317,7 +317,6 @@ function bindMobileButtons(){
 
 function update(time, delta){
   if(!player || !player.active) return;
-  window._dbg = "x=" + Math.round(player.x) + " bossActive=" + bossActive + " bossDefeated=" + bossDefeated + " zone=" + currentZone;
   handleInput(time, delta);
   handleEnemies(delta);
   handleCoins();
@@ -605,7 +604,14 @@ function handleCoins(){
 }
 
 function handleBoss(delta){
-  if(bossActive || bossDefeated) return;
+  if(bossDefeated) return;
+  if(bossActive){
+    if(!boss || !boss.active){
+      var p = document.getElementById("bossPromptScreen");
+      if(!p || !p.classList.contains("active")) bossActive = false;
+    }
+    return;
+  }
   if(player.x > 800){
     spawnBoss();
   }
@@ -617,7 +623,7 @@ function spawnBoss(){
 
   if(window.BossPrompt){
     BossPrompt.show(z.boss.nameAr, ()=>{
-      const bx = player.x + 200;
+      const bx = ZONES[currentZone].width - 300;
       const by = 80;
       boss = scene.physics.add.sprite(bx, by, z.bossSprite);
       if(z.bossAnim) boss.play(z.bossAnim);
@@ -626,6 +632,7 @@ function spawnBoss(){
       boss.hp = z.boss.hp;
       boss.maxHp = z.boss.hp;
       boss.body.setSize(14, 22).setOffset(9, 10);
+      boss.body.setCollideWorldBounds(true);
       scene.physics.add.collider(boss, platforms);
 
       ensureBossUI();
@@ -681,6 +688,7 @@ function playFinalBoss(){
   boss.hp = 2000;
   boss.maxHp = 2000;
   boss.body.setSize(14, 22).setOffset(9, 10);
+      boss.body.setCollideWorldBounds(true);
   scene.physics.add.collider(boss, platforms);
   ensureBossUI();
   const wrap = document.getElementById('bossBar');
