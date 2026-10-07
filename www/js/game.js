@@ -97,7 +97,11 @@ function preload(){
   for(let i=1;i<=4;i++) scene.load.image('hell-gato-'+i, 'assets/gv/enemies/hell-gato-'+i+'.png');
   for(let i=1;i<=5;i++) scene.load.image('enemy-death-'+i, 'assets/gv/enemies/enemy-death-'+i+'.png');
 
-  scene.load.image('bg-graveyard', 'assets/gv/env/background.png');
+  scene.load.image('bg-graveyard', 'assets/gv/env/bg_crypt.png');
+  scene.load.image('tile-0', 'assets/gv/tiles/ground-clean.png');
+  scene.load.image('tile-1', 'assets/gv/tiles/ground-clean.png');
+  scene.load.image('tile-2', 'assets/gv/tiles/ground-clean.png');
+  scene.load.image('tile-3', 'assets/gv/tiles/ground-clean.png');
   scene.load.image('bg-mountains', 'assets/gv/env/mountains.png');
   scene.load.spritesheet('tileset', 'assets/gv/env/tileset.png', { frameWidth: 16, frameHeight: 16 });
 
@@ -233,66 +237,62 @@ function loadZone(idx){
   enemies = scene.physics.add.group();
   coins = scene.physics.add.group();
 
-  // خلفية
-  if(scene.textures.exists(z.bg)){
-    const bg = scene.add.image(GW/2, GH/2, z.bg);
+  // خلفية قوطية
+  if(scene.textures.exists('bg-graveyard')){
+    const bg = scene.add.image(0, 0, 'bg-graveyard');
+    bg.setOrigin(0, 0);
     bg.setScrollFactor(0);
     bg.setDisplaySize(GW, GH);
-    bg.setDepth(-20);
-    bg.setTint(z.tint);
-  } else {
-    const bg = scene.add.graphics();
-    bg.fillStyle(0x050208, 1);
-    bg.fillRect(0, 0, GW, GH);
-    bg.setScrollFactor(0);
-    bg.setDepth(-20);
+    bg.setDepth(-30);
+    if(z.tint) bg.setTint(z.tint);
   }
 
-  // نمط الأرضية حسب المنطقة
-  const baseY = GH - 30;
-  const patterns = [
-    [0,5,15,25,15,5,0,10,20,10],
-    [0,0,10,35,35,35,0,0,40,40],
-    [0,15,30,45,30,15,0,25,45,25],
-    [0,25,0,40,0,30,0,50,25,0]
-  ];
-  const pattern = patterns[idx % patterns.length];
-  let x = 0;
-  let hIdx = 0;
-  while(x < W - 150){
-    const w = Phaser.Math.Between(90, 140);
-    const h = pattern[hIdx % pattern.length];
-    const groundY = baseY - h;
-    hIdx++;
-    const pl = platforms.create(x + w/2, groundY, 'ground-'+idx);
-    pl.setScale(w / 32, (GH - groundY) / 32 + 1);
-    pl.refreshBody();
-    pl.setDepth(-5);
-    x += w - 5;
+  const groundY = GH - 60;
+  const tileKey = 'tile-' + idx;
 
-    let pfChance = 0.4;
-    let pfHeight = [70, 130];
-    if(idx === 2){ pfChance = 0.6; pfHeight = [100, 160]; }
-    if(idx === 3){ pfChance = 0.7; pfHeight = [90, 180]; }
-    if(Math.random() < pfChance){
-      const px = x + Phaser.Math.Between(-30, 30);
-      const py = groundY - Phaser.Math.Between(pfHeight[0], pfHeight[1]);
-      const pw = Phaser.Math.Between(70, 130);
-      const pf = platforms.create(px, py, 'ground-'+idx);
-      pf.setScale(pw / 32, 0.5);
-      pf.refreshBody();
-      pf.setDepth(-5);
+  // الأرضية - tileSprite متكرر
+  if(scene.textures.exists(tileKey)){
+    const ground = scene.add.tileSprite(0, groundY, W, 60, tileKey);
+    ground.setOrigin(0, 0);
+    ground.setDepth(-5);
+    if(z.tint) ground.setTint(z.tint);
+  }
+
+  // جسم مادي للأرضية
+  const groundBody = platforms.create(W/2, groundY + 30, 'platform');
+  groundBody.setVisible(false);
+  groundBody.setDisplaySize(W, 60);
+  groundBody.refreshBody();
+
+  // منصات معلقة
+  for(let i=0; i<18; i++){
+    const px = Phaser.Math.Between(300, W - 400);
+    const py = groundY - Phaser.Math.Between(80, 140);
+    const pw = Phaser.Math.Between(100, 160);
+
+    if(scene.textures.exists(tileKey)){
+      const pfVis = scene.add.tileSprite(px - pw/2, py, pw, 20, tileKey);
+      pfVis.setOrigin(0, 0);
+      pfVis.setDepth(-5);
+      if(z.tint) pfVis.setTint(z.tint);
     }
-  }
-  const endY = baseY;
-  const endPlat = platforms.create(W - 120, endY, 'ground-'+idx);
-  endPlat.setScale(4, (GH - endY) / 32 + 1);
-  endPlat.refreshBody();
-  endPlat.setDepth(-5);
 
+    const pfBody = platforms.create(px, py + 10, 'platform');
+    pfBody.setVisible(false);
+    pfBody.setDisplaySize(pw, 20);
+    pfBody.refreshBody();
+  }
+
+  // آخر منصة
+  const endBody = platforms.create(W - 100, groundY + 30, 'platform');
+  endBody.setVisible(false);
+  endBody.setDisplaySize(200, 60);
+  endBody.refreshBody();
+
+  // عملات
   for(let i=0;i<25;i++){
     const cx = Phaser.Math.Between(200, W - 400);
-    const cy = Phaser.Math.Between(80, GH - 100);
+    const cy = Phaser.Math.Between(80, groundY - 60);
     const c = coins.create(cx, cy, 'coin');
     c.setScale(0.5);
     c.setDepth(5);
