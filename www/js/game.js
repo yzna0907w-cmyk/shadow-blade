@@ -317,6 +317,7 @@ function bindMobileButtons(){
 
 function update(time, delta){
   if(!player || !player.active) return;
+  window._dbg = "x=" + Math.round(player.x) + " bossActive=" + bossActive + " bossDefeated=" + bossDefeated + " zone=" + currentZone;
   handleInput(time, delta);
   handleEnemies(delta);
   handleCoins();
@@ -543,7 +544,7 @@ function damagePlayer(dmg){
     player.x = 60;
     player.y = 60;
     player.body.setVelocity(0, 0);
-    scene.cameras.main.flash(300, 255, 60, 20);
+    
   }
 }
 
