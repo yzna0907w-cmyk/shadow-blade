@@ -116,6 +116,11 @@ function preload(){
 
   scene.load.image('bg-graveyard', 'assets/gv/env/background.png');
   scene.load.image('bg-mountains', 'assets/gv/env/mountains.png');
+
+  scene.load.audio('sfx-jump', 'assets/gv/sounds/jump.ogg');
+  scene.load.audio('sfx-attack', 'assets/gv/sounds/attack.ogg');
+  scene.load.audio('sfx-hurt', 'assets/gv/sounds/hurt.ogg');
+  scene.load.audio('sfx-kill', 'assets/gv/sounds/kill.ogg');
 }
 
 /* ===== Animations ===== */
@@ -345,6 +350,7 @@ function handleInput(time, delta){
 
   if(time - jumpPressedAt < JUMP_BUFFER && coyoteTimer > 0){
     player.body.setVelocityY(JUMP_VELOCITY);
+    if(scene.sound) scene.sound.play('sfx-jump', {volume: 0.4});
     jumpPressedAt = 0;
     coyoteTimer = 0;
   }
@@ -373,6 +379,7 @@ function handleInput(time, delta){
 
 function doAttack(){
   player.play('hero-attack', true);
+  if(scene.sound) scene.sound.play('sfx-attack', {volume: 0.5});
 
   const arcX = facing === 1 ? player.x + 30 : player.x - 30;
   const arc = scene.add.circle(arcX, player.y, 20, 0xff8c3c, 0.6);
@@ -410,6 +417,7 @@ function damageEnemy(e, dmg){
 
   if(e.hp <= 0){
     kills++;
+    if(scene.sound) scene.sound.play('sfx-kill', {volume: 0.5});
     if(Math.random() < 0.4){ gold += 1; State.data.gold = gold; Save.save(State.data); }
     State.data.totalKills = (State.data.totalKills||0) + 1;
     burst(e.x, e.y, 15, 0xfbbf24);
@@ -476,6 +484,7 @@ function damagePlayer(dmg){
   hp -= dmg;
   invulnTimer = INVULN_TIME;
   player.play('hero-hurt', true);
+  if(scene.sound) scene.sound.play('sfx-hurt', {volume: 0.6});
   scene.cameras.main.shake(200, 0.01);
   burst(player.x, player.y, 12, 0xff3c14);
   player.body.setVelocityX(-facing * 120);
