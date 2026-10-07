@@ -39,7 +39,7 @@ const Player = {
     A.create({ key:'hero-idle', frames:[0,1,2,3].map(i=>({key:'hero-idle-'+i})), frameRate:6, repeat:-1 });
     A.create({ key:'hero-run', frames:[0,1,2,3,4,5].map(i=>({key:'hero-run-'+i})), frameRate:12, repeat:-1 });
     A.create({ key:'hero-jump', frames:[0,1,2,3].map(i=>({key:'hero-jump-'+i})), frameRate:10, repeat:0 });
-    A.create({ key:'hero-attack', frames:[0,1,2,3,4].map(i=>({key:'hero-attack-'+i})), frameRate:12, repeat:0 });
+    A.create({ key:'hero-attack', frames:[0,1,2,3,4].map(i=>({key:'hero-attack-'+i})), frameRate:8, repeat:0 });
     A.create({ key:'hero-hurt', frames:[{key:'hero-hurt'}], frameRate:1, repeat:0 });
     A.create({ key:'hero-die', frames:[0,1,2,3].map(i=>({key:'hero-die-'+i})), frameRate:8, repeat:0 });
   },
@@ -49,7 +49,8 @@ const Player = {
     this.sprite = scene.physics.add.sprite(x, y, 'hero-idle-0');
     this.sprite.setDepth(10);
     this.sprite.setScale(CFG.PLAYER_SCALE);
-    this.sprite.body.setSize(20, 40).setOffset(22, 20);
+    this.sprite.body.setSize(16, 30).setOffset(24, 24);
+    this.sprite.body.setCollideWorldBounds(true);
     this.sprite.body.setMaxVelocity(400, 700);
     this.sprite.play('hero-idle');
     this.facing = 1;

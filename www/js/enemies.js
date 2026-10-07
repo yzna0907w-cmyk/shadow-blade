@@ -20,9 +20,23 @@ const Enemies = {
 
   // ═══ تحميل الصور ═══
   preload(scene){
-    scene.load.image('slime', 'assets/enemies/slime.png');
-    scene.load.image('boar-idle', 'assets/enemies/boar-idle.png');
-    scene.load.image('boar-run', 'assets/enemies/boar-run.png');
+    scene.load.image("slime", "assets/enemies/slime.png");
+    scene.load.image("boar-idle", "assets/enemies/boar-idle.png");
+    for(let i=0;i<4;i++) scene.load.image("boar-run-" + i, "assets/enemies/boar-run-" + i + ".png");
+  },
+
+  // ═══ إنشاء الأنيميشن ═══
+  createAnimations(scene){
+    const A = scene.anims;
+    if(A.exists("boar-walk")) return;
+    A.create({ key:"boar-walk", frames:[0,1,2,3].map(i=>({key:"boar-run-" + i})), frameRate:10, repeat:-1 });
+  },
+
+  // ═══ تحميل صور الخنزير بفريمات ═══
+  preloadBoarFrames(scene){
+    for(let i=0;i<4;i++){
+      scene.load.image("boar-run-" + i, "assets/enemies/boar-run-" + i + ".png");
+    }
   },
 
   // ═══ إنشاء المجموعة ═══
@@ -37,6 +51,7 @@ const Enemies = {
 
     const spriteKey = typeKey === 'boar' ? 'boar-idle' : typeKey;
     const e = this.group.create(x, y, spriteKey);
+    if(typeKey === "boar" && scene.anims.exists("boar-walk")) e.play("boar-walk");
     e.setDepth(8);
     e.setScale(t.scale);
     e.body.setSize(14, 14).setOffset(1, 1);
