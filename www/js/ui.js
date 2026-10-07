@@ -52,7 +52,7 @@ function bindUI(){
     setTimeout(function(){
       if(t)t.style.display='none';
       showGameUI(true);
-      if(window.EmberGame)EmberGame.start();
+      if(window.EmberGame)EmberGame.start(true);
     },600);
   });
   bindButton('btnContinue',function(){
@@ -61,7 +61,7 @@ function bindUI(){
     setTimeout(function(){
       if(t)t.style.display='none';
       showGameUI(true);
-      if(window.EmberGame)EmberGame.start();
+      if(window.EmberGame)EmberGame.start(false);
     },600);
   });
   bindButton('btnWebsite',function(){
@@ -75,7 +75,7 @@ function bindUI(){
 
 window.BossPrompt = {
   show:function(name,onYes,onNo){
-    var nm=$('bossPromptName');if(nm)nm.textContent='👑 '+name;
+    var nm=$('bossPromptName');if(nm)nm.textContent='⚔ '+name;
     var yb=$('bossAcceptBtn'),nb=$('bossDeclineBtn');
     if(yb){
       var nY=yb.cloneNode(true);yb.parentNode.replaceChild(nY,yb);nY.id='bossAcceptBtn';

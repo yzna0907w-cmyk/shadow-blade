@@ -1,12 +1,7 @@
 'use strict';
 
-/* ============================================
-   EMBER - powered by Phaser 3
-   Assets: Gothicvania (CC0)
-   ============================================ */
-
 const Save = {
-  KEY: 'ember_save_v2',
+  KEY: 'ember_save_v3',
   load(){
     try{
       const d = JSON.parse(localStorage.getItem(this.KEY) || '{}');
@@ -23,152 +18,98 @@ const Save = {
   reset(){ try{ localStorage.removeItem(this.KEY); }catch(e){} }
 };
 
-const ENEMY_ANIMS = {
-  'skeleton': 'skeleton-walk',
-  'skeleton-clothed': 'skeleton-clothed-walk',
-  'ghost': 'ghost-float',
-  'hell-gato': 'hell-gato-walk'
-};
-
 const ZONES = [
-  {
-    name: 'ASHES', nameAr:'الرماد',
-    bg: 'bg-graveyard', tint: 0x4a3a2a,
-    enemies: ['skeleton','skeleton-clothed','hell-gato'],
-    enemyCount: 10,
-    bossSprite: 'skeleton-clothed-1',
-    bossAnim: 'skeleton-clothed-walk',
-    boss: { nameAr:'حارس الرماد', hp:400, gold:15 }
-  },
-  {
-    name: 'RUST', nameAr:'الصدأ',
-    bg: 'bg-graveyard', tint: 0xff6a3a,
-    enemies: ['hell-gato','skeleton-clothed'],
-    enemyCount: 12,
-    bossSprite: 'hell-gato-1',
-    bossAnim: 'hell-gato-walk',
-    boss: { nameAr:'حارس الحديد', hp:600, gold:20 }
-  },
-  {
-    name: 'FROST', nameAr:'الصقيع',
-    bg: 'bg-graveyard', tint: 0x6ab8ff,
-    enemies: ['ghost','skeleton'],
-    enemyCount: 14,
-    bossSprite: 'ghost-1',
-    bossAnim: 'ghost-float',
-    boss: { nameAr:'الأم المتجمدة', hp:800, gold:30 }
-  },
-  {
-    name: 'VOID', nameAr:'الفراغ',
-    bg: 'bg-graveyard', tint: 0x3a2a5a,
-    enemies: ['ghost','skeleton-clothed','skeleton'],
-    enemyCount: 16,
-    bossSprite: 'ghost-1',
-    bossAnim: 'ghost-float',
-    boss: { nameAr:'الأب', hp:1500, gold:50 }
-  }
+  { nameAr:'الرماد', bg:'bg_crypt', platform:'platform_crypt',
+    enemies:['skeleton','bat','slime'], enemyCount:8,
+    bossSprite:'skeletonKing', boss:{ nameAr:'ملك الرماد', hp:300, gold:15 },
+    layout:'ground' },
+  { nameAr:'الصدأ', bg:'bg_fire', platform:'platform_fire',
+    enemies:['fireGolem','imp'], enemyCount:10,
+    bossSprite:'fireDemon', boss:{ nameAr:'المحترق', hp:500, gold:25 },
+    layout:'vertical' },
+  { nameAr:'الصقيع', bg:'bg_frozen', platform:'platform_frozen',
+    enemies:['iceWraith','frostSpider','iceGolem'], enemyCount:12,
+    bossSprite:'iceQueen', boss:{ nameAr:'الأم المتجمدة', hp:700, gold:35 },
+    layout:'gaps' },
+  { nameAr:'الفراغ', bg:'bg_shadow', platform:'platform_shadow',
+    enemies:['shadowBeast','voidCrawler','nightmare','cryptHorror'], enemyCount:14,
+    bossSprite:'shadowLord', boss:{ nameAr:'الظلام', hp:1000, gold:50 },
+    layout:'maze' }
 ];
 
 const State = {
   data: Save.load(),
-  zoneIdx: 0,
-  started: false
+  started: false,
+  zoneIdx: 0
 };
 
 let scene, player, cursors, keys;
-let platforms, enemies, coins;
+let platforms, enemies, coins, bgTile;
 let hp = 100, maxHp = 100, gold = 0, kills = 0;
 let facing = 1;
 let invulnTimer = 0, coyoteTimer = 0, jumpPressedAt = 0;
-let attackCooldown = 0, attackTimer = 0;
 let lastAttack = 0;
 let currentZone = 0;
 let boss = null, bossActive = false, bossDefeated = false;
+let bossBarWrap = null;
 const keysMap = {left:false,right:false,jump:false,attack:false};
 
 const GW = 480, GH = 270;
 const GRAVITY = 900;
-const MOVE_SPEED = 130;
-const JUMP_VELOCITY = -340;
-const COYOTE_TIME = 100;
-const JUMP_BUFFER = 120;
-const ATK_COOLDOWN = 350;
-const ATK_DURATION = 250;
-const ATK_RANGE = 45;
-const INVULN_TIME = 1200;
-const PLAYER_DAMAGE = 50;
+const MOVE_SPEED = 140;
+const JUMP_VELOCITY = -360;
+const COYOTE_TIME = 120;
+const JUMP_BUFFER = 150;
+const ATK_COOLDOWN = 600;
+const ATK_DURATION = 280;
+const ATK_RANGE = 32;
+const INVULN_TIME = 1400;
+const PLAYER_DAMAGE = 60;
 const BASE_HP = 100;
+
+/* Scales - SMALL now */
+const SCALE_PLAYER = 0.025;
+const SCALE_ENEMY = 0.020;
+const SCALE_BOSS = 0.070;
+
+const ZONE_WIDTH = 6000;
 
 /* ===== Preload ===== */
 function preload(){
-  scene = this;
-  for(let i=1;i<=4;i++) scene.load.image('hero-idle-'+i, 'assets/gv/hero/hero-idle-'+i+'.png');
-  for(let i=1;i<=6;i++) scene.load.image('hero-run-'+i, 'assets/gv/hero/hero-run-'+i+'.png');
-  for(let i=1;i<=4;i++) scene.load.image('hero-jump-'+i, 'assets/gv/hero/hero-jump-'+i+'.png');
-  for(let i=1;i<=5;i++) scene.load.image('hero-attack-'+i, 'assets/gv/hero/hero-attack-'+i+'.png');
-  scene.load.image('hero-hurt', 'assets/gv/hero/hero-hurt-1.png');
-
-  for(let i=1;i<=8;i++) scene.load.image('skeleton-'+i, 'assets/gv/enemies/skeleton-'+i+'.png');
-  for(let i=1;i<=8;i++) scene.load.image('skeleton-clothed-'+i, 'assets/gv/enemies/skeleton-clothed-'+i+'.png');
-  for(let i=1;i<=4;i++) scene.load.image('ghost-'+i, 'assets/gv/enemies/ghost-'+i+'.png');
-  for(let i=1;i<=4;i++) scene.load.image('hell-gato-'+i, 'assets/gv/enemies/hell-gato-'+i+'.png');
-  for(let i=1;i<=5;i++) scene.load.image('enemy-death-'+i, 'assets/gv/enemies/enemy-death-'+i+'.png');
-
-  scene.load.image('bg-graveyard', 'assets/gv/env/background.png');
-  scene.load.image('bg-mountains', 'assets/gv/env/mountains.png');
+  scene.load.image('player', 'assets/knight.png');
+  scene.load.image('bg_crypt', 'assets/bg_crypt.png');
+  scene.load.image('bg_fire', 'assets/bg_fire.png');
+  scene.load.image('bg_frozen', 'assets/bg_frozen.png');
+  scene.load.image('bg_shadow', 'assets/bg_shadow.png');
+  scene.load.image('platform_crypt', 'assets/platform_crypt.png');
+  scene.load.image('platform_fire', 'assets/platform_fire.png');
+  scene.load.image('platform_frozen', 'assets/platform_frozen.png');
+  scene.load.image('platform_shadow', 'assets/platform_shadow.png');
+  ['bat','slime','skeleton','imp','fireGolem','iceWraith','frostSpider','iceGolem','shadowBeast','voidCrawler','nightmare','cryptHorror'].forEach(k=>{
+    scene.load.image(k, 'assets/'+k+'.png');
+  });
+  ['skeletonKing','fireDemon','iceQueen','shadowLord','umbra'].forEach(k=>{
+    scene.load.image(k, 'assets/'+k+'.png');
+  });
+  scene.load.image('coin', 'assets/coin.png');
+  scene.load.image('slash', 'assets/slash.png');
 }
 
-/* ===== Animations ===== */
-function createAnimations(){
-  scene.anims.create({ key:'hero-idle', frames:[1,2,3,4].map(i=>({key:'hero-idle-'+i})), frameRate:8, repeat:-1 });
-  scene.anims.create({ key:'hero-run', frames:[1,2,3,4,5,6].map(i=>({key:'hero-run-'+i})), frameRate:12, repeat:-1 });
-  scene.anims.create({ key:'hero-jump', frames:[1,2,3,4].map(i=>({key:'hero-jump-'+i})), frameRate:10, repeat:0 });
-  scene.anims.create({ key:'hero-attack', frames:[1,2,3,4,5].map(i=>({key:'hero-attack-'+i})), frameRate:20, repeat:0 });
-  scene.anims.create({ key:'hero-hurt', frames:[{key:'hero-hurt'}], frameRate:1, repeat:0 });
-
-  scene.anims.create({ key:'skeleton-walk', frames:[1,2,3,4,5,6,7,8].map(i=>({key:'skeleton-'+i})), frameRate:10, repeat:-1 });
-  scene.anims.create({ key:'skeleton-clothed-walk', frames:[1,2,3,4,5,6,7,8].map(i=>({key:'skeleton-clothed-'+i})), frameRate:10, repeat:-1 });
-  scene.anims.create({ key:'ghost-float', frames:[1,2,3,4].map(i=>({key:'ghost-'+i})), frameRate:6, repeat:-1 });
-  scene.anims.create({ key:'hell-gato-walk', frames:[1,2,3,4].map(i=>({key:'hell-gato-'+i})), frameRate:8, repeat:-1 });
-  scene.anims.create({ key:'enemy-death', frames:[1,2,3,4,5].map(i=>({key:'enemy-death-'+i})), frameRate:15, repeat:0 });
-}
-
-/* ===== Create ===== */
 function create(){
   scene = this;
-  createAnimations();
-  scene.physics.world.setBounds(0, 0, 10000, 1500);
-
-  // نصنع تكستشر للأرضية (لون حجري)
-  if(!scene.textures.exists('platform')){
-    const g = scene.add.graphics();
-    g.fillStyle(0x3a2f26, 1);
-    g.fillRect(0, 0, 32, 32);
-    g.lineStyle(1, 0x5a4a3a, 1);
-    g.strokeRect(0, 0, 32, 32);
-    g.generateTexture('platform', 32, 32);
-    g.destroy();
-  }
-  if(!scene.textures.exists('coin')){
-    const g = scene.add.graphics();
-    g.fillStyle(0xfbbf24, 1);
-    g.fillCircle(8, 8, 6);
-    g.generateTexture('coin', 16, 16);
-    g.destroy();
-  }
-
+  scene.physics.world.setBounds(0, -200, ZONE_WIDTH, 1500);
   loadZone(0);
 
-  player = scene.physics.add.sprite(60, 100, 'hero-idle-1');
-  player.play('hero-idle');
+  player = scene.physics.add.sprite(40, 100, 'player');
+  player.setScale(SCALE_PLAYER);
   player.setDepth(10);
-  player.setScale(1.2);
-  player.body.setSize(14, 28).setOffset(10, 14);
-  player.body.setMaxVelocity(300, 500);
+  player.body.setSize(400, 800).setOffset(300, 200);
+  player.body.setMaxVelocity(300, 600);
 
-  scene.cameras.main.setBounds(0, 0, ZONES[currentZone].width || 6000, GH);
-  scene.cameras.main.startFollow(player, true, 0.1, 0.1);
+  scene.cameras.main.setBounds(0, 0, ZONE_WIDTH, GH);
+  scene.cameras.main.startFollow(player, true, 0.12, 0.1);
   scene.cameras.main.setDeadzone(120, 60);
+  scene.cameras.main.setBackgroundColor('#050208');
 
   cursors = scene.input.keyboard.createCursorKeys();
   keys = scene.input.keyboard.addKeys('A,D,W,S,SPACE,J,K,ENTER');
@@ -190,12 +131,11 @@ function updateHUD(){
 function loadZone(idx){
   currentZone = idx;
   const z = ZONES[idx];
-  const W = 6000;
-  z.width = W;
 
   if(platforms) platforms.clear(true, true);
   if(enemies) enemies.clear(true, true);
   if(coins) coins.clear(true, true);
+  if(bgTile){ bgTile.destroy(); bgTile = null; }
   if(boss){ boss.destroy(); boss = null; }
   bossActive = false;
   bossDefeated = State.data.bossesDefeated[idx];
@@ -204,82 +144,135 @@ function loadZone(idx){
   enemies = scene.physics.add.group();
   coins = scene.physics.add.group();
 
-  // خلفية
+  /* Background tileSprite */
   if(scene.textures.exists(z.bg)){
-    const bg = scene.add.image(GW/2, GH/2, z.bg);
-    bg.setScrollFactor(0);
-    bg.setDisplaySize(GW, GH);
-    bg.setDepth(-20);
-    bg.setTint(z.tint);
-  } else {
-    const bg = scene.add.graphics();
-    bg.fillStyle(0x050208, 1);
-    bg.fillRect(0, 0, GW, GH);
-    bg.setScrollFactor(0);
-    bg.setDepth(-20);
+    bgTile = scene.add.tileSprite(0, 0, GW, GH, z.bg);
+    bgTile.setOrigin(0, 0);
+    bgTile.setScrollFactor(0);
+    bgTile.setDepth(-20);
+    bgTile.setAlpha(0.7);
   }
 
-  const groundY = GH - 30;
-  let x = 0;
-  while(x < W - 150){
-    const w = Phaser.Math.Between(100, 180);
-    const pl = platforms.create(x + w/2, groundY, 'platform');
-    pl.setScale(w / 32, (GH - groundY) / 32);
-    pl.refreshBody();
-    pl.setDepth(-5);
-    x += w + Phaser.Math.Between(20, 60);
+  /* Dark overlay for depth */
+  const overlay = scene.add.rectangle(0, 0, GW, GH, 0x000000, 0.25);
+  overlay.setOrigin(0, 0);
+  overlay.setScrollFactor(0);
+  overlay.setDepth(-19);
 
-    if(Math.random() < 0.5){
-      const px = x + Phaser.Math.Between(-30, 30);
-      const py = groundY - Phaser.Math.Between(70, 130);
-      const pw = Phaser.Math.Between(80, 140);
-      const pf = platforms.create(px, py, 'platform');
-      pf.setScale(pw / 32, 0.25);
-      pf.refreshBody();
-      pf.setDepth(-5);
-    }
-  }
-  const endPlat = platforms.create(W - 120, groundY, 'platform');
-  endPlat.setScale(3, (GH - groundY) / 32);
-  endPlat.refreshBody();
-  endPlat.setDepth(-5);
-
-  for(let i=0;i<25;i++){
-    const cx = Phaser.Math.Between(200, W - 400);
-    const cy = Phaser.Math.Between(80, GH - 100);
-    const c = coins.create(cx, cy, 'coin');
-    c.setScale(0.5);
-    c.setDepth(5);
-    scene.tweens.add({targets:c, y:cy-6, duration:1200, yoyo:true, repeat:-1, ease:'Sine.easeInOut'});
-  }
-
+  buildLevel(z, idx);
   spawnEnemies(idx);
+
   scene.physics.add.collider(enemies, platforms);
   scene.physics.add.collider(coins, platforms);
 }
 
+function buildLevel(z, idx){
+  const groundY = GH - 30;
+  const layout = z.layout;
+
+  if(layout === 'ground'){
+    /* Simple: solid ground with small gaps */
+    let x = 0;
+    while(x < ZONE_WIDTH - 200){
+      const w = Phaser.Math.Between(140, 220);
+      addPlatform(x + w/2, groundY, w, 40, z.platform, groundY);
+      x += w;
+      if(Math.random() < 0.3){
+        /* small floating platform */
+        const fx = x + Phaser.Math.Between(30, 80);
+        const fy = groundY - Phaser.Math.Between(70, 110);
+        addPlatform(fx, fy, Phaser.Math.Between(60, 100), 10, z.platform, groundY);
+      }
+      x += Phaser.Math.Between(20, 50);
+    }
+  } else if(layout === 'vertical'){
+    /* Vertical jumps */
+    let x = 0;
+    let baseY = groundY;
+    while(x < ZONE_WIDTH - 200){
+      addPlatform(x + 80, baseY, 160, 40, z.platform, groundY);
+      /* stack of platforms going up */
+      let nextY = baseY - Phaser.Math.Between(50, 80);
+      if(nextY < 60) nextY = 60;
+      addPlatform(x + Phaser.Math.Between(180, 240), nextY, 100, 12, z.platform, groundY);
+      x += 280;
+      if(Math.random() < 0.4) baseY = Math.min(groundY, nextY + Phaser.Math.Between(30, 60));
+    }
+  } else if(layout === 'gaps'){
+    /* Big gaps requiring jumps */
+    let x = 0;
+    while(x < ZONE_WIDTH - 200){
+      const w = Phaser.Math.Between(120, 180);
+      addPlatform(x + w/2, groundY, w, 40, z.platform, groundY);
+      x += w + Phaser.Math.Between(70, 110);
+      /* floating platforms in the gaps */
+      if(Math.random() < 0.6){
+        const fx = x - 40;
+        const fy = groundY - Phaser.Math.Between(50, 90);
+        addPlatform(fx, fy, 60, 10, z.platform, groundY);
+      }
+    }
+  } else {
+    /* Maze: lots of stacked platforms */
+    let x = 0;
+    while(x < ZONE_WIDTH - 200){
+      const w = Phaser.Math.Between(120, 200);
+      addPlatform(x + w/2, groundY, w, 40, z.platform, groundY);
+      /* Multiple levels */
+      for(let lvl = 1; lvl <= 3; lvl++){
+        if(Math.random() < 0.5){
+          const fx = x + Phaser.Math.Between(0, w);
+          const fy = groundY - lvl * 55;
+          addPlatform(fx, fy, Phaser.Math.Between(60, 100), 10, z.platform, groundY);
+        }
+      }
+      x += w + Phaser.Math.Between(20, 60);
+    }
+  }
+
+  /* Final platform (boss arena) */
+  addPlatform(ZONE_WIDTH - 150, groundY, 300, 40, z.platform, groundY);
+
+  /* Coins */
+  for(let i=0;i<30;i++){
+    const cx = Phaser.Math.Between(200, ZONE_WIDTH - 400);
+    const cy = Phaser.Math.Between(60, GH - 80);
+    const c = coins.create(cx, cy, 'coin');
+    c.setScale(0.6);
+    c.setDepth(5);
+    scene.tweens.add({targets:c, y:cy-5, duration:1200, yoyo:true, repeat:-1, ease:'Sine.easeInOut'});
+  }
+}
+
+function addPlatform(cx, cy, w, h, key, groundY){
+  const plat = platforms.create(cx, cy, key);
+  const imgW = plat.width || 64;
+  const imgH = plat.height || 32;
+  plat.setScale(w / imgW, h / imgH);
+  plat.refreshBody();
+  plat.setDepth(-5);
+  /* Tint bottom */
+  return plat;
+}
+
 function spawnEnemies(idx){
   const z = ZONES[idx];
-  const W = z.width;
   for(let i=0;i<z.enemyCount;i++){
     setTimeout(()=>{
-      if(!scene || !enemies) return;
+      if(!scene) return;
       const key = z.enemies[i % z.enemies.length];
-      const ex = Phaser.Math.Between(200, W - 500);
-      const e = enemies.create(ex, 80, key + '-1');
-      if(ENEMY_ANIMS[key]) e.play(ENEMY_ANIMS[key]);
-      e.setScale(1.2);
+      const ex = Phaser.Math.Between(250, ZONE_WIDTH - 600);
+      const e = enemies.create(ex, 60, key);
+      e.setScale(SCALE_ENEMY);
       e.setDepth(8);
-      e.hp = 40 + idx*30;
+      e.hp = 30 + idx*20;
       e.maxHp = e.hp;
-      e.damage = 10;
-      e.speed = 30 + Math.random()*25;
-      e.enemyKey = key;
+      e.damage = 8;
+      e.speed = 25 + Math.random()*20;
+      e.body.setSize(400, 400).setOffset(300, 400);
       e.body.setVelocityX(Math.random()<0.5 ? -e.speed : e.speed);
-      e.body.setSize(14, 22).setOffset(9, 10);
       e.body.setCollideWorldBounds(false);
-      e.setFlipX(e.body.velocity.x < 0);
-    }, i * 400);
+    }, i * 500);
   }
 }
 
@@ -309,6 +302,9 @@ function bindMobileButtons(){
 
 function update(time, delta){
   if(!player || !player.active) return;
+  if(bgTile){
+    bgTile.tilePositionX = scene.cameras.main.scrollX * 0.3;
+  }
   handleInput(time, delta);
   handleEnemies(delta);
   handleCoins();
@@ -334,9 +330,11 @@ function handleInput(time, delta){
     player.body.setVelocityX(0);
   }
 
-  const onGround = player.body.blocked.down || player.body.touching.down;
-  if(onGround) coyoteTimer = COYOTE_TIME;
-  else coyoteTimer = Math.max(0, coyoteTimer - delta);
+  if(player.body.blocked.down || player.body.touching.down){
+    coyoteTimer = COYOTE_TIME;
+  } else {
+    coyoteTimer = Math.max(0, coyoteTimer - delta);
+  }
 
   if(jumpDown && !player._prevJump){
     jumpPressedAt = time;
@@ -347,45 +345,50 @@ function handleInput(time, delta){
     player.body.setVelocityY(JUMP_VELOCITY);
     jumpPressedAt = 0;
     coyoteTimer = 0;
-  }
-
-  // الأنيميشن
-  if(invulnTimer > 0){
-    invulnTimer -= delta;
-    player.alpha = (Math.floor(time/60)%2===0) ? 0.3 : 1;
-  } else {
-    player.alpha = 1;
-  }
-
-  if(!onGround){
-    if(!player.anims.isPlaying || player.anims.currentAnim.key !== 'hero-jump') player.play('hero-jump', true);
-  } else if(Math.abs(player.body.velocity.x) > 10){
-    if(!player.anims.isPlaying || player.anims.currentAnim.key !== 'hero-run') player.play('hero-run', true);
-  } else {
-    if(!player.anims.isPlaying || player.anims.currentAnim.key !== 'hero-idle') player.play('hero-idle', true);
+    scene.tweens.add({
+      targets:player,
+      scaleY: player.scaleY*1.2, scaleX: player.scaleX*0.85,
+      duration:100, yoyo:true, ease:'Quad.easeOut'
+    });
+    burst(player.x, player.y + 15, 6, 0xff8c3c);
   }
 
   if(attackDown && time - lastAttack > ATK_COOLDOWN){
     lastAttack = time;
     doAttack();
   }
+
+  if(invulnTimer > 0){
+    invulnTimer -= delta;
+    player.alpha = (Math.floor(time/70)%2===0) ? 0.3 : 1;
+  } else {
+    player.alpha = 1;
+  }
 }
 
 function doAttack(){
-  player.play('hero-attack', true);
-
-  const arcX = facing === 1 ? player.x + 30 : player.x - 30;
-  const arc = scene.add.circle(arcX, player.y, 20, 0xff8c3c, 0.6);
-  arc.setDepth(11);
-  scene.tweens.add({
-    targets:arc,
-    alpha:0, scale:2, duration:ATK_DURATION,
-    onComplete:()=>arc.destroy()
-  });
+  /* Slash sprite instead of circle */
+  const arcX = facing === 1 ? player.x + 18 : player.x - 18;
+  if(scene.textures.exists('slash')){
+    const arc = scene.add.image(arcX, player.y - 4, 'slash');
+    arc.setScale(0.15);
+    arc.setDepth(11);
+    if(facing === -1) arc.setFlipX(true);
+    scene.tweens.add({
+      targets:arc,
+      alpha:0, scaleX: arc.scaleX*1.5,
+      duration: ATK_DURATION,
+      onComplete:()=>arc.destroy()
+    });
+  } else {
+    const arc = scene.add.circle(arcX, player.y - 4, 10, 0xff8c3c, 0.6);
+    arc.setDepth(11);
+    scene.tweens.add({targets:arc, alpha:0, scale:2, duration:ATK_DURATION, onComplete:()=>arc.destroy()});
+  }
 
   const range = facing === 1
-    ? new Phaser.Geom.Rectangle(player.x + 10, player.y - 25, ATK_RANGE, 50)
-    : new Phaser.Geom.Rectangle(player.x - ATK_RANGE - 10, player.y - 25, ATK_RANGE, 50);
+    ? Phaser.Geom.Rectangle(player.x + 8, player.y - 14, ATK_RANGE, 28)
+    : Phaser.Geom.Rectangle(player.x - ATK_RANGE - 8, player.y - 14, ATK_RANGE, 28);
 
   enemies.getChildren().forEach(e=>{
     if(e.active && Phaser.Geom.Intersects.RectangleToRectangle(range, e.getBounds())){
@@ -404,19 +407,19 @@ function damageEnemy(e, dmg){
   e.hp -= dmg;
   e.setTint(0xffffff);
   scene.time.delayedCall(80, ()=>{ if(e.active) e.clearTint(); });
-  e.body.setVelocityX(facing * 200);
-  scene.cameras.main.shake(100, 0.005);
+  e.body.setVelocityX(facing * 180);
+  scene.physics.world.pause();
+  scene.time.delayedCall(60, ()=>scene.physics.world.resume());
+  scene.cameras.main.shake(120, 0.006);
   burst(e.x, e.y, 8, 0xff8c3c);
 
   if(e.hp <= 0){
     kills++;
-    if(Math.random() < 0.4){ gold += 1; State.data.gold = gold; Save.save(State.data); }
+    if(Math.random() < 0.5){ gold += 1; State.data.gold = gold; Save.save(State.data); }
     State.data.totalKills = (State.data.totalKills||0) + 1;
     burst(e.x, e.y, 15, 0xfbbf24);
-    scene.cameras.main.shake(150, 0.01);
-    if(e.enemyKey && scene.anims.exists('enemy-death')) e.play('enemy-death');
-    e.body.enable = false;
-    scene.time.delayedCall(400, ()=>{ if(e.active) e.destroy(); });
+    scene.cameras.main.shake(180, 0.01);
+    e.destroy();
   }
 }
 
@@ -424,11 +427,11 @@ function damageBoss(dmg){
   boss.hp -= dmg;
   boss.setTint(0xffffff);
   scene.time.delayedCall(80, ()=>{ if(boss && boss.active) boss.clearTint(); });
-  scene.cameras.main.shake(100, 0.008);
+  scene.cameras.main.shake(120, 0.008);
   burst(boss.x, boss.y, 12, 0xff8c3c);
 
-  const bossBar = document.getElementById('bossFill');
-  if(bossBar){ bossBar.style.width = Math.max(0, boss.hp/boss.maxHp*100) + '%'; }
+  const bf = document.getElementById('bossFill');
+  if(bf){ bf.style.width = Math.max(0, boss.hp/boss.maxHp*100) + '%'; }
 
   if(boss.hp <= 0){
     boss._defeated = true;
@@ -442,8 +445,7 @@ function damageBoss(dmg){
     burst(boss.x, boss.y, 40, 0xff8c3c);
     burst(boss.x, boss.y, 40, 0xfbbf24);
     scene.cameras.main.shake(800, 0.02);
-    const wrap = document.getElementById('bossBar');
-    if(wrap) wrap.style.display = 'none';
+    if(bossBarWrap) bossBarWrap.style.display = 'none';
     scene.time.delayedCall(1500, ()=>{
       if(boss) boss.destroy();
       boss = null;
@@ -455,10 +457,10 @@ function damageBoss(dmg){
 
 function burst(x, y, count, color){
   for(let i=0;i<count;i++){
-    const p = scene.add.rectangle(x, y, 3, 3, color);
+    const p = scene.add.rectangle(x, y, 2, 2, color);
     p.setDepth(15);
     const angle = Math.random()*Math.PI*2;
-    const dist = 20 + Math.random()*40;
+    const dist = 15 + Math.random()*30;
     scene.tweens.add({
       targets:p,
       x: x + Math.cos(angle)*dist,
@@ -475,18 +477,17 @@ function damagePlayer(dmg){
   if(invulnTimer > 0) return;
   hp -= dmg;
   invulnTimer = INVULN_TIME;
-  player.play('hero-hurt', true);
-  scene.cameras.main.shake(200, 0.01);
+  scene.cameras.main.shake(220, 0.012);
   burst(player.x, player.y, 12, 0xff3c14);
   player.body.setVelocityX(-facing * 120);
   player.body.setVelocityY(-100);
   updateHUD();
   if(hp <= 0){
     hp = maxHp;
-    player.x = 60;
+    player.x = 40;
     player.y = 60;
     player.body.setVelocity(0, 0);
-    scene.cameras.main.flash(300, 255, 60, 20);
+    scene.cameras.main.flash(400, 255, 60, 20);
   }
 }
 
@@ -496,28 +497,26 @@ function handleEnemies(delta){
     if(e.y > GH + 60){ e.destroy(); return; }
 
     const dist = player.x - e.x;
-    if(Math.abs(dist) < 250 && e.body.enable){
+    if(Math.abs(dist) < 250){
       if(dist > 0) e.body.setVelocityX(Math.abs(e.speed) * 1.3);
       else e.body.setVelocityX(-Math.abs(e.speed) * 1.3);
     }
-    if(e.body.enable) e.setFlipX(e.body.velocity.x < 0);
 
-    if(e.body.enable && Phaser.Geom.Intersects.RectangleToRectangle(player.getBounds(), e.getBounds())){
+    if(Phaser.Geom.Intersects.RectangleToRectangle(player.getBounds(), e.getBounds())){
       damagePlayer(e.damage);
     }
   });
 
   if(boss && boss.active && !boss._defeated){
     const dist = player.x - boss.x;
-    if(Math.abs(dist) < 300){
-      if(dist > 0) boss.body.setVelocityX(50);
-      else boss.body.setVelocityX(-50);
+    if(Math.abs(dist) < 280){
+      if(dist > 0) boss.body.setVelocityX(40);
+      else boss.body.setVelocityX(-40);
     } else {
       boss.body.setVelocityX(0);
     }
-    boss.setFlipX(boss.body.velocity.x < 0);
     if(Phaser.Geom.Intersects.RectangleToRectangle(player.getBounds(), boss.getBounds())){
-      damagePlayer(15);
+      damagePlayer(12);
     }
   }
 }
@@ -537,7 +536,7 @@ function handleCoins(){
 
 function handleBoss(delta){
   if(bossActive || bossDefeated) return;
-  if(player.x > ZONES[currentZone].width - 500){
+  if(player.x > ZONE_WIDTH - 450){
     spawnBoss();
   }
 }
@@ -548,42 +547,38 @@ function spawnBoss(){
 
   if(window.BossPrompt){
     BossPrompt.show(z.boss.nameAr, ()=>{
-      const bx = player.x + 200;
+      const bx = player.x + 180;
       const by = 80;
       boss = scene.physics.add.sprite(bx, by, z.bossSprite);
-      if(z.bossAnim) boss.play(z.bossAnim);
+      boss.setScale(SCALE_BOSS);
       boss.setDepth(12);
-      boss.setScale(1.8);
       boss.hp = z.boss.hp;
       boss.maxHp = z.boss.hp;
-      boss.body.setSize(14, 22).setOffset(9, 10);
+      boss.body.setSize(700, 800).setOffset(150, 150);
       scene.physics.add.collider(boss, platforms);
 
       ensureBossUI();
-      const wrap = document.getElementById('bossBar');
-      if(wrap){
-        wrap.style.display = 'block';
+      if(bossBarWrap){
+        bossBarWrap.style.display = 'block';
         const nm = document.getElementById('bossName');
         if(nm) nm.textContent = z.boss.nameAr;
         const bf = document.getElementById('bossFill');
         if(bf) bf.style.width = '100%';
       }
       scene.cameras.main.shake(600, 0.015);
-    }, ()=>{
-      bossActive = false;
-    });
+    }, ()=>{ bossActive = false; });
   } else {
     bossActive = false;
   }
 }
 
 function ensureBossUI(){
-  if(document.getElementById('bossBar')) return;
-  const wrap = document.createElement('div');
-  wrap.id = 'bossBar';
-  wrap.style.cssText = 'position:fixed;bottom:110px;left:50%;transform:translateX(-50%);width:60%;max-width:400px;z-index:120;pointer-events:none;background:rgba(5,2,8,0.9);padding:8px 12px;border-radius:12px;border:2px solid rgba(255,140,60,0.6);backdrop-filter:blur(6px);box-shadow:0 0 30px rgba(255,140,60,0.5);display:none';
-  wrap.innerHTML = '<div id="bossName" style="text-align:center;font-family:Cairo,sans-serif;font-size:0.85rem;color:#ffb87a;letter-spacing:3px;margin-bottom:6px">BOSS</div><div style="width:100%;height:10px;background:rgba(0,0,0,0.9);border-radius:50px;overflow:hidden;border:1px solid rgba(255,140,60,0.4)"><div id="bossFill" style="width:100%;height:100%;background:linear-gradient(90deg,#ff8c3c,#ff3c14,#c084fc);border-radius:50px;transition:width 0.2s;box-shadow:0 0 10px #ff8c3c"></div></div>';
-  document.body.appendChild(wrap);
+  if(document.getElementById('bossBar')){ bossBarWrap = document.getElementById('bossBar'); return; }
+  bossBarWrap = document.createElement('div');
+  bossBarWrap.id = 'bossBar';
+  bossBarWrap.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%);width:60%;max-width:400px;z-index:120;pointer-events:none;background:rgba(5,2,8,0.9);padding:8px 12px;border-radius:12px;border:2px solid rgba(255,140,60,0.6);backdrop-filter:blur(6px);box-shadow:0 0 30px rgba(255,140,60,0.5);display:none';
+  bossBarWrap.innerHTML = '<div id="bossName" style="text-align:center;font-family:Cairo,sans-serif;font-size:0.85rem;color:#ffb87a;letter-spacing:3px;margin-bottom:6px">BOSS</div><div style="width:100%;height:10px;background:rgba(0,0,0,0.9);border-radius:50px;overflow:hidden;border:1px solid rgba(255,140,60,0.4)"><div id="bossFill" style="width:100%;height:100%;background:linear-gradient(90deg,#ff8c3c,#ff3c14,#c084fc);border-radius:50px;transition:width 0.2s;box-shadow:0 0 10px #ff8c3c"></div></div>';
+  document.body.appendChild(bossBarWrap);
 }
 
 function playZoneClearScene(){
@@ -592,7 +587,7 @@ function playZoneClearScene(){
   if(window.Story && currentZone < 4){
     Story.play(scenes[currentZone], ()=>{
       if(currentZone === 3){
-        Story.play('father_intro', ()=>{ playFinalBoss(); }, Story.chapters.father);
+        Story.play('father_intro', ()=>{ playFinale(); }, Story.chapters.father);
       } else {
         currentZone++;
         State.data.zone = currentZone;
@@ -603,46 +598,47 @@ function playZoneClearScene(){
   }
 }
 
-function playFinalBoss(){
-  bossActive = true;
-  boss = scene.physics.add.sprite(player.x + 200, 80, 'ghost-1');
-  boss.play('ghost-float');
-  boss.setDepth(12);
-  boss.setScale(2.2);
-  boss.hp = 2000;
-  boss.maxHp = 2000;
-  boss.body.setSize(14, 22).setOffset(9, 10);
-  scene.physics.add.collider(boss, platforms);
-  ensureBossUI();
-  const wrap = document.getElementById('bossBar');
-  if(wrap){
-    wrap.style.display = 'block';
-    const nm = document.getElementById('bossName');
-    if(nm) nm.textContent = 'الأب';
+function playFinale(){
+  /* Final scene: father ending */
+  if(window.Story){
+    Story.play('father_clear', ()=>{
+      Story.play('ending', ()=>{
+        location.reload();
+      }, Story.chapters.ending);
+    }, Story.chapters.father);
+  } else {
+    location.reload();
   }
-  scene.cameras.main.shake(800, 0.02);
 }
 
 function reloadZone(){
-  player.x = 60;
+  player.x = 40;
   player.y = 60;
   player.body.setVelocity(0, 0);
   loadZone(currentZone);
   scene.physics.add.collider(player, platforms);
-  scene.cameras.main.setBounds(0, 0, ZONES[currentZone].width, GH);
+  scene.cameras.main.setBounds(0, 0, ZONE_WIDTH, GH);
 }
 
 window.EmberGame = {
-  start(){
-    gold = State.data.gold || 0;
-    hp = BASE_HP;
-    maxHp = BASE_HP;
-    kills = State.data.totalKills || 0;
-    currentZone = State.data.zone || 0;
-
-    if(window.Story){
-      Story.play('intro', ()=>{ startGame(); }, Story.chapters.intro);
+  start(isNew){
+    if(isNew){
+      gold = 0;
+      hp = BASE_HP;
+      maxHp = BASE_HP;
+      kills = 0;
+      currentZone = 0;
+      if(window.Story){
+        Story.play('intro', ()=>{ startGame(); }, Story.chapters.intro);
+      } else {
+        startGame();
+      }
     } else {
+      gold = State.data.gold || 0;
+      hp = BASE_HP;
+      maxHp = BASE_HP;
+      kills = State.data.totalKills || 0;
+      currentZone = State.data.zone || 0;
       startGame();
     }
   }
@@ -651,18 +647,19 @@ window.EmberGame = {
 function startGame(){
   if(State.started) return;
   State.started = true;
+
+  /* Ensure boss UI exists */
+  ensureBossUI();
+
   const config = {
     type: Phaser.AUTO,
     width: GW,
     height: GH,
     parent: 'game-wrap',
     backgroundColor: '#050208',
-    physics: {
-      default: 'arcade',
-      arcade: { gravity: { y: GRAVITY }, debug: false }
-    },
+    physics: { default: 'arcade', arcade: { gravity: { y: GRAVITY }, debug: false } },
     scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
-    pixelArt: true,
+    pixelArt: false,
     scene: { preload, create, update }
   };
   window._emberGame = new Phaser.Game(config);

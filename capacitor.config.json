@@ -1,6 +1,6 @@
 {
-  "appId": "com.yz.shadowblade",
-  "appName": "Shadow Blade",
+  "appId": "com.yz.ember",
+  "appName": "Ember",
   "webDir": "www",
   "server": {
     "androidScheme": "https"

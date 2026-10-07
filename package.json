@@ -1,14 +1,15 @@
 {
-  "name": "shadow-blade",
-  "version": "6.0.0",
-  "description": "EMBER - 2D Action Platformer",
-  "private": true,
+  "name": "ember",
+  "version": "7.0.0",
+  "description": "Ember - A Journey Through Dying Worlds",
+  "main": "index.js",
+  "scripts": { "build": "echo done" },
   "dependencies": {
-    "@capacitor/android": "^6.1.0",
-    "@capacitor/core": "^6.1.0",
-    "phaser": "^3.80.0"
+    "@capacitor/android": "^6.2.0",
+    "@capacitor/cli": "^6.2.0",
+    "@capacitor/core": "^6.2.0",
+    "phaser": "^3.80.1"
   },
-  "devDependencies": {
-    "@capacitor/cli": "^6.1.0"
-  }
+  "author": "YZ",
+  "license": "MIT"
 }

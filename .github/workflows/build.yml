@@ -27,14 +27,34 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
+    - name: Install ImageMagick
+      run: sudo apt-get update && sudo apt-get install -y imagemagick librsvg2-bin
+
     - name: Install npm dependencies
       run: npm install
 
     - name: Copy Phaser to www/lib
       run: |
         mkdir -p www/lib
-        cp node_modules/phaser/dist/phaser.min.js www/lib/phaser.min.js
+        if [ -f node_modules/phaser/dist/phaser.min.js ]; then
+          cp node_modules/phaser/dist/phaser.min.js www/lib/phaser.min.js
+        fi
         ls -lh www/lib/
+
+    - name: Generate App Icons
+      run: |
+        mkdir -p icons
+        if [ -f www/icon.svg ]; then
+          rsvg-convert -w 512 -h 512 www/icon.svg -o icons/icon-512.png
+          rsvg-convert -w 192 -h 192 www/icon.svg -o icons/icon-192.png
+          rsvg-convert -w 144 -h 144 www/icon.svg -o icons/icon-144.png
+          rsvg-convert -w 96  -h 96  www/icon.svg -o icons/icon-96.png
+          rsvg-convert -w 72  -h 72  www/icon.svg -o icons/icon-72.png
+          rsvg-convert -w 48  -h 48  www/icon.svg -o icons/icon-48.png
+          ls -lh icons/
+        else
+          echo "⚠️ icon.svg not found"
+        fi
 
     - name: Add Android platform
       run: npx cap add android
@@ -45,9 +65,9 @@ jobs:
     - name: Set App Version
       run: |
         echo "=== BEFORE ==="
-        grep -n "versionCode\|versionName" android/app/build.gradle || true
-        sed -i 's/versionCode [0-9]\+/versionCode 600/g' android/app/build.gradle
-        sed -i 's/versionName "[^"]*"/versionName "6.0.0"/g' android/app/build.gradle
+        grep -n "versionCode\|versionName\|applicationId" android/app/build.gradle || true
+        sed -i 's/versionCode [0-9]\+/versionCode 700/g' android/app/build.gradle
+        sed -i 's/versionName "[^"]*"/versionName "7.0.0"/g' android/app/build.gradle
         echo "=== AFTER ==="
         grep -n "versionCode\|versionName" android/app/build.gradle || true
 
@@ -55,6 +75,21 @@ jobs:
       run: |
         perl -i -pe 's/(<activity\s+[^>]*android:name="\.MainActivity"[^>]*)(>)/$1 android:screenOrientation="sensorLandscape" android:configChanges="orientation|screenSize|keyboardHidden"$2/ unless /screenOrientation/' android/app/src/main/AndroidManifest.xml
         grep -A2 "<activity" android/app/src/main/AndroidManifest.xml || true
+
+    - name: Copy Custom Icons
+      run: |
+        [ -f icons/icon-48.png ] && cp icons/icon-48.png android/app/src/main/res/mipmap-mdpi/ic_launcher.png || true
+        [ -f icons/icon-48.png ] && cp icons/icon-48.png android/app/src/main/res/mipmap-mdpi/ic_launcher_round.png || true
+        [ -f icons/icon-72.png ] && cp icons/icon-72.png android/app/src/main/res/mipmap-hdpi/ic_launcher.png || true
+        [ -f icons/icon-72.png ] && cp icons/icon-72.png android/app/src/main/res/mipmap-hdpi/ic_launcher_round.png || true
+        [ -f icons/icon-96.png ] && cp icons/icon-96.png android/app/src/main/res/mipmap-xhdpi/ic_launcher.png || true
+        [ -f icons/icon-96.png ] && cp icons/icon-96.png android/app/src/main/res/mipmap-xhdpi/ic_launcher_round.png || true
+        [ -f icons/icon-144.png ] && cp icons/icon-144.png android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png || true
+        [ -f icons/icon-144.png ] && cp icons/icon-144.png android/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png || true
+        [ -f icons/icon-192.png ] && cp icons/icon-192.png android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png || true
+        [ -f icons/icon-192.png ] && cp icons/icon-192.png android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png || true
+        rm -rf android/app/src/main/res/mipmap-anydpi-v26 || true
+        echo "Icons copied."
 
     - name: Sync Capacitor
       run: npx cap sync android
@@ -69,13 +104,13 @@ jobs:
     - name: Rename APK
       run: |
         mkdir -p output
-        cp android/app/build/outputs/apk/debug/app-debug.apk output/Ember-v6.0.0.apk
+        cp android/app/build/outputs/apk/debug/app-debug.apk output/Ember-v7.0.0.apk
 
     - name: Create Release
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: v6.0.0-build${{ github.run_number }}
-        name: Ember v6.0.0 (Build ${{ github.run_number }})
-        files: output/Ember-v6.0.0.apk
+        tag_name: v7.0.0-build${{ github.run_number }}
+        name: Ember v7.0.0 (Build ${{ github.run_number }})
+        files: output/Ember-v7.0.0.apk
         draft: false
         prerelease: false
