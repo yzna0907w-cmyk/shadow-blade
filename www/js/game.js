@@ -130,15 +130,29 @@ function create(){
   scene.physics.world.setBounds(0, 0, 10000, 1500);
 
   // تكستشرات مساعدة
-  if(!scene.textures.exists('platform')){
+  // تكسترات أرضية لكل منطقة
+  function makeGround(key, topC, mainC, darkC, spotC){
+    if(scene.textures.exists(key)) return;
     const g = scene.add.graphics();
-    g.fillStyle(0x3a2f26, 1);
+    g.fillStyle(mainC, 1);
     g.fillRect(0, 0, 32, 32);
-    g.lineStyle(1, 0x5a4a3a, 1);
-    g.strokeRect(0, 0, 32, 32);
-    g.generateTexture('platform', 32, 32);
+    g.fillStyle(topC, 1);
+    g.fillRect(0, 0, 32, 5);
+    g.fillStyle(darkC, 1);
+    g.fillRect(0, 26, 32, 6);
+    for(let i=0;i<8;i++){
+      g.fillStyle(spotC, 0.5);
+      const sx = Phaser.Math.Between(2, 28);
+      const sy = Phaser.Math.Between(7, 23);
+      g.fillRect(sx, sy, 2, 2);
+    }
+    g.generateTexture(key, 32, 32);
     g.destroy();
   }
+  makeGround('ground-0', 0x8a6a4a, 0x4a3626, 0x2a1a10, 0xa8a088); // الرماد
+  makeGround('ground-1', 0xd08030, 0x7a4020, 0x3a1810, 0xf0a050); // الصدأ
+  makeGround('ground-2', 0xa8d0e8, 0x4a7a9a, 0x1a3a5a, 0xd8f0ff); // الصقيع
+  makeGround('ground-3', 0x9a7ac8, 0x4a3a6a, 0x1a0a2a, 0xc8a8ff); // الفراغ
   if(!scene.textures.exists('coin')){
     const g = scene.add.graphics();
     g.fillStyle(0xfbbf24, 1);
@@ -242,7 +256,7 @@ function loadZone(idx){
     const h = pattern[hIdx % pattern.length];
     const groundY = baseY - h;
     hIdx++;
-    const pl = platforms.create(x + w/2, groundY, 'platform');
+    const pl = platforms.create(x + w/2, groundY, 'ground-'+idx);
     pl.setScale(w / 32, (GH - groundY) / 32 + 0.5);
     pl.refreshBody();
     pl.setDepth(-5);
@@ -256,14 +270,15 @@ function loadZone(idx){
       const px = x + Phaser.Math.Between(-30, 30);
       const py = groundY - Phaser.Math.Between(pfHeight[0], pfHeight[1]);
       const pw = Phaser.Math.Between(70, 130);
-      const pf = platforms.create(px, py, 'platform');
+      const pf = platforms.create(px, py, 'ground-'+idx);
       pf.setScale(pw / 32, 0.25);
       pf.refreshBody();
       pf.setDepth(-5);
     }
   }
-  const endPlat = platforms.create(W - 120, groundY, 'platform');
-  endPlat.setScale(3, (GH - groundY) / 32);
+  const endY = baseY;
+  const endPlat = platforms.create(W - 120, endY, 'ground-'+idx);
+  endPlat.setScale(3, (GH - endY) / 32 + 0.5);
   endPlat.refreshBody();
   endPlat.setDepth(-5);
 
