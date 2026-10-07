@@ -10,6 +10,8 @@ const Player = {
   lastAttack: 0,
   jumpsLeft: 0,
   isDashing: false,
+  isAttacking: false,
+  attackEndTime: 0,
   dashTimer: 0,
   _wasOnGround: true,
   _prevJump: false,
@@ -37,11 +39,11 @@ const Player = {
     if(A.exists('hero-idle')) return;
 
     A.create({ key:'hero-idle', frames:[0,1,2,3].map(i=>({key:'hero-idle-'+i})), frameRate:6, repeat:-1 });
-    A.create({ key:'hero-run', frames:[0,1,2,3,4,5].map(i=>({key:'hero-run-'+i})), frameRate:12, repeat:-1 });
+    A.create({ key:'hero-run', frames:[0,1,2,3,4,5].map(i=>({key:'hero-run-'+i})), frameRate:16, repeat:-1 });
     A.create({ key:'hero-jump', frames:[0,1,2,3].map(i=>({key:'hero-jump-'+i})), frameRate:10, repeat:0 });
-    A.create({ key:'hero-attack', frames:[0,1,2,3,4].map(i=>({key:'hero-attack-'+i})), frameRate:8, repeat:0 });
+    A.create({ key:'hero-attack', frames:[0,1,2,3,4].map(i=>({key:'hero-attack-'+i})), frameRate:5, repeat:0 });
     A.create({ key:'hero-hurt', frames:[{key:'hero-hurt'}], frameRate:1, repeat:0 });
-    A.create({ key:'hero-die', frames:[0,1,2,3].map(i=>({key:'hero-die-'+i})), frameRate:8, repeat:0 });
+    A.create({ key:'hero-die', frames:[0,1,2,3].map(i=>({key:'hero-die-'+i})), frameRate:5, repeat:0 });
   },
 
   // ═══ إنشاء البطل ═══
@@ -159,6 +161,8 @@ const Player = {
 
   // ═══ الهجوم ═══
   attack(scene){
+    this.isAttacking = true;
+    this.attackEndTime = scene.time.now + 400;
     this.sprite.play("hero-attack", true);
     if(scene.sound) scene.sound.play("sfx-attack", {volume: 0.5});
     const range = this._getAttackRange();

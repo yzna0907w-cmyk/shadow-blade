@@ -2,7 +2,7 @@ const Level1Crypt = {
   id:'crypt', nameAr:'المقبرة', worldIdx:0, width:3000,
   tileKey:'tile-crypt', bgKey:'bg-crypt',
   bossKey:'robot', bossNameAr:'حارس الأرواح',
-  enemies:['slime','slime','boar'], enemyCount:8,
+  enemies:['slime','slime','boar'], enemyCount:3,
 
   preload(scene){
     scene.load.image(this.tileKey, 'assets/worlds/01-crypt/tiles.png');

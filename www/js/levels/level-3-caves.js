@@ -2,7 +2,7 @@ const Level3Caves = {
   id:'caves', nameAr:'كهوف الكريستال', worldIdx:2, width:3500,
   tileKey:'tile-caves', bgKey:'bg-caves',
   bossKey:'turtle', bossNameAr:'السلحفاة القتالية',
-  enemies:['slime','boar','slime','boar'], enemyCount:12,
+  enemies:['slime','boar','slime','boar'], enemyCount:4,
 
   preload(scene){
     scene.load.image(this.tileKey, 'assets/worlds/03-caves/tiles.png');

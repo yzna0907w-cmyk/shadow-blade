@@ -2,7 +2,7 @@ const Level5Factory = {
   id:'factory', nameAr:'المصنع المحروق', worldIdx:4, width:4000,
   tileKey:'tile-factory', bgKey:'bg-factory',
   bossKey:'tank', bossNameAr:'دبابة الحرب',
-  enemies:['boar','slime','boar','slime'], enemyCount:16,
+  enemies:['boar','slime','boar','slime'], enemyCount:5,
 
   preload(scene){
     scene.load.image(this.tileKey, 'assets/worlds/05-factory/tiles.png');

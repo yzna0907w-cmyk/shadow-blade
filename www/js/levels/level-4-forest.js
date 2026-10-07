@@ -2,7 +2,7 @@ const Level4Forest = {
   id:'forest', nameAr:'الغابة الميتة', worldIdx:3, width:3800,
   tileKey:'tile-forest', bgKey:'bg-forest',
   bossKey:'boar', bossNameAr:'الخنزير البري',
-  enemies:['boar','boar','slime','boar'], enemyCount:14,
+  enemies:['boar','boar','slime','boar'], enemyCount:5,
 
   preload(scene){
     scene.load.image(this.tileKey, 'assets/worlds/04-forest/tiles.png');

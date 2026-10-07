@@ -2,7 +2,7 @@ const Level2Swamp = {
   id:'swamp', nameAr:'المستنقع السام', worldIdx:1, width:3200,
   tileKey:'tile-swamp', bgKey:'bg-swamp',
   bossKey:'centipede', bossNameAr:'أم أربعة وأربعين',
-  enemies:['slime','boar','slime'], enemyCount:10,
+  enemies:['slime','boar','slime'], enemyCount:4,
 
   preload(scene){
     scene.load.image(this.tileKey, 'assets/worlds/02-swamp/tiles.png');

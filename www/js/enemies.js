@@ -52,7 +52,7 @@ const Enemies = {
     const spriteKey = typeKey === 'boar' ? 'boar-idle' : typeKey;
     const e = this.group.create(x, y, spriteKey);
     if(typeKey === "boar" && scene.anims.exists("boar-walk")) e.play("boar-walk");
-    e.setDepth(8);
+    e.setDepth(20);
     e.setScale(t.scale);
     e.body.setSize(14, 14).setOffset(1, 1);
     e.body.setCollideWorldBounds(false);
