@@ -256,6 +256,16 @@ function loadAllAssets(scene){
     scene.load.image('tile-' + sec, tilePath);
   });
 
+  // Parallax للمقبرة
+  scene.load.image('bg-crypt-far', 'assets/worlds/01-crypt/backgrounds/bg-far.png');
+  scene.load.image('bg-crypt-mid', 'assets/worlds/01-crypt/backgrounds/bg-mid.png');
+
+  // ديكور المقبرة
+  const decorKeys = ['crystal-1','crystal-2','crystal-3','crystal-pile-1','crystal-pile-2','rock-01','rock-02','rock-03','rock-04','rock-05','rock-06','candlestick','fire','pillar','tree'];
+  decorKeys.forEach(k => {
+    scene.load.image('decor-' + k, 'assets/worlds/01-crypt/decor/' + k + '.png');
+  });
+
   // ═══ NPCs ═══
   scene.load.image('npc-farmer', 'assets/npcs/farmer/sheet.png');
 
@@ -557,10 +567,8 @@ function update(time, delta){
   if(Player.sprite && Player.sprite.active){
     const room = Levels.getCurrentRoom();
     if(room && Player.sprite.y > room.height + 100){
-      Player.sprite.x = 60;
-      Player.sprite.y = room.height - 150;
+      Player.sprite.y = 100;
       Player.sprite.body.setVelocity(0, 0);
-      Player.takeDamage(10);
     }
   }
 

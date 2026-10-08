@@ -55,6 +55,7 @@ const Levels = {
     this._buildExits(room);
     this._buildPuzzles(room);
     this._buildNPCs(room);
+    this._buildDecor(room);
     this._spawnEnemies(room);
 
     // موضع اللاعب
@@ -435,6 +436,19 @@ const Levels = {
   // ═══════════════════════════════════════════════
   // توليد الأعداء
   // ═══════════════════════════════════════════════
+  _buildDecor(room){
+    if(!room.decor || room.decor.length === 0) return;
+    room.decor.forEach(d => {
+      const key = 'decor-' + d.key;
+      if(!this.scene.textures.exists(key)) return;
+      const sprite = this.scene.add.image(d.x, d.y, key);
+      sprite.setScale(d.scale || 1);
+      sprite.setOrigin(0.5, 1);
+      sprite.setDepth(d.depth || 5);
+      this.builtObjects.push(sprite);
+    });
+  },
+
   _spawnEnemies(room){
     if(!room.enemies || room.enemies.length === 0) return;
     if(typeof Enemies === 'undefined') return;
