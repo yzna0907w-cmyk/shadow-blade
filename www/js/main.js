@@ -604,15 +604,32 @@ function update(time, delta){
 function checkBossTrigger(){
   if(!Player.sprite || !Player.sprite.active) return;
   if(typeof Bosses === 'undefined') return;
+  if(Bosses.active) return;
 
   const room = Levels.getCurrentRoom();
-  if(!room || !room.isBossRoom) return;
-  if(Bosses.active) return;
+  if(!room) return;
+
+  // ═══ mega-room: نستخدم bossTrigger.x ═══
+  if(room.isMegaRoom && room.bossTrigger){
+    const sectionIdx = room.section;
+    if(State.progress.isBossDefeated(sectionIdx)) return;
+
+    if(Player.sprite.x >= room.bossTrigger.x){
+      const bossKey = room.bossTrigger.bossKey;
+      const ws = WORLD_SECTIONS[sectionIdx];
+      if(ws && bossKey){
+        Bosses.spawn(scene, bossKey, sectionIdx, ws.bossNameAr);
+      }
+    }
+    return;
+  }
+
+  // ═══ غرفة بوس عادية ═══
+  if(!room.isBossRoom) return;
 
   const sectionIdx = room.section;
   if(State.progress.isBossDefeated(sectionIdx)) return;
 
-  // نطلق البوس
   const ws = WORLD_SECTIONS[sectionIdx];
   if(ws){
     Bosses.spawn(scene, ws.bossKey, sectionIdx, ws.bossNameAr);

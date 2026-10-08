@@ -94,10 +94,49 @@ const MEGA_CRYPT = {
     { key: 'rock-05', x: 3900, y: 490, scale: 0.35 }
   ],
 
-  enemies: [],
+  enemies: [
+    // ═══ الشاشة 3-4 (1000-1900) ═══
+    { type: 'monster-1', x: 1100, y: 470 },
+    { type: 'monster-1', x: 1700, y: 470 },
+
+    // ═══ الشاشة 5-6 (1900-2900) ═══
+    { type: 'monster-2', x: 2100, y: 470 },
+    { type: 'monster-1', x: 2500, y: 470 },
+    { type: 'monster-2', x: 2800, y: 470 },
+
+    // ═══ الشاشة 7-8 (2900-3900) ═══
+    { type: 'monster-1', x: 3100, y: 470 },
+    { type: 'monster-2', x: 3500, y: 470 },
+    { type: 'monster-1', x: 3800, y: 470 },
+
+    // ═══ الشاشة 9-10 (3900-4800) ═══
+    { type: 'monster-2', x: 4100, y: 470 },
+    { type: 'monster-2', x: 4400, y: 470 },
+    { type: 'monster-1', x: 4700, y: 470 }
+  ],
   npcs: [],
-  puzzles: [],
-  exits: {}
+  puzzles: [
+    // ═══ أشواك ═══
+    { type: 'spike', x: 1900, y: 495, width: 100, height: 20, damage: 10 },
+    { type: 'spike', x: 3300, y: 495, width: 120, height: 20, damage: 12 },
+    { type: 'spike', x: 4200, y: 495, width: 100, height: 20, damage: 10 },
+
+    // ═══ صناديق كنز ═══
+    { type: 'locked-chest', x: 1400, y: 470,
+      keyId: 'key_silver', rewards: { shards: 30, atoms: 1 } },
+    { type: 'locked-chest', x: 2600, y: 470,
+      keyId: 'key_silver', rewards: { shards: 50, atoms: 1 } },
+    { type: 'locked-chest', x: 3900, y: 470,
+      keyId: 'key_gold', rewards: { shards: 80, atoms: 2 } },
+    { type: 'locked-chest', x: 4900, y: 470,
+      keyId: 'key_gold', rewards: { shards: 120, atoms: 3 } }
+  ],
+
+  // ═══ مُشغّل البوس (يبدأ عند وصول اللاعب) ═══
+  bossTrigger: { x: 5100, bossKey: 'robot' },
+  exits: {
+    right: 'mega-crypt-next'   // placeholder — نفعّله لاحقاً
+  }
 };
 
 if (typeof ROOMS !== 'undefined') {
