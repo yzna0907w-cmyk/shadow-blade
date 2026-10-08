@@ -39,8 +39,9 @@ const Puzzles = {
     const width = options.width || 32;
     const height = options.height || 16;
 
-    const spike = scene.add.rectangle(x, y, width, height, 0x888888);
+    const spike = scene.add.rectangle(x, y, width, height, 0xff3333, 0.8);
     spike.setDepth(15);
+    spike.setStrokeStyle(2, 0xffffff);
     spike.damage = damage;
     spike.isSpike = true;
 

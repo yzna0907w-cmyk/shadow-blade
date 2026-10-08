@@ -61,7 +61,7 @@ const Bosses = {
     }
 
     const bx = Player.sprite ? Player.sprite.x + 250 : 800;
-    const by = CFG.GH - 200;
+    const by = 350;  // spawn فوق الأرض (gravity تسحبه)
 
     const spriteKey = 'boss-' + bossKey;
     const actualKey = scene.textures.exists(spriteKey) ? spriteKey : bossKey + '-idle';
