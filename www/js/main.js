@@ -266,6 +266,16 @@ function loadAllAssets(scene){
     scene.load.image('decor-' + k, 'assets/worlds/01-crypt/decor/' + k + '.png');
   });
 
+  // بلاط الأرضية من Crystal Caves
+  for(let i = 1; i <= 13; i++){
+    const num = String(i).padStart(2, '0');
+    scene.load.image('crypt-ground-' + num, 'assets/worlds/01-crypt/platforms/ground-' + num + '.png');
+  }
+  for(let i = 1; i <= 7; i++){
+    const num = String(i).padStart(2, '0');
+    scene.load.image('crypt-ground-add-' + num, 'assets/worlds/01-crypt/platforms/ground-add-' + num + '.png');
+  }
+
   // ═══ NPCs ═══
   scene.load.image('npc-farmer', 'assets/npcs/farmer/sheet.png');
 

@@ -180,18 +180,36 @@ const Levels = {
     }
 
     room.platforms.forEach(plat => {
-      // الجزء المرئي
-      if(this.scene.textures.exists(tileKey)){
-        const vis = this.scene.add.tileSprite(plat.x, plat.y, plat.w, plat.h, tileKey);
+      let vis = null;
+
+      // للـmega-rooms: نستخدم بلاط Crystal Caves
+      if(room.isMegaRoom){
+        let tile = 'crypt-ground-01';
+        // لو الأرضية عريضة، نستخدم tile مختلف
+        if(plat.w >= 400) tile = 'crypt-ground-add-07';
+        else if(plat.w >= 200) tile = 'crypt-ground-add-03';
+
+        if(this.scene.textures.exists(tile)){
+          vis = this.scene.add.tileSprite(plat.x, plat.y, plat.w, plat.h, tile);
+          vis.setOrigin(0.5, 0.5);
+          vis.setDepth(-5);
+        }
+      }
+
+      // الافتراضي
+      if(!vis && this.scene.textures.exists(tileKey)){
+        vis = this.scene.add.tileSprite(plat.x, plat.y, plat.w, plat.h, tileKey);
         vis.setOrigin(0.5, 0.5);
         vis.setDepth(-5);
         if(ws.tintTiles) vis.setTint(ws.tintTiles);
-        this.builtObjects.push(vis);
-      } else {
-        const vis = this.scene.add.rectangle(plat.x, plat.y, plat.w, plat.h, ws.bgTint || 0x3a2f26);
-        vis.setDepth(-5);
-        this.builtObjects.push(vis);
       }
+
+      if(!vis){
+        vis = this.scene.add.rectangle(plat.x, plat.y, plat.w, plat.h, ws.bgTint || 0x3a2f26);
+        vis.setDepth(-5);
+      }
+
+      this.builtObjects.push(vis);
 
       // الجسم الفيزيائي
       const body = this.platformsGroup.create(plat.x, plat.y, 'platform');
