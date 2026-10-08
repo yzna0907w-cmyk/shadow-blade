@@ -334,7 +334,7 @@ function create(){
   // ═══════════════════════════════════════════════
   // 1. إعداد الفيزياء
   // ═══════════════════════════════════════════════
-  scene.physics.world.setBounds(0, 0, 10000, 2000);
+  scene.physics.world.setBounds(0, 0, 6000, 600);
 
   // ═══════════════════════════════════════════════
   // 2. المجموعات الأساسية
@@ -596,6 +596,16 @@ function update(time, delta){
     );
   }
   
+  // ═══ Parallax scroll ═══
+  if(Levels && Levels.builtObjects && scene.cameras && scene.cameras.main){
+    const camX = scene.cameras.main.scrollX;
+    Levels.builtObjects.forEach(obj => {
+      if(obj && obj._parallaxFactor !== undefined && obj.setTilePosition){
+        obj.tilePositionX = camX * obj._parallaxFactor;
+      }
+    });
+  }
+
   // ═══ فحص البوس ═══
   checkBossTrigger();
 

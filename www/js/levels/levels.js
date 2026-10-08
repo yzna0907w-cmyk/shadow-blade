@@ -124,31 +124,27 @@ const Levels = {
 
     // ═══ MEGA-ROOM: خلفيات متعددة الطبقات ═══
     if(room.isMegaRoom){
-      // ═══ نقسم الخلفية لقطع 960px ═══
-      const CHUNK = 960;
-      const chunks = Math.ceil(room.width / CHUNK);
-
+      // ═══ Parallax: tileSprite بحجم الشاشة فقط ═══
+      const CAM_W = CFG.GW;
+      const CAM_H = CFG.GH;
       const farKey = 'bg-' + ws.id + '-far';
       const midKey = 'bg-' + ws.id + '-mid';
 
-      for(let i = 0; i < chunks; i++){
-        const x = i * CHUNK;
-        const w = Math.min(CHUNK, room.width - x);
-
-        if(this.scene.textures.exists(farKey)){
-          const far = this.scene.add.tileSprite(x, 0, w, room.height, farKey);
-          far.setOrigin(0, 0);
-          far.setScrollFactor(0.2);
-          far.setDepth(-100);
-          this.builtObjects.push(far);
-        }
-        if(this.scene.textures.exists(midKey)){
-          const mid = this.scene.add.tileSprite(x, 0, w, room.height, midKey);
-          mid.setOrigin(0, 0);
-          mid.setScrollFactor(0.5);
-          mid.setDepth(-50);
-          this.builtObjects.push(mid);
-        }
+      if(this.scene.textures.exists(farKey)){
+        const far = this.scene.add.tileSprite(0, 0, CAM_W, CAM_H, farKey);
+        far.setOrigin(0, 0);
+        far.setScrollFactor(0);
+        far.setDepth(-100);
+        far._parallaxFactor = 0.2;
+        this.builtObjects.push(far);
+      }
+      if(this.scene.textures.exists(midKey)){
+        const mid = this.scene.add.tileSprite(0, 0, CAM_W, CAM_H, midKey);
+        mid.setOrigin(0, 0);
+        mid.setScrollFactor(0);
+        mid.setDepth(-50);
+        mid._parallaxFactor = 0.5;
+        this.builtObjects.push(mid);
       }
       return;
     }
@@ -194,15 +190,26 @@ const Levels = {
     room.platforms.forEach(plat => {
       let vis = null;
 
-      // للـmega-rooms: مستطيلات ملونة واضحة
+      // للـmega-rooms: sprite 1x1 + tint (WebGL batch أفضل)
       if(room.isMegaRoom){
-        // 🟫 الأرضية (أزرق داكن)
-        vis = this.scene.add.rectangle(plat.x, plat.y, plat.w, plat.h, 0x1a2540);
+        // 🟫 الأرضية
+        if(!this.scene.textures.exists('white-pixel')){
+          const g = this.scene.add.graphics();
+          g.fillStyle(0xffffff, 1);
+          g.fillRect(0, 0, 1, 1);
+          g.generateTexture('white-pixel', 1, 1);
+          g.destroy();
+        }
+        vis = this.scene.add.image(plat.x, plat.y, 'white-pixel');
+        vis.setDisplaySize(plat.w, plat.h);
+        vis.setTint(0x1a2540);
         vis.setDepth(-5);
         this.builtObjects.push(vis);
 
-        // ⬆️ حافة علوية (أزرق فاتح) — تعطي شكل 3D
-        const edge = this.scene.add.rectangle(plat.x, plat.y - plat.h/2 + 4, plat.w, 8, 0x4a6aaa);
+        // ⬆️ حافة علوية
+        const edge = this.scene.add.image(plat.x, plat.y - plat.h/2 + 4, 'white-pixel');
+        edge.setDisplaySize(plat.w, 8);
+        edge.setTint(0x4a6aaa);
         edge.setDepth(-4);
         this.builtObjects.push(edge);
 
