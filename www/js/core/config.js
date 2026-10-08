@@ -31,7 +31,7 @@ const CFG = {
     INVULN_TIME: 1200,
     SCALE: 0.4,
     BODY_SIZE: { w: 40, h: 75 },
-    BODY_OFFSET: { x: 44, y: 43 }
+    BODY_OFFSET: { x: 44, y: 53 }
   },
 
   // ═══ 4. الأسلحة ═══
