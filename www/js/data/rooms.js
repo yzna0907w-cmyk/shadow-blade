@@ -18,7 +18,7 @@ const ROOMS = {
     enemies: [],
     npcs: [],
     puzzles: [],
-    exits: { right: 'crypt-02' }
+    exits: { right: 'crypt-02', up: 'crypt-10' }
   },
 
   'crypt-02': {
