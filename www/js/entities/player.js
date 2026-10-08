@@ -448,12 +448,20 @@ Player._doAttack = function(){
   const weaponData = CFG.WEAPONS[weapon];
 
   this.attack.isAttacking = true;
-  this.attack.attackTimer = 250;
+  this.attack.attackTimer = 500;
   this.attack.cooldown = weaponData.cooldown;
   this.attack.lastAttackTime = this.scene.time.now;
   this.attack.hitEnemiesThisSwing = [];
   this.state = 'attack';
   this._playAnim('attack', true);
+
+  // استخدام animationcomplete بدل timer
+  const self = this;
+  this.sprite.once('animationcomplete', () => {
+    self.attack.isAttacking = false;
+    self.anim.currentKey = null;
+  });
+
   Audio.playAttack();
   this._checkAttackHit();
   this._spawnAttackArc();
