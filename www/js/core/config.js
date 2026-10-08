@@ -135,9 +135,9 @@ const CFG = {
 
   // ═══ 10. الأصوات ═══
   AUDIO: {
-    MASTER_VOLUME: 0.5,
-    SFX_VOLUME: 0.6,
-    MUSIC_VOLUME: 0.25,
+    MASTER_VOLUME: 0.4,
+    SFX_VOLUME: 0.3,
+    MUSIC_VOLUME: 0.4,
     MUTE: false
   },
 

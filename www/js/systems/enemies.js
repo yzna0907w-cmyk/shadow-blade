@@ -52,7 +52,7 @@ const Enemies = {
 
     ['black', 'white', 'red'].forEach(color => {
       const base = 'assets/bosses/werewolf-' + color + '/';
-      scene.load.image('werewolf-' + color + '-idle', base + 'Idle.png');
+      scene.load.image('werewolf-' + color + '-idle', 'assets/bosses/werewolf-' + color + '-idle-frame.png');
       scene.load.image('werewolf-' + color + '-walk', base + 'Walk.png');
       scene.load.image('werewolf-' + color + '-run', base + 'Run.png');
       scene.load.image('werewolf-' + color + '-attack1', base + 'Attack_1.png');
