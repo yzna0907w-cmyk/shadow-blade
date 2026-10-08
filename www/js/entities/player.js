@@ -320,8 +320,8 @@ Player._updateTimers = function(delta){
 Player._handleInput = function(time, delta){
   const dir = Input.getDirection();
 
-  // الحركة الأفقية
-  if(!this.attack.isAttacking && !this.dash.isDashing){
+  // الحركة الأفقية (يسمح بالحركة أثناء الهجوم)
+  if(!this.dash.isDashing){
     if(dir !== 0){
       const speed = CFG.PLAYER.WALK_SPEED;
       this.sprite.body.setVelocityX(dir * speed);

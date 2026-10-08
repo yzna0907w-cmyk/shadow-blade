@@ -142,7 +142,7 @@ const Enemies = {
     e.xp = stats.xp;
     e.shards = stats.shards;
     e.enemyKey = typeKey;
-    e.data = data;
+    e.enemyData = data;
     e.sectionIdx = sectionIdx;
     e.isElite = data.category === 'elite';
     e.isActive = false;
@@ -236,7 +236,7 @@ const Enemies = {
   },
 
   _playSheetAnim(e, animName){
-    if(!e.data || !e.data.sheetMode) return;
+    if(!e.data || !e.enemyData.sheetMode) return;
     const color = e.enemyKey.replace('werewolf-', '');
     const key = 'werewolf-' + color + '-' + animName;
     if(this.scene.textures.exists(key)){
@@ -328,7 +328,7 @@ const Enemies = {
 
     if(e.attackCooldown > 0) e.attackCooldown -= delta;
 
-    const b = e.data.behavior;
+    const b = e.enemyData.behavior;
 
     if(b === 'patrol') this._behaviorPatrol(e, delta);
     else if(b === 'patrol_aggressive') this._behaviorPatrolAggressive(e, delta);
@@ -543,7 +543,7 @@ const Enemies = {
     if(e._currentState === stateName) return;
     e._currentState = stateName;
 
-    if(e.data && e.data.sheetMode){
+    if(e.data && e.enemyData.sheetMode){
       this._playSheetAnim(e, stateName);
     } else {
       const key = e.enemyKey + '-' + stateName;
