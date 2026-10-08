@@ -383,7 +383,11 @@ const Levels = {
       // استخدام سبريت حقيقي لو توفر
       let sprite = null;
       const sheetKey = npcData.sprite && npcData.sprite.sheet;
-      const spriteTexture = sheetKey ? (sheetKey + '-idle') : null;
+      // نستخدم الفريم الواحد لو موجود، وإلا السبريت الكامل
+      let spriteTexture = sheetKey ? (sheetKey + '-idle-frame') : null;
+      if(!spriteTexture || !this.scene.textures.exists(spriteTexture)){
+        spriteTexture = sheetKey ? (sheetKey + '-idle') : null;
+      }
 
       if(spriteTexture && this.scene.textures.exists(spriteTexture)){
         sprite = this.scene.add.image(npcPos.x, npcPos.y, spriteTexture);
