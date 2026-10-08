@@ -214,10 +214,39 @@ const Levels = {
       const pos = exitPositions[dir];
       if(!pos) continue;
 
+      // جسم شفاف (للتفاعل فقط - مو مرئي)
       const door = this.scene.add.rectangle(pos.x, pos.y, 30, 60, exitColors[dir] || 0x22c55e);
       door.setDepth(5);
-      door.setAlpha(0.7);
-      door.setStrokeStyle(2, 0xffffff);
+      door.setAlpha(0.15);
+      door.setStrokeStyle(1, 0xffffff, 0.3);
+
+      // سهم صغير أنيق يدل على الاتجاه
+      let arrowIcon = "→";
+      if(dir === "left") arrowIcon = "←";
+      else if(dir === "up") arrowIcon = "↑";
+      else if(dir === "down") arrowIcon = "↓";
+
+      const arrow = this.scene.add.text(pos.x, pos.y, arrowIcon, {
+        fontFamily: "Arial",
+        fontSize: "20px",
+        color: "#ffffff",
+        stroke: "#000000",
+        strokeThickness: 3
+      }).setOrigin(0.5).setDepth(6);
+      arrow.setAlpha(0.6);
+
+      // تأثير نبض خفيف
+      this.scene.tweens.add({
+        targets: arrow,
+        alpha: 0.2,
+        scale: 1.2,
+        duration: 1200,
+        yoyo: true,
+        repeat: -1
+      });
+
+      // نخزن السهم للتنظيف
+      this.builtObjects.push(arrow);
 
       this.scene.physics.add.existing(door, true);
       door.body.setSize(30, 60);
@@ -351,29 +380,43 @@ const Levels = {
       const npcData = NPC_DATA[npcPos.key];
       if(!npcData) return;
 
-      // رسم رمزي (placeholder)
-      const sprite = this.scene.add.circle(npcPos.x, npcPos.y, 25, npcData.sprite.tint || 0xffd700);
-      sprite.setDepth(15);
-      sprite.setStrokeStyle(3, 0xffffff);
+      // استخدام سبريت حقيقي لو توفر
+      let sprite = null;
+      const sheetKey = npcData.sprite && npcData.sprite.sheet;
+      const spriteTexture = sheetKey ? (sheetKey + '-idle') : null;
+
+      if(spriteTexture && this.scene.textures.exists(spriteTexture)){
+        sprite = this.scene.add.image(npcPos.x, npcPos.y, spriteTexture);
+        sprite.setScale(npcData.sprite.scale || 0.3);
+        if(npcData.sprite.tint) sprite.setTint(npcData.sprite.tint);
+        sprite.setDepth(15);
+      } else {
+        // احتياط: دائرة
+        sprite = this.scene.add.circle(npcPos.x, npcPos.y, 25, npcData.sprite.tint || 0xffd700);
+        sprite.setDepth(15);
+        sprite.setStrokeStyle(3, 0xffffff);
+      }
+
       sprite.npcKey = npcPos.key;
       sprite.isNPC = true;
 
-      // إضافة أيقونة
-      const icon = this.scene.add.text(npcPos.x, npcPos.y - 45, npcData.icon, {
+      // أيقونة فوق الرأس
+      const icon = this.scene.add.text(npcPos.x, npcPos.y - 55, npcData.icon, {
         fontSize: '28px'
       }).setOrigin(0.5).setDepth(16);
 
-      // اسم
-      const name = this.scene.add.text(npcPos.x, npcPos.y + 40, npcData.nameAr, {
+      // الاسم تحت
+      const name = this.scene.add.text(npcPos.x, npcPos.y + 45, npcData.nameAr, {
         fontFamily: 'Arial', fontSize: '12px', color: '#ffffff',
         stroke: '#000', strokeThickness: 2
       }).setOrigin(0.5).setDepth(16);
 
-      // تأثير نبض
+      // نبض (بالحجم الأصلي)
+      const baseScale = sprite.scaleX || 1;
       this.scene.tweens.add({
         targets: sprite,
-        scaleX: 1.1,
-        scaleY: 1.1,
+        scaleX: baseScale * 1.08,
+        scaleY: baseScale * 1.08,
         duration: 1000,
         yoyo: true,
         repeat: -1

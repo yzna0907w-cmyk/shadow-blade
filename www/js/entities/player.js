@@ -452,7 +452,7 @@ Player._doAttack = function(){
   this.attack.cooldown = weaponData.cooldown;
   this.attack.lastAttackTime = this.scene.time.now;
   this.attack.hitEnemiesThisSwing = [];
-
+  this.state = 'attack';
   this._playAnim('attack', true);
   Audio.playAttack();
   this._checkAttackHit();
@@ -555,6 +555,7 @@ Player._updateAttack = function(delta){
   this.attack.attackTimer -= delta;
   if(this.attack.attackTimer <= 0){
     this.attack.isAttacking = false;
+    this.anim.currentKey = null;
   }
 };
 
@@ -757,18 +758,22 @@ Player._updateAnimation = function(){
     }
   } else {
     const absVel = Math.abs(this.sprite.body.velocity.x);
-    if(absVel > 100){
+    if(absVel > 120){
       targetState = 'run';
-    } else if(absVel > 10){
+    } else if(absVel > 15){
       targetState = 'walk';
     } else {
       targetState = 'idle';
     }
   }
 
-  if(this.state !== targetState){
+  // نقارن المفتاح الفعلي بدل state
+  const weapon = this.anim.weaponSuffix;
+  const targetKey = weapon + '-' + targetState;
+
+  if(this.anim.currentKey !== targetKey){
     this.state = targetState;
-    this._playAnim(targetState);
+    this._playAnim(targetState, true);
   }
 };
 
@@ -909,14 +914,22 @@ Player._spawnGlideParticle = function(){
 Player._spawnAttackArc = function(){
   if(!this.scene) return;
   const arcX = this.facing === 1 ? this.sprite.x + 30 : this.sprite.x - 30;
-  const arc = this.scene.add.circle(arcX, this.sprite.y, 20, 0xffcc66, 0.6);
+  const arcY = this.sprite.y;
+  const arc = this.scene.add.circle(arcX, arcY, 20, 0xffcc66, 0.6);
   arc.setDepth(101);
+
   this.scene.tweens.add({
     targets: arc,
     alpha: 0,
-    scale: 2,
+    scaleX: 2,
+    scaleY: 2,
     duration: 300,
-    onComplete: () => arc.destroy()
+    onComplete: () => { try { arc.destroy(); } catch(e){} }
+  });
+
+  // شبكة امان: حذف مضمون
+  this.scene.time.delayedCall(500, () => {
+    try { if(arc && arc.active) arc.destroy(); } catch(e){}
   });
 };
 
