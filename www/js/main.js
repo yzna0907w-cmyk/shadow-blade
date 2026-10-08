@@ -115,7 +115,7 @@ const Game = {
 
     // ننتقل للقسم التالي
     const nextIdx = currentIdx + 1;
-    State.data.progress.setCurrentSection(nextIdx);
+    State.progress.setCurrentSection(nextIdx);
     State.save();
 
     // نلعب قصة القسم الجديد

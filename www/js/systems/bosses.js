@@ -76,10 +76,10 @@ const Bosses = {
     this.current.setScale(data.scale);
     this.current.setOrigin(0.5, 0.5);
     // body في أسفل السبرايت
-    const bw = this.current.width;
-    const bh = this.current.height;
-    this.current.body.setSize(60, 80);
-    this.current.body.setOffset(bw * 0.15, bh * 0.5);
+    const texW = this.current.width;
+    const texH = this.current.height;
+    this.current.body.setSize(texW * 0.6, texH * 0.5);
+    this.current.body.setOffset(texW * 0.2, texH * 0.5);
     this.current.body.setCollideWorldBounds(true);
     this.current.body.setMaxVelocity(300, 600);
 
@@ -332,12 +332,7 @@ const Bosses = {
 
     this._hideBossUI();
 
-    // ═══ الانتقال ═══
-    scene.time.delayedCall(2500, () => {
-      if(typeof Game !== 'undefined' && Game.nextWorld){
-        Game.nextWorld();
-      }
-    });
+    // ═══ ما فيه انتقال تلقائي — اللاعب يكمل بنفسه ═══
   },
 
   // ═══ واجهة البوس ═══
