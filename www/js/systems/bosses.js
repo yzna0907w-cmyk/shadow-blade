@@ -16,17 +16,62 @@ const Bosses = {
   // ═══ التهيئة ═══
   init(scene){
     this.scene = scene;
+    this.createAnimations(scene);
     console.log('✅ Bosses system initialized');
+  },
+
+  createAnimations(scene){
+    const A = scene.anims;
+
+    // ═══ Robot ═══
+    if(!A.exists('robot-idle')){
+      A.create({
+        key: 'robot-idle',
+        frames: [0,1,2,3].map(j => ({ key: 'robot-idle-' + j })),
+        frameRate: 6, repeat: -1
+      });
+    }
+    if(!A.exists('robot-run')){
+      A.create({
+        key: 'robot-run',
+        frames: [0,1,2,3,4,5].map(j => ({ key: 'robot-run-' + j })),
+        frameRate: 10, repeat: -1
+      });
+    }
+    if(!A.exists('robot-attack')){
+      A.create({
+        key: 'robot-attack',
+        frames: [0,1,2,3,4,5].map(j => ({ key: 'robot-attack-' + j })),
+        frameRate: 12, repeat: 0
+      });
+    }
+    if(!A.exists('robot-hurt')){
+      A.create({
+        key: 'robot-hurt',
+        frames: [0,1].map(j => ({ key: 'robot-hurt-' + j })),
+        frameRate: 10, repeat: 0
+      });
+    }
+    if(!A.exists('robot-death')){
+      A.create({
+        key: 'robot-death',
+        frames: [0,1,2,3,4,5].map(j => ({ key: 'robot-death-' + j })),
+        frameRate: 10, repeat: 0
+      });
+    }
+
+    console.log('✅ Boss animations created');
   },
 
   // ═══ Preload ═══
   preload(scene){
-    // ═══ Robot ═══
-    scene.load.image('robot-idle', 'assets/bosses/robot-idle.png');
-    scene.load.image('robot-attack', 'assets/bosses/robot-attack.png');
-    scene.load.image('robot-hurt', 'assets/bosses/robot-hurt.png');
-    scene.load.image('robot-death', 'assets/bosses/robot-death.png');
-    scene.load.image('robot-run', 'assets/bosses/robot-run.png');
+    // ═══ Robot — 36 فريم ═══
+    const ROBOT = 'assets/bosses/robot-';
+    for(let i = 0; i < 4; i++) scene.load.image('robot-idle-' + i, ROBOT + 'idle-' + i + '.png');
+    for(let i = 0; i < 6; i++) scene.load.image('robot-run-' + i, ROBOT + 'run-' + i + '.png');
+    for(let i = 0; i < 6; i++) scene.load.image('robot-attack-' + i, ROBOT + 'attack-' + i + '.png');
+    for(let i = 0; i < 2; i++) scene.load.image('robot-hurt-' + i, ROBOT + 'hurt-' + i + '.png');
+    for(let i = 0; i < 6; i++) scene.load.image('robot-death-' + i, ROBOT + 'death-' + i + '.png');
 
     // ═══ Tank ═══
     scene.load.image('tank-idle', 'assets/bosses/tank-idle.png');
@@ -63,11 +108,20 @@ const Bosses = {
     const bx = Player.sprite ? Player.sprite.x + 350 : 800;
     const by = 100;  // spawn فوق الأرض بقليل
 
-    const spriteKey = 'boss-' + bossKey;
-    const actualKey = scene.textures.exists(spriteKey) ? spriteKey : bossKey + '-idle';
+    // ═══ نبحث عن الفريم الأول ═══
+    const singleKey = 'boss-' + bossKey;
+    const firstFrameKey = bossKey + '-idle-0';
+    const legacyKey = bossKey + '-idle';
 
-    if(!scene.textures.exists(actualKey)){
-      console.warn('⚠️ Boss texture missing: ' + actualKey);
+    let actualKey;
+    if(scene.textures.exists(firstFrameKey)){
+      actualKey = firstFrameKey;   // ← جديد: 36 فريم
+    } else if(scene.textures.exists(singleKey)){
+      actualKey = singleKey;
+    } else if(scene.textures.exists(legacyKey)){
+      actualKey = legacyKey;
+    } else {
+      console.warn('⚠️ Boss texture missing for: ' + bossKey);
       return null;
     }
 
@@ -248,13 +302,24 @@ const Bosses = {
   // ═══ أنيميشن ═══
   _playAnim(stateName){
     const b = this.current;
-    if(!b.active) return;
+    if(!b || !b.active) return;
     if(b._currentAnim === stateName) return;
     b._currentAnim = stateName;
 
-    const key = b.bossKey + '-' + stateName;
-    if(this.scene.textures.exists(key)){
-      try { b.setTexture(key); } catch(err) {}
+    const animKey = b.bossKey + '-' + stateName;
+    const textureKey = b.bossKey + '-' + stateName;
+
+    // أولاً: نحاول نشغّل أنيميشن
+    if(this.scene.anims && this.scene.anims.exists(animKey)){
+      try {
+        b.play(animKey, true);
+        return;
+      } catch(e) {}
+    }
+
+    // ثانياً: صورة واحدة (legacy)
+    if(this.scene.textures.exists(textureKey)){
+      try { b.setTexture(textureKey); } catch(e) {}
     }
   },
 

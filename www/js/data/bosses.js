@@ -19,7 +19,7 @@ const BOSS_DATA = {
     hp: 400,
     damage: 15,
     speed: 50,
-    scale: 1.8,
+    scale: 1.3,
 
     // ═══ المكافآت ═══
     xp: 100,
