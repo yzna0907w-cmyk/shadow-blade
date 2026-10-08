@@ -60,8 +60,8 @@ const Bosses = {
       return null;
     }
 
-    const bx = Player.sprite ? Player.sprite.x + 250 : 800;
-    const by = 350;  // spawn فوق الأرض (gravity تسحبه)
+    const bx = Player.sprite ? Player.sprite.x + 350 : 800;
+    const by = 400;  // spawn فوق الأرض بقليل
 
     const spriteKey = 'boss-' + bossKey;
     const actualKey = scene.textures.exists(spriteKey) ? spriteKey : bossKey + '-idle';
@@ -74,7 +74,12 @@ const Bosses = {
     this.current = scene.physics.add.sprite(bx, by, actualKey);
     this.current.setDepth(30);
     this.current.setScale(data.scale);
-    this.current.body.setSize(60, 80).setOffset(20, 20);
+    this.current.setOrigin(0.5, 1);
+    // body في أسفل السبرايت
+    const bw = this.current.width;
+    const bh = this.current.height;
+    this.current.body.setSize(bw * 0.7, bh * 0.5);
+    this.current.body.setOffset(bw * 0.15, bh * 0.5);
     this.current.body.setCollideWorldBounds(true);
     this.current.body.setMaxVelocity(300, 600);
 

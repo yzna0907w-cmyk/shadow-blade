@@ -45,9 +45,10 @@ const Puzzles = {
     spike.damage = damage;
     spike.isSpike = true;
 
-    // جسم فيزيائي
+    // جسم فيزيائي — أصغر من المرئي (تصادم دقيق)
     scene.physics.add.existing(spike, true);
-    spike.body.setSize(width, height);
+    spike.body.setSize(width * 0.4, height * 0.5);
+    spike.body.setOffset(width * 0.3, height * 0.5);
 
     spike.checkTimer = scene.time.addEvent({
       delay: 100,
