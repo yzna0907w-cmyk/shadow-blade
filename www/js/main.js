@@ -566,7 +566,8 @@ function update(time, delta){
       " R:" + (Input.keys.right ? "1" : "0") +
       " J:" + (Input.keys.jump ? "1" : "0") +
       " vx:" + Math.round(Player.sprite ? Player.sprite.body.velocity.x : 0) +
-      " atk:" + (Player.attack && Player.attack.isAttacking ? "1" : "0")
+      " atk:" + (Player.attack && Player.attack.isAttacking ? "1" : "0") +
+      " size:" + (Player._debugSize ? Player._debugSize() : "")
     );
   }
   

@@ -144,6 +144,8 @@ const Player = {
 
     this.sprite.setDepth(100);
     this.sprite.setScale(CFG.PLAYER.SCALE);
+    // تثبيت العرض والطول (لتجنب تغير الحجم مع الأنيميشن)
+    this.sprite.setSize(128, 118);
     this.sprite.body.setSize(CFG.PLAYER.BODY_SIZE.w, CFG.PLAYER.BODY_SIZE.h);
     this.sprite.body.setOffset(CFG.PLAYER.BODY_OFFSET.x, CFG.PLAYER.BODY_OFFSET.y);
     this.sprite.body.setMaxVelocity(400, CFG.PLAYER.MAX_FALL_SPEED);
@@ -790,6 +792,11 @@ Player._playAnim = function(stateName, force = false){
 };
 
 // ═══ الإحصائيات ═══
+Player._debugSize = function(){
+  if(!this.sprite) return "";
+  return "w:" + Math.round(this.sprite.displayWidth) + " h:" + Math.round(this.sprite.displayHeight);
+};
+
 Player._updateRuntime = function(delta){
   if(!this.physics.onGround){
     this.runtime.timeInAir += delta;
