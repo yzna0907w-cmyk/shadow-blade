@@ -323,15 +323,16 @@ Player._handleInput = function(time, delta){
   // الحركة الأفقية
   if(!this.attack.isAttacking && !this.dash.isDashing){
     if(dir !== 0){
-      const speed = CFG.PLAYER.RUN_SPEED;
+      const speed = CFG.PLAYER.WALK_SPEED;
       this.sprite.body.setVelocityX(dir * speed);
       this.facing = dir;
       this.sprite.setFlipX(dir < 0);
     } else {
-      const friction = this.physics.onGround ? 0.7 : 0.95;
-      this.sprite.body.setVelocityX(this.physics.velocityX * friction);
-      if(Math.abs(this.sprite.body.velocity.x) < 10){
+      // توقف فوري على الأرض، تباطؤ بسيط في الهواء
+      if(this.physics.onGround){
         this.sprite.body.setVelocityX(0);
+      } else {
+        this.sprite.body.setVelocityX(this.physics.velocityX * 0.9);
       }
     }
   }
@@ -355,12 +356,12 @@ Player._handleInput = function(time, delta){
     }
   }
 
-  // Variable Jump
-  if(!Input.isJumpDown() && this.sprite.body.velocity.y < 0){
-    if(this.physics.jumpReleased === false){
-      this.sprite.body.setVelocityY(this.sprite.body.velocity.y * 0.5);
-      this.physics.jumpReleased = true;
+  // Variable Jump (قطع أقل حدة)
+  if(!Input.isJumpDown() && this.physics.jumpReleased === false){
+    if(this.sprite.body.velocity.y < -50){
+      this.sprite.body.setVelocityY(this.sprite.body.velocity.y * 0.7);
     }
+    this.physics.jumpReleased = true;
   }
 
   // الهجوم
@@ -446,7 +447,7 @@ Player._doAttack = function(){
   const weaponData = CFG.WEAPONS[weapon];
 
   this.attack.isAttacking = true;
-  this.attack.attackTimer = 500;
+  this.attack.attackTimer = 250;
   this.attack.cooldown = weaponData.cooldown;
   this.attack.lastAttackTime = this.scene.time.now;
   this.attack.hitEnemiesThisSwing = [];

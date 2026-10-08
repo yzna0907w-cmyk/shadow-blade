@@ -559,6 +559,17 @@ function update(time, delta){
     }
   }
 
+  // ═══ DEBUG Update ═══
+  if(scene._debugText && typeof Input !== "undefined"){
+    scene._debugText.setText(
+      "L:" + (Input.keys.left ? "1" : "0") +
+      " R:" + (Input.keys.right ? "1" : "0") +
+      " J:" + (Input.keys.jump ? "1" : "0") +
+      " vx:" + Math.round(Player.sprite ? Player.sprite.body.velocity.x : 0) +
+      " atk:" + (Player.attack && Player.attack.isAttacking ? "1" : "0")
+    );
+  }
+  
   // ═══ فحص البوس ═══
   checkBossTrigger();
 }

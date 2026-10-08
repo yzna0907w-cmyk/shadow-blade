@@ -6,29 +6,23 @@
 
 const CFG = {
 
-  // ═══════════════════════════════════════════════
-  // 1. إعدادات الشاشة والعرض
-  // ═══════════════════════════════════════════════
-  GW: 480,           // عرض الشاشة (منطقي)
-  GH: 270,           // ارتفاع الشاشة (منطقي)
+  // ═══ 1. الشاشة ═══
+  GW: 480,
+  GH: 270,
   SCALE_MODE: 'FIT',
   BG_COLOR: '#050208',
 
-  // ═══════════════════════════════════════════════
-  // 2. الفيزياء الأساسية
-  // ═══════════════════════════════════════════════
-  GRAVITY: 1300,
-  MAX_FALL_SPEED: 600,
+  // ═══ 2. الفيزياء ═══
+  GRAVITY: 950,
+  MAX_FALL_SPEED: 550,
 
-  // ═══════════════════════════════════════════════
-  // 3. البطل — الحركة
-  // ═══════════════════════════════════════════════
+  // ═══ 3. البطل ═══
   PLAYER: {
-    WALK_SPEED: 140,
-    RUN_SPEED: 200,
-    JUMP_VELOCITY: -480,
-    DOUBLE_JUMP_VELOCITY: -440,
-    DASH_SPEED: 400,
+    WALK_SPEED: 110,
+    RUN_SPEED: 150,
+    JUMP_VELOCITY: -360,
+    DOUBLE_JUMP_VELOCITY: -320,
+    DASH_SPEED: 350,
     DASH_DURATION: 200,
     DASH_COOLDOWN: 600,
     COYOTE_TIME: 120,
@@ -40,17 +34,15 @@ const CFG = {
     BODY_OFFSET: { x: 44, y: 53 }
   },
 
-  // ═══════════════════════════════════════════════
-  // 4. الأسلحة (3 أنواع)
-  // ═══════════════════════════════════════════════
+  // ═══ 4. الأسلحة ═══
   WEAPONS: {
     sword: {
       nameAr: 'السيف',
       icon: '🗡️',
       damage: 25,
       range: 50,
-      cooldown: 300,
-      animFps: 14,
+      cooldown: 350,
+      animFps: 12,
       desc: 'سريع، متوازن'
     },
     axe: {
@@ -58,8 +50,8 @@ const CFG = {
       icon: '🪓',
       damage: 50,
       range: 40,
-      cooldown: 600,
-      animFps: 10,
+      cooldown: 700,
+      animFps: 9,
       desc: 'قوي، بطيء'
     },
     spear: {
@@ -67,17 +59,15 @@ const CFG = {
       icon: '⚔️',
       damage: 35,
       range: 80,
-      cooldown: 500,
-      animFps: 12,
+      cooldown: 550,
+      animFps: 11,
       desc: 'بعيد، ثقب'
     }
   },
   WEAPON_ORDER: ['sword', 'axe', 'spear'],
   DEFAULT_WEAPON: 'sword',
 
-  // ═══════════════════════════════════════════════
-  // 5. القدرات (تفتح بالتدريج)
-  // ═══════════════════════════════════════════════
+  // ═══ 5. القدرات ═══
   ABILITIES: {
     doubleJump: {
       nameAr: 'القفز المزدوج',
@@ -116,27 +106,21 @@ const CFG = {
     }
   },
 
-  // ═══════════════════════════════════════════════
-  // 6. العملات
-  // ═══════════════════════════════════════════════
+  // ═══ 6. العملات ═══
   CURRENCIES: {
     shards: { nameAr: 'شظايا', icon: '🪙', color: '#fbbf24' },
-    atoms: { nameAr: 'ذرات', icon: '💎', color: '#a855f7' },
-    souls: { nameAr: 'أرواح', icon: '👻', color: '#22d3ee' }
+    atoms:  { nameAr: 'ذرات',  icon: '💎', color: '#a855f7' },
+    souls:  { nameAr: 'أرواح', icon: '👻', color: '#22d3ee' }
   },
 
-  // ═══════════════════════════════════════════════
-  // 7. الأعداء (الأساسيات)
-  // ═══════════════════════════════════════════════
+  // ═══ 7. الأعداء ═══
   ENEMY_BASE: {
-    ACTIVATION_RANGE: 600,   // مدى تفعيل العدو
-    DEACTIVATION_RANGE: 1000, // مدى إيقاف العدو
-    DROP_RATE_ATOMS: 0.05     // 5% فرصة ذرة
+    ACTIVATION_RANGE: 600,
+    DEACTIVATION_RANGE: 1000,
+    DROP_RATE_ATOMS: 0.05
   },
 
-  // ═══════════════════════════════════════════════
-  // 8. XP والمستويات
-  // ═══════════════════════════════════════════════
+  // ═══ 8. XP ═══
   XP: {
     BASE_REQUIREMENT: 100,
     GROWTH_PER_LEVEL: 1.25,
@@ -144,16 +128,12 @@ const CFG = {
     DAMAGE_PER_LEVEL: 2
   },
 
-  // ═══════════════════════════════════════════════
-  // 9. الحفظ
-  // ═══════════════════════════════════════════════
+  // ═══ 9. الحفظ ═══
   SAVE_KEY: 'ember_save_v3',
   SAVE_VERSION: 3,
-  AUTO_SAVE_INTERVAL: 30000, // كل 30 ثانية
+  AUTO_SAVE_INTERVAL: 30000,
 
-  // ═══════════════════════════════════════════════
-  // 10. الأصوات
-  // ═══════════════════════════════════════════════
+  // ═══ 10. الأصوات ═══
   AUDIO: {
     MASTER_VOLUME: 0.5,
     SFX_VOLUME: 0.6,
@@ -161,9 +141,7 @@ const CFG = {
     MUTE: false
   },
 
-  // ═══════════════════════════════════════════════
-  // 11. التصحيح (للتطوير فقط)
-  // ═══════════════════════════════════════════════
+  // ═══ 11. التصحيح ═══
   DEBUG: {
     ENABLED: false,
     SHOW_HITBOXES: false,
@@ -174,72 +152,92 @@ const CFG = {
 };
 
 // ═══════════════════════════════════════════════════
-// الأقسام الخمسة (العالم الواحد)
+// الأقسام الخمسة
 // ═══════════════════════════════════════════════════
 const WORLD_SECTIONS = [
   {
-    id: "crypt", nameAr: "المقبرة", index: 0,
-    bgTint: 0x6a5a8a, tintTiles: 0x8a7aaa,
-    bossKey: "robot", bossNameAr: "حارس الأرواح",
-    enemyTypes: ["monster-1", "monster-2"],
+    id: 'crypt',
+    nameAr: 'المقبرة',
+    index: 0,
+    bgTint: 0x6a5a8a,
+    tintTiles: 0x8a7aaa,
+    bossKey: 'robot',
+    bossNameAr: 'حارس الأرواح',
+    enemyTypes: ['monster-1', 'monster-2'],
     eliteTypes: [],
     enemyCount: 6,
-    npc: "blacksmith",
+    npc: 'blacksmith',
     abilityReward: null
   },
   {
-    id: "swamp", nameAr: "المستنقع السام", index: 1,
-    bgTint: 0x4a7a4a, tintTiles: 0x6aaa6a,
-    bossKey: "centipede", bossNameAr: "أم أربعة وأربعين",
-    enemyTypes: ["monster-3", "monster-4"],
+    id: 'swamp',
+    nameAr: 'المستنقع السام',
+    index: 1,
+    bgTint: 0x4a7a4a,
+    tintTiles: 0x6aaa6a,
+    bossKey: 'centipede',
+    bossNameAr: 'أم أربعة وأربعين',
+    enemyTypes: ['monster-3', 'monster-4'],
     eliteTypes: [],
     enemyCount: 8,
-    npc: "wizard",
-    abilityReward: "doubleJump"
+    npc: 'wizard',
+    abilityReward: 'doubleJump'
   },
   {
-    id: "caves", nameAr: "كهوف الكريستال", index: 2,
-    bgTint: 0x4a5a9a, tintTiles: 0x6a8acc,
-    bossKey: "turtle", bossNameAr: "السلحفاة القتالية",
-    enemyTypes: ["monster-5", "monster-6"],
-    eliteTypes: ["werewolf-white"],
+    id: 'caves',
+    nameAr: 'كهوف الكريستال',
+    index: 2,
+    bgTint: 0x4a5a9a,
+    tintTiles: 0x6a8acc,
+    bossKey: 'turtle',
+    bossNameAr: 'السلحفاة القتالية',
+    enemyTypes: ['monster-5', 'monster-6'],
+    eliteTypes: ['werewolf-white'],
     enemyCount: 10,
-    npc: "herbalist",
-    abilityReward: "dash"
+    npc: 'herbalist',
+    abilityReward: 'dash'
   },
   {
-    id: "forest", nameAr: "الغابة الميتة", index: 3,
-    bgTint: 0x3a6a3a, tintTiles: 0x5a9a5a,
-    bossKey: "boar", bossNameAr: "الخنزير البري",
-    enemyTypes: ["monster-7", "monster-8"],
-    eliteTypes: ["werewolf-black"],
+    id: 'forest',
+    nameAr: 'الغابة الميتة',
+    index: 3,
+    bgTint: 0x3a6a3a,
+    tintTiles: 0x5a9a5a,
+    bossKey: 'boar',
+    bossNameAr: 'الخنزير البري',
+    enemyTypes: ['monster-7', 'monster-8'],
+    eliteTypes: ['werewolf-black'],
     enemyCount: 12,
-    npc: "relic_trader",
-    abilityReward: "wallJump"
+    npc: 'relic_trader',
+    abilityReward: 'wallJump'
   },
   {
-    id: "factory", nameAr: "المصنع المحروق", index: 4,
-    bgTint: 0x8a4a2a, tintTiles: 0xc06a3a,
-    bossKey: "tank", bossNameAr: "دبابة الحرب",
-    enemyTypes: ["monster-9", "monster-10"],
-    eliteTypes: ["werewolf-red"],
+    id: 'factory',
+    nameAr: 'المصنع المحروق',
+    index: 4,
+    bgTint: 0x8a4a2a,
+    tintTiles: 0xc06a3a,
+    bossKey: 'tank',
+    bossNameAr: 'دبابة الحرب',
+    enemyTypes: ['monster-9', 'monster-10'],
+    eliteTypes: ['werewolf-red'],
     enemyCount: 14,
-    npc: "secret_seller",
-    abilityReward: "chargedAttack"
+    npc: 'secret_seller',
+    abilityReward: 'chargedAttack'
   }
-];;
+];
 
 // ═══════════════════════════════════════════════════
-// الإطارات الزمنية
+// الإطارات الزمنية للأنيميشن
 // ═══════════════════════════════════════════════════
 const ANIM_FPS = {
   idle: 6,
-  walk: 12,
-  run: 16,
+  walk: 10,
+  run: 14,
   jump: 10,
   fall: 10,
-  attack: 14,
-  hurt: 12,
+  attack: 12,
+  hurt: 10,
   die: 8
 };
 
