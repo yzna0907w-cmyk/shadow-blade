@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"></head>
+<body style="margin:0;background:#000">
+<div id="game"></div>
+<script src="lib/phaser.min.js"></script>
+<script>
+const config = {
+  type: Phaser.WEBGL,
+  width: 480,
+  height: 270,
+  parent: 'game',
+  backgroundColor: '#0a0a2a',
+  scene: {
+    create: function() {
+      this.add.text(10, 10, 'Phaser Empty', {fontFamily: 'monospace', fontSize: '14px', color: '#0f0'});
+      this.add.rectangle(240, 135, 100, 100, 0xff0000);
+      this.fpsText = this.add.text(10, 30, 'FPS:', {fontFamily: 'monospace', fontSize: '20px', color: '#0f0'});
+    },
+    update: function() {
+      this.fpsText.setText('FPS: ' + Math.round(this.game.loop.actualFps));
+    }
+  }
+};
+new Phaser.Game(config);
+</script>
+</body></html>

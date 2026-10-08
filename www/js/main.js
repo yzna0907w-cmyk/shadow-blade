@@ -41,7 +41,7 @@ const Game = {
       pixelArt: true,
       roundPixels: false,
       antialias: false,
-      resolution: 1,
+      resolution: 0.25,
       powerPreference: 'high-performance',
       physics: {
         default: 'arcade',
@@ -50,11 +50,17 @@ const Game = {
           debug: false
         }
       },
+      fps: {
+        target: 60,
+        forceSetTimeOut: true,
+        smoothStep: false
+      },
       scale: {
-        mode: Phaser.Scale.FIT,
-        autoCenter: Phaser.Scale.CENTER_BOTH,
+        mode: Phaser.Scale.NONE,
+        autoCenter: Phaser.Scale.NO_CENTER,
         width: CFG.GW,
-        height: CFG.GH
+        height: CFG.GH,
+        zoom: 1
       },
       scene: {
         preload: preload,
@@ -503,6 +509,20 @@ function update(time, delta){
   if(!scene) return;
   if(Game.paused) return;
 
+  // ═══ PERF TEST ═══
+  if(window.PERF_MODE){
+    // نشغل بس FPS counter
+    if(!scene._fpsText){
+      scene._fpsText = scene.add.text(10, 10, '', {
+        fontFamily: 'monospace', fontSize: '12px',
+        color: '#00ff00', backgroundColor: '#000'
+      }).setScrollFactor(0).setDepth(9999);
+    }
+    const _rt = scene.game.renderer.type === 2 ? 'WEBGL' : (scene.game.renderer.type === 1 ? 'CANVAS' : 'UNK');
+  scene._fpsText.setText('FPS:' + Math.round(scene.game.loop.actualFps) + ' ' + _rt);
+    return;
+  }
+
   // ═══ المدخلات ═══
   if(typeof Input !== 'undefined'){
     Input.update();
@@ -550,15 +570,10 @@ function update(time, delta){
   }
 
   // ═══ الحوار ═══
-  if(typeof Dialogue !== 'undefined'){
-    Dialogue.handleInput();
-    Dialogue.checkNearbyNPCs();
-  }
+  if(typeof Dialogue !== 'undefined'){ Dialogue.handleInput(); Dialogue.checkNearbyNPCs(); }
 
   // ═══ HUD ═══
-  if(typeof HUD !== 'undefined'){
-    HUD.update();
-  }
+  if(typeof HUD !== 'undefined'){ HUD.update(); }
 
   // ═══ العملات ═══
   if(scene.coins && Player.sprite && Player.sprite.active){
@@ -616,7 +631,8 @@ function update(time, delta){
       color: '#00ff00', backgroundColor: '#000'
     }).setScrollFactor(0).setDepth(9999);
   }
-  scene._fpsText.setText('FPS: ' + Math.round(scene.game.loop.actualFps));
+  const _rt = scene.game.renderer.type === 2 ? 'WEBGL' : (scene.game.renderer.type === 1 ? 'CANVAS' : 'UNK');
+  scene._fpsText.setText('FPS:' + Math.round(scene.game.loop.actualFps) + ' ' + _rt);
 }
 
 // ═══════════════════════════════════════════════════
