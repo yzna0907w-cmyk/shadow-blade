@@ -33,14 +33,16 @@ const Game = {
 
   _launchGame(){
     const config = {
-      type: Phaser.AUTO,
+      type: Phaser.WEBGL,
       width: CFG.GW,
       height: CFG.GH,
       parent: 'game-wrap',
       backgroundColor: CFG.BG_COLOR,
       pixelArt: true,
-      roundPixels: true,
+      roundPixels: false,
       antialias: false,
+      resolution: 1,
+      powerPreference: 'high-performance',
       physics: {
         default: 'arcade',
         arcade: {
