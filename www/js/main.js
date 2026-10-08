@@ -367,7 +367,12 @@ function create(){
   // 6. تحميل القسم الحالي
   // ═══════════════════════════════════════════════
   const currentSection = State.data.progress.currentSection || 0;
-  const firstRoom = Rooms.getFirstRoom(currentSection);
+  let firstRoom;
+  if(currentSection === 0 && typeof ROOMS["mega-crypt"] !== "undefined"){
+    firstRoom = ROOMS["mega-crypt"];
+  } else {
+    firstRoom = Rooms.getFirstRoom(currentSection);
+  }
 
   if(firstRoom && Levels){
     Levels.loadRoom(firstRoom.id);
