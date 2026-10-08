@@ -177,6 +177,8 @@ const Levels = {
     // إنشاء المجموعة
     if(!this.platformsGroup){
       this.platformsGroup = this.scene.physics.add.staticGroup();
+      // ربط scene.platforms بنفس المجموعة (للبوسات والأعداء)
+      this.scene.platforms = this.platformsGroup;
     }
 
     room.platforms.forEach(plat => {
