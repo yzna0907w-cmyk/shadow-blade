@@ -596,6 +596,15 @@ function update(time, delta){
   
   // ═══ فحص البوس ═══
   checkBossTrigger();
+
+  // ═══ FPS Counter (debug) ═══
+  if(!scene._fpsText){
+    scene._fpsText = scene.add.text(10, 10, '', {
+      fontFamily: 'monospace', fontSize: '12px',
+      color: '#00ff00', backgroundColor: '#000'
+    }).setScrollFactor(0).setDepth(9999);
+  }
+  scene._fpsText.setText('FPS: ' + Math.round(scene.game.loop.actualFps));
 }
 
 // ═══════════════════════════════════════════════════

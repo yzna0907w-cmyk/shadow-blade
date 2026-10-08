@@ -124,21 +124,31 @@ const Levels = {
 
     // ═══ MEGA-ROOM: خلفيات متعددة الطبقات ═══
     if(room.isMegaRoom){
+      // ═══ نقسم الخلفية لقطع 960px ═══
+      const CHUNK = 960;
+      const chunks = Math.ceil(room.width / CHUNK);
+
       const farKey = 'bg-' + ws.id + '-far';
-      if(this.scene.textures.exists(farKey)){
-        const far = this.scene.add.tileSprite(0, 0, room.width, room.height, farKey);
-        far.setOrigin(0, 0);
-        far.setScrollFactor(0.2);
-        far.setDepth(-100);
-        this.builtObjects.push(far);
-      }
       const midKey = 'bg-' + ws.id + '-mid';
-      if(this.scene.textures.exists(midKey)){
-        const mid = this.scene.add.tileSprite(0, 0, room.width, room.height, midKey);
-        mid.setOrigin(0, 0);
-        mid.setScrollFactor(0.5);
-        mid.setDepth(-50);
-        this.builtObjects.push(mid);
+
+      for(let i = 0; i < chunks; i++){
+        const x = i * CHUNK;
+        const w = Math.min(CHUNK, room.width - x);
+
+        if(this.scene.textures.exists(farKey)){
+          const far = this.scene.add.tileSprite(x, 0, w, room.height, farKey);
+          far.setOrigin(0, 0);
+          far.setScrollFactor(0.2);
+          far.setDepth(-100);
+          this.builtObjects.push(far);
+        }
+        if(this.scene.textures.exists(midKey)){
+          const mid = this.scene.add.tileSprite(x, 0, w, room.height, midKey);
+          mid.setOrigin(0, 0);
+          mid.setScrollFactor(0.5);
+          mid.setDepth(-50);
+          this.builtObjects.push(mid);
+        }
       }
       return;
     }
