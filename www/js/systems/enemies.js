@@ -127,14 +127,11 @@ const Enemies = {
     e.setDepth(data.depth || 20);
     e.setFlipX(Math.random() < 0.5);
 
-    // ═══ إصلاح: القدمين على الأرض ═══
-    e.setOrigin(0.5, 1);
-
-    // body في أسفل السبرايت (القدمين)
+    // body في وسط السبرايت (حجم مناسب)
     const texW = e.width;
     const texH = e.height;
-    e.body.setSize(texW * 0.5, texH * 0.3);
-    e.body.setOffset(texW * 0.25, texH * 0.7);
+    e.body.setSize(texW * 0.5, texH * 0.6);
+    e.body.setOffset(texW * 0.25, texH * 0.3);
 
     e.body.setCollideWorldBounds(false);
     e.body.setMaxVelocity(300, 600);

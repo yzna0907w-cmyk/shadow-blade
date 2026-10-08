@@ -61,7 +61,7 @@ const Bosses = {
     }
 
     const bx = Player.sprite ? Player.sprite.x + 350 : 800;
-    const by = 400;  // spawn فوق الأرض بقليل
+    const by = 100;  // spawn فوق الأرض بقليل
 
     const spriteKey = 'boss-' + bossKey;
     const actualKey = scene.textures.exists(spriteKey) ? spriteKey : bossKey + '-idle';
