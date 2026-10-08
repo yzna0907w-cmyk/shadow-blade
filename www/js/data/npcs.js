@@ -19,9 +19,9 @@ const NPC_DATA = {
 
     // الشكل (Werewolf أسود + تلوين برتقالي)
     sprite: {
-      sheet: 'werewolf-black',
+      sheet: 'werewolf-white',
       tint: 0xff8040,
-      scale: 0.3,
+      scale: 0.35,
       anim: 'idle'
     },
 
