@@ -182,18 +182,24 @@ const Levels = {
     room.platforms.forEach(plat => {
       let vis = null;
 
-      // للـmega-rooms: نستخدم بلاط Crystal Caves
+      // للـmega-rooms: مستطيلات ملونة واضحة
       if(room.isMegaRoom){
-        let tile = 'crypt-ground-01';
-        // لو الأرضية عريضة، نستخدم tile مختلف
-        if(plat.w >= 400) tile = 'crypt-ground-add-07';
-        else if(plat.w >= 200) tile = 'crypt-ground-add-03';
+        // 🟫 الأرضية (أزرق داكن)
+        vis = this.scene.add.rectangle(plat.x, plat.y, plat.w, plat.h, 0x1a2540);
+        vis.setDepth(-5);
+        this.builtObjects.push(vis);
 
-        if(this.scene.textures.exists(tile)){
-          vis = this.scene.add.tileSprite(plat.x, plat.y, plat.w, plat.h, tile);
-          vis.setOrigin(0.5, 0.5);
-          vis.setDepth(-5);
-        }
+        // ⬆️ حافة علوية (أزرق فاتح) — تعطي شكل 3D
+        const edge = this.scene.add.rectangle(plat.x, plat.y - plat.h/2 + 4, plat.w, 8, 0x4a6aaa);
+        edge.setDepth(-4);
+        this.builtObjects.push(edge);
+
+        // جسم فيزيائي
+        const body = this.platformsGroup.create(plat.x, plat.y, 'platform');
+        body.setDisplaySize(plat.w, plat.h);
+        body.setVisible(false);
+        body.refreshBody();
+        return;
       }
 
       // الافتراضي
