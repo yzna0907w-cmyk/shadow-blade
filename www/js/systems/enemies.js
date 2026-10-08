@@ -30,22 +30,22 @@ const Enemies = {
       const base = 'assets/enemies/monster-' + i + '/';
       const prefix = 'monster-' + i + '-';
 
-      for(let j = 0; j < 4; j++){
+      for(let j = 0; j < 6; j++){
         scene.load.image(prefix + 'idle-' + j, base + 'idle-' + j + '.png');
       }
-      for(let j = 0; j < 4; j++){
+      for(let j = 0; j < 6; j++){
         scene.load.image(prefix + 'walk-' + j, base + 'walk-' + j + '.png');
       }
-      for(let j = 0; j < 4; j++){
+      for(let j = 0; j < 6; j++){
         scene.load.image(prefix + 'run-' + j, base + 'run-' + j + '.png');
       }
-      for(let j = 0; j < 4; j++){
+      for(let j = 0; j < 6; j++){
         scene.load.image(prefix + 'attack-' + j, base + 'attack-' + j + '.png');
       }
-      for(let j = 0; j < 2; j++){
+      for(let j = 0; j < 6; j++){
         scene.load.image(prefix + 'hurt-' + j, base + 'hurt-' + j + '.png');
       }
-      for(let j = 0; j < 4; j++){
+      for(let j = 0; j < 6; j++){
         scene.load.image(prefix + 'die-' + j, base + 'die-' + j + '.png');
       }
     }
@@ -74,32 +74,32 @@ const Enemies = {
 
       A.create({
         key: key + '-idle',
-        frames: [0,1,2,3].map(j => ({ key: prefix + 'idle-' + j })),
+        frames: [0,1,2,3,4,5].map(j => ({ key: prefix + 'idle-' + j })),
         frameRate: 6, repeat: -1
       });
       A.create({
         key: key + '-walk',
-        frames: [0,1,2,3].map(j => ({ key: prefix + 'walk-' + j })),
+        frames: [0,1,2,3,4,5].map(j => ({ key: prefix + 'walk-' + j })),
         frameRate: 8, repeat: -1
       });
       A.create({
         key: key + '-run',
-        frames: [0,1,2,3].map(j => ({ key: prefix + 'run-' + j })),
+        frames: [0,1,2,3,4,5].map(j => ({ key: prefix + 'run-' + j })),
         frameRate: 12, repeat: -1
       });
       A.create({
         key: key + '-attack',
-        frames: [0,1,2,3].map(j => ({ key: prefix + 'attack-' + j })),
+        frames: [0,1,2,3,4,5].map(j => ({ key: prefix + 'attack-' + j })),
         frameRate: 10, repeat: 0
       });
       A.create({
         key: key + '-hurt',
-        frames: [0,1].map(j => ({ key: prefix + 'hurt-' + j })),
+        frames: [0,1,2,3,4,5].map(j => ({ key: prefix + 'hurt-' + j })),
         frameRate: 8, repeat: 0
       });
       A.create({
         key: key + '-die',
-        frames: [0,1,2,3].map(j => ({ key: prefix + 'die-' + j })),
+        frames: [0,1,2,3,4,5].map(j => ({ key: prefix + 'die-' + j })),
         frameRate: 8, repeat: 0
       });
     }
