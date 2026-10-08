@@ -39,9 +39,15 @@ const Puzzles = {
     const width = options.width || 32;
     const height = options.height || 16;
 
-    const spike = scene.add.rectangle(x, y, width, height, 0xff3333, 0.8);
+    // ═══ شوكة بصورتها الحقيقية ═══
+    let spike;
+    if(scene.textures.exists('crypt-spike')){
+      spike = scene.add.image(x, y, 'crypt-spike');
+      spike.setDisplaySize(width, height);
+    } else {
+      spike = scene.add.rectangle(x, y, width, height, 0xff3333, 0.8);
+    }
     spike.setDepth(15);
-    spike.setStrokeStyle(2, 0xffffff);
     spike.damage = damage;
     spike.isSpike = true;
 
@@ -508,9 +514,16 @@ const Puzzles = {
     const keyId = options.keyId || 'key_gold';
     const rewards = options.rewards || { shards: 20, atoms: 2 };
 
-    const chest = scene.add.rectangle(x, y, 50, 40, 0x6a4a1a);
+    // ═══ صندوق بصورته الحقيقية ═══
+    let chest;
+    if(scene.textures.exists('chest-locked')){
+      chest = scene.add.image(x, y, 'chest-locked');
+      chest.setDisplaySize(50, 50);
+    } else {
+      chest = scene.add.rectangle(x, y, 50, 40, 0x6a4a1a);
+      chest.setStrokeStyle(3, 0xffd700);
+    }
     chest.setDepth(7);
-    chest.setStrokeStyle(3, 0xffd700);
     chest.isChest = true;
     chest.keyId = keyId;
     chest.opened = false;
@@ -550,7 +563,11 @@ const Puzzles = {
     // استخدام المفتاح
     State.inventory.removeItem(chest.keyId, 1);
     chest.opened = true;
-    chest.setFillStyle(0xffd700);
+    if(chest.setTexture && scene.textures.exists('chest-gold')){
+      chest.setTexture('chest-gold');
+    } else if(chest.setFillStyle){
+      chest.setFillStyle(0xffd700);
+    }
 
     // المكافآت
     if(chest.rewards.shards) State.currency.add('shards', chest.rewards.shards);

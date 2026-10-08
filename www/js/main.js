@@ -284,6 +284,9 @@ function loadAllAssets(scene){
     scene.load.image('crypt-ground-add-' + num, 'assets/worlds/01-crypt/platforms/ground-add-' + num + '.png');
   }
 
+  // الأشواك الحقيقية من Crystal Caves
+  scene.load.image('crypt-spike', 'assets/worlds/01-crypt/platforms/spike.png');
+
   // ═══ NPCs ═══
   scene.load.image('npc-farmer', 'assets/npcs/farmer/sheet.png');
 
