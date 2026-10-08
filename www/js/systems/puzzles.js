@@ -55,8 +55,13 @@ const Puzzles = {
       loop: true,
       callback: () => {
         const player = Player.sprite;
-        if(!player || !player.active) return;
-        if(Phaser.Geom.Intersects.RectangleToRectangle(player.getBounds(), spike.getBounds())){
+        if(!player || !player.active || !player.body) return;
+        const pb = player.body;
+        const sb = spike.body;
+        if(!sb || !sb.enable) return;
+        const pRect = new Phaser.Geom.Rectangle(pb.x, pb.y, pb.width, pb.height);
+        const sRect = new Phaser.Geom.Rectangle(sb.x, sb.y, sb.width, sb.height);
+        if(Phaser.Geom.Intersects.RectangleToRectangle(pRect, sRect)){
           Player.takeDamage(spike.damage, spike.x);
         }
       }
