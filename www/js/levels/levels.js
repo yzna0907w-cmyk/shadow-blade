@@ -121,6 +121,27 @@ const Levels = {
   // ═══════════════════════════════════════════════
   _buildBackground(room){
     const ws = WORLD_SECTIONS[room.section];
+
+    // ═══ MEGA-ROOM: خلفيات متعددة الطبقات ═══
+    if(room.isMegaRoom){
+      const farKey = 'bg-' + ws.id + '-far';
+      if(this.scene.textures.exists(farKey)){
+        const far = this.scene.add.tileSprite(0, 0, room.width, room.height, farKey);
+        far.setOrigin(0, 0);
+        far.setScrollFactor(0.2);
+        far.setDepth(-100);
+        this.builtObjects.push(far);
+      }
+      const midKey = 'bg-' + ws.id + '-mid';
+      if(this.scene.textures.exists(midKey)){
+        const mid = this.scene.add.tileSprite(0, 0, room.width, room.height, midKey);
+        mid.setOrigin(0, 0);
+        mid.setScrollFactor(0.5);
+        mid.setDepth(-50);
+        this.builtObjects.push(mid);
+      }
+      return;
+    }
     const bgKey = 'bg-' + ws.id;
 
     if(this.scene.textures.exists(bgKey)){
